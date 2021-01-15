@@ -1,0 +1,13 @@
+nav.sticky-menu {
+  position: fixed;
+  bottom: 0;
+  width:100%;
+  left: 0;
+  height: 60px;
+  background: $primary;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  display: none
+}
