@@ -54,25 +54,24 @@ header#main-header {
 }
 
 header#main-navbar {
-  width: 100%;
+  width: 99%;
+  position: relative;
 
   .inner-header {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
-    max-width: 95%;
+    max-width: 99%;
     margin: 0 auto;
     padding: 10px 15px;
     background: #ffffff;
     margin-top: 20px;
     border-radius: 5px;
-    background: #2f2f2f;
   }
 
   h1#title {
     color: #2f2f2f;
-    color: $white;
     text-transform: uppercase;
     font-size: 1.4rem;
     font-family: "Handlee", sans-serif;
@@ -80,7 +79,6 @@ header#main-navbar {
 
   a {
     color: #2f2f2f;
-    color: $white;
   }
 
   nav.main-nav {
