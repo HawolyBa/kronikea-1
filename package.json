@@ -19,7 +19,7 @@
     "@material-ui/icons": "^4.11.2",
     "@zeit/next-less": "^1.0.1",
     "@zeit/next-sass": "^1.0.1",
-    "antd": "^3.26.20",
+    "antd": "^4.10.3",
     "babel-preset-es2015": "^6.24.1",
     "less": "^3.13.1",
     "next": "^9.5.5",
