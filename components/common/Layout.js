@@ -1,8 +1,6 @@
 import Header from "./Header";
 import StickyMenu from "./StickyMenu";
 import Navbar from "./Navbar";
-import "antd/dist/antd.css";
-import "../../style/main.scss";
 
 const Layout = ({ children }) => {
   // Reference to side menu

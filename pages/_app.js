@@ -1,4 +1,6 @@
 import App from "next/app";
+import "../style/custom-antd.less";
+import "../style/main.scss";
 import Layout from "../components/common/Layout";
 
 const MyApp = ({ Component, pageProps }) => {
