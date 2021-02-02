@@ -2,9 +2,9 @@ import React from "react";
 
 const Card = () => {
   return (
-    <figure className="card">
+    <figure className="card" data-aos="zoom-in-up">
       <img
-        src="https://wovenmagazine.com/content/uploads/2019/09/03_CodyCobb_Wide.jpg"
+        src="https://images.pexels.com/photos/3881104/pexels-photo-3881104.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
         alt="image"
       />
       <figcaption>

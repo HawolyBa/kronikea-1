@@ -1,11 +1,18 @@
+import React, { useEffect } from "react";
 import App from "next/app";
 import Head from "next/head";
+import AOS from "aos";
 
 import "../style/custom-antd.less";
 import "../style/main.scss";
+import "aos/dist/aos.css";
+
 import Layout from "../components/common/Layout";
 
 const MyApp = ({ Component, pageProps }) => {
+  useEffect(() => {
+    AOS.init();
+  }, []);
   return (
     <>
       <Head>

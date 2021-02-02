@@ -28,23 +28,37 @@
       height: 100%;
       object-fit: cover;
       border-radius: 50%;
-      border: 8px solid white;
+      border: 8px solid $greyLight-1;
       box-shadow: $shadow;
     }
+  }
+
+  .profile-top {
+    width: 100%;
+    background: $greyLight-1;
+    border-radius: 200px 5px 5px 200px;
+    border: 8px solid $greyLight-1;
+    box-shadow: $shadow;
   }
 
   .profile-details {
     width: 100%;
     height: 214px;
-    background-color: white;
-    padding: 15px;
-    box-shadow: $shadow;
+    //background-color: $greyLight-1;
+    padding: 10px;
+    //box-shadow: $shadow;
 
     .inner {
       width: 100%;
       height: 100%;
       position: relative;
-      padding: 15px;
+      padding: 20px;
+
+      h2 {
+        letter-spacing: 2px;
+        color: #272727;
+        text-shadow: $shadow;
+      }
 
       .dotted-border {
         position: absolute;
@@ -55,29 +69,29 @@
       .dotted-border-top-left {
         top: 0;
         left: 0;
-        border-top: 1px dotted $platinum4;
-        border-left: 1px dotted $platinum4;
+        border-top: 1px dotted $primary;
+        border-left: 1px dotted $primary;
       }
 
       .dotted-border-bottom-left {
         bottom: 0;
         left: 0;
-        border-bottom: 1px dotted $platinum4;
-        border-left: 1px dotted $platinum4;
+        border-bottom: 1px dotted $primary;
+        border-left: 1px dotted $primary;
       }
 
       .dotted-border-top-right {
         top: 0;
         right: 0;
-        border-top: 1px dotted $platinum4;
-        border-right: 1px dotted $platinum4;
+        border-top: 1px dotted $primary;
+        border-right: 1px dotted $primary;
       }
 
       .dotted-border-bottom-right {
         bottom: 0;
         right: 0;
-        border-bottom: 1px dotted $platinum4;
-        border-right: 1px dotted $platinum4;
+        border-bottom: 1px dotted $primary;
+        border-right: 1px dotted $primary;
       }
 
       .counter {
@@ -88,11 +102,36 @@
 
       p.bio {
         margin-bottom: 20px;
+        padding-right: 50px;
       }
 
       .social {
         .icons {
           margin-left: 15px;
+        }
+      }
+    }
+  }
+
+  .profile-content {
+    margin-top: 50px;
+    width: 100%;
+
+    .profile-tabs {
+      width: 100%;
+      margin-bottom: 30px;
+
+      .tab {
+        background-color: $greyLight-1;
+        color: $primary;
+        padding: 15px;
+        border-radius: 1.2rem;
+        box-shadow: $shadow;
+        cursor: pointer;
+
+        &.active {
+          background-color: $primary;
+          color: white;
         }
       }
     }

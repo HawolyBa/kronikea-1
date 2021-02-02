@@ -4,7 +4,8 @@
   justify-content: space-between;
   &__account,
   &__home,
-  &__settings {
+  &__settings,
+  &.custom-icon {
     width: 2.2rem;
     height: 2.2rem;
     border-radius: 50%;
@@ -23,6 +24,16 @@
     }
     &:hover {
       color: $primary;
+    }
+
+    &.twitter-icon {
+      color: #00acee;
+    }
+    &.fb-icon {
+      color: #3b5998;
+    }
+    &.instagram-icon {
+      color: #c13584;
     }
   }
 }
