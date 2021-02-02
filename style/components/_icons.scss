@@ -1,0 +1,28 @@
+/*  ICONS  */
+.icon {
+  display: flex;
+  justify-content: space-between;
+  &__account,
+  &__home,
+  &__settings {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    box-shadow: $shadow;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: $greyDark;
+    transition: all 0.5s ease;
+
+    &:active {
+      box-shadow: $inner-shadow;
+      color: $primary;
+    }
+    &:hover {
+      color: $primary;
+    }
+  }
+}

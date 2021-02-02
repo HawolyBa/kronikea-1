@@ -65,7 +65,7 @@ header#main-navbar {
     max-width: 100%;
     margin: 0 auto;
     padding: 10px 15px;
-    background: #ffffff;
+    background: $greyLight-1;
     border-radius: 5px;
   }
 
@@ -88,17 +88,22 @@ header#main-navbar {
       li {
         margin-left: 15px;
         color: #2f2f2f;
-        font-weight: bold;
+        font-weight: 300;
         padding: 5px 15px;
         letter-spacing: 1.5px;
+        background-color: $greyLight-1;
+        border-radius: 1.2rem;
+        transition: all 0.5s ease;
+        box-shadow: $shadow;
 
-        &.active {
-          color: $primary;
-          border-top: 1px solid $primary;
-          border-bottom: 1px solid $primary;
+        &.active,
+        &:hover {
+          background-color: $primary;
+          // border-top: 1px solid $primary;
+          // border-bottom: 1px solid $primary;
 
           a {
-            color: $primary;
+            color: white;
           }
         }
       }
@@ -108,6 +113,21 @@ header#main-navbar {
   .header-icons {
     .icons {
       margin-left: 10px;
+    }
+  }
+
+  .menu-btn {
+    .bar {
+      height: 5px;
+      background-color: #272727;
+      width: 40px;
+      margin-bottom: 8px;
+      box-shadow: $shadow;
+      cursor: pointer;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
   }
 }
@@ -138,4 +158,57 @@ section.navbar-header {
   top: 0;
   left: 0;
   z-index: 999;
+}
+
+$text: $platinum;
+
+header.side-navbar {
+  width: 300px;
+  height: 100vh;
+  background: $platinum2;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 15px 35px;
+  font-family: "Roboto", sans-serif;
+
+  h1 {
+    color: $platinum5;
+    margin-bottom: 60px;
+    font-family: "Fraunces", serif;
+  }
+
+  h2 {
+    color: $white;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+  }
+
+  section {
+    color: $white;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  ul {
+    margin-left: 15px;
+
+    li {
+      display: flex;
+      align-items: center;
+      padding: 5px 10px;
+      font-weight: 300;
+
+      span {
+        font-size: 0.8rem;
+        margin-left: 15px;
+      }
+
+      &.active {
+        background-color: #034b61;
+        color: $platinum4;
+        border-radius: 25px;
+      }
+    }
+  }
 }

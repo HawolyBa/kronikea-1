@@ -10,7 +10,7 @@ const Card = () => {
       <figcaption>
         <span className="tag">Drama</span>
         <span className="author">Author: Hawoly Ba</span>
-        <h3>Eons of Earth</h3>
+        <h3>Lord of The Rings: The Two Tours</h3>
         <p>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam enim
           eligendi amet! Et reiciendis. Ipsam enim eligendi amet! Et reiciendis.

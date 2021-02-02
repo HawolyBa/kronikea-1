@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Handlee&family=Lato:ital,wght@0,100;0,300;0,400;1,300;1,700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;1,100&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@200;400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500&family=Roboto:wght@100;300;400;500&display=swap");
 
 @import "./general/vars";
 @import "./general/mixins";
@@ -10,5 +11,9 @@
 @import "./components/header";
 @import "./components/sideMenu";
 @import "./components/stickyMenu";
+@import "./components/profile";
+@import "./components/buttons";
+@import "./components/search";
+@import "./components/icons";
 
 @import "./components/story";
