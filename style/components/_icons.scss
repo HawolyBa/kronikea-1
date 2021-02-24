@@ -18,6 +18,19 @@
     color: $greyDark;
     transition: all 0.5s ease;
 
+    a {
+      color: $greyDark;
+      display: flex;
+
+      &:active {
+        box-shadow: $inner-shadow;
+        color: $primary;
+      }
+      &:hover {
+        color: $primary;
+      }
+    }
+
     &:active {
       box-shadow: $inner-shadow;
       color: $primary;
@@ -34,6 +47,15 @@
     }
     &.instagram-icon {
       color: #c13584;
+    }
+  }
+
+  &__account {
+    overflow: hidden;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   }
 }

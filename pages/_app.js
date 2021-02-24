@@ -11,12 +11,18 @@ import Layout from "../components/common/Layout";
 
 const MyApp = ({ Component, pageProps }) => {
   useEffect(() => {
-    AOS.init();
+    AOS.init({
+      duration: 600,
+    });
   }, []);
   return (
     <>
       <Head>
         <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
+        <link
+          href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet"
+        />
       </Head>
       <Layout>
         <Component {...pageProps} />

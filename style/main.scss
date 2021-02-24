@@ -2,18 +2,28 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;1,100&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@200;400&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500&family=Roboto:wght@100;300;400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cantarell:wght@400;700&display=swap");
+
+@import "./ionicons/ionicons.scss";
 
 @import "./general/vars";
 @import "./general/mixins";
 @import "./general/reset";
 @import "./general/common";
 
+@import "./components/buttons";
+@import "./components/search";
+@import "./components/icons";
+@import "./components/form";
+
 @import "./components/header";
 @import "./components/sideMenu";
 @import "./components/stickyMenu";
 @import "./components/profile";
-@import "./components/buttons";
-@import "./components/search";
-@import "./components/icons";
-
 @import "./components/story";
+@import "./components/chapter";
+@import "./components/character";
+@import "./components/auth";
+@import "./components/notifications";
+@import "./components/locations";
+@import "./components/archives";

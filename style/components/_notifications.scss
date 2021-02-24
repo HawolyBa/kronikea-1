@@ -1,0 +1,55 @@
+.notifications {
+  h2 {
+    margin-bottom: 25px;
+  }
+
+  .notification-avatar {
+    border-radius: 50%;
+    overflow: hidden;
+    width: 50px;
+    height: 50px;
+    border: 3px solid $greyLight-1;
+    box-shadow: $shadow;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .notification {
+    padding: 8px 15px;
+    border-radius: 1.2rem;
+    background-color: $greyLight-1;
+    box-shadow: $shadow;
+    margin-bottom: 15px;
+    transition: all 0.5s ease;
+
+    &.notification-read {
+      box-shadow: $inner-shadow;
+    }
+
+    a.notification-desc {
+      color: #272727;
+    }
+
+    span.entity {
+      font-weight: bold;
+    }
+
+    .btn {
+      padding: 5px 10px;
+      box-shadow: $inner-shadow;
+      border-radius: 1rem;
+    }
+
+    .mark-read-btn {
+      color: $primary;
+    }
+
+    .delete-btn {
+      color: red;
+    }
+  }
+}

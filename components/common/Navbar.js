@@ -1,80 +1,86 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import NotificationsIcon from "@material-ui/icons/Notifications";
-import SearchIcon from "@material-ui/icons/Search";
-import HearingIcon from "@material-ui/icons/Hearing";
-import RadioButtonCheckedIcon from "@material-ui/icons/RadioButtonChecked";
-import { Input, Space } from "antd";
+import { Modal, Space, Tooltip, Button } from "antd";
 
-const { Search } = Input;
+import Search from "../forms/Search";
+import FullMenu from "./FullMenu";
 
-const Navbar = () => {
+const Navbar = ({ toggleNotifications }) => {
   const onSearch = () => {};
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const toggleMenu = () => setMenuVisible(!menuVisible);
 
   return (
-    <section className="navbar-header">
-      <header id="main-navbar">
-        <div className="inner-header">
-          <h1 id="title">Kronikea</h1>
-          {/* <nav className="main-nav">
-            <ul>
-              <li className="active">
-                <Link href="/">
-                  <a>Home</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/">
-                  <a>Categories</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/">
-                  <a>Stories</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/">
-                  <a>Characters</a>
-                </Link>
-              </li>
-            </ul>
-          </nav> */}
-          <div class="search">
-            <input type="text" class="search__input" placeholder="Search..." />
-            <div class="search__icon">
-              <ion-icon name="search"></ion-icon>
-            </div>
-          </div>
-          <div className="header-icons">
-            <Space align="center">
-              {/* <div className="custom-btn custom-btn-primary">
+    <>
+      <section className="navbar-header">
+        <header id="main-navbar">
+          <div className="inner-header">
+            <h1 id="title">
+              <Link href="/">
+                <a>Kronikea</a>
+              </Link>
+            </h1>
+            <Search />
+            <div className="header-icons">
+              <Space align="center">
+                {/* <div className="custom-btn custom-btn-primary">
                 <p>Login / Sign Up</p>
               </div> */}
-              <div class="icon">
-                <Space align="center" size={16}>
-                  <div class="icon__home">
-                    <ion-icon name="home"></ion-icon>
-                  </div>
-                  <div class="icon__account">
-                    <ion-icon name="person"></ion-icon>
-                  </div>
-                  <div class="icon__settings">
-                    <ion-icon name="notifications"></ion-icon>
-                  </div>
-                  <div className="menu-btn">
-                    <div className="bar"></div>
-                    <div className="bar"></div>
-                    <div className="bar"></div>
-                  </div>
-                </Space>
-              </div>
-            </Space>
+                <div className="icon">
+                  <Space align="center" size={16}>
+                    <div className="header-icon icon__home">
+                      <Link href="/">
+                        <a>
+                          <Tooltip title="Home" placement="bottom">
+                            <ion-icon name="home"></ion-icon>
+                          </Tooltip>
+                        </a>
+                      </Link>
+                    </div>
+
+                    <div
+                      className="header-icon icon__settings"
+                      onClick={toggleNotifications}
+                    >
+                      <Tooltip title="Notifications" placement="bottom">
+                        <ion-icon name="notifications"></ion-icon>
+                      </Tooltip>
+                    </div>
+                    <div className="header-icon icon__settings">
+                      <Tooltip title="Night mode" placement="bottom">
+                        <ion-icon name="contrast"></ion-icon>
+                      </Tooltip>
+                    </div>
+                    <div className="header-icon icon__account">
+                      <Link href="/profile">
+                        <a>
+                          <img
+                            src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg"
+                            alt="aishwaraya"
+                          />
+                        </a>
+                      </Link>
+                    </div>
+                    <div
+                      className="mobile-icon icon__home"
+                      onClick={() => setSearchVisible(true)}
+                    >
+                      <ion-icon name="search"></ion-icon>
+                    </div>
+                    <div className="menu-btn" onClick={toggleMenu}>
+                      <div className="bar"></div>
+                      <div className="bar"></div>
+                      <div className="bar"></div>
+                    </div>
+                  </Space>
+                </div>
+              </Space>
+            </div>
           </div>
-        </div>
-      </header>
-      <header className="categories">
+        </header>
+        {/* <header className="categories">
         <ul>
           <li>Drama</li>
           <li>Comedy</li>
@@ -93,45 +99,28 @@ const Navbar = () => {
           <li>Crime</li>
           <li>Fanfiction</li>
         </ul>
-      </header>
-    </section>
-    // <header className="side-navbar">
-    //   <h1>Kronikea</h1>
-    //   <section className="header-bloc">
-    //     <h2>Browse Music</h2>
-    //     <ul>
-    //       <li>
-    //         <SearchIcon />
-    //         <span>Explore</span>
-    //       </li>
-    //       <li className="active">
-    //         <HearingIcon />
-    //         <span>Hear this</span>
-    //       </li>
-    //       <li>
-    //         <RadioButtonCheckedIcon />
-    //         <span>Radio</span>
-    //       </li>
-    //     </ul>
-    //   </section>
-    //   <section className="header-bloc">
-    //     <h2>Your Library</h2>
-    //     <ul>
-    //       <li>
-    //         <SearchIcon />
-    //         <span>Explore</span>
-    //       </li>
-    //       <li className="active">
-    //         <HearingIcon />
-    //         <span>Hear this</span>
-    //       </li>
-    //       <li>
-    //         <RadioButtonCheckedIcon />
-    //         <span>Radio</span>
-    //       </li>
-    //     </ul>
-    //   </section>
-    // </header>
+      </header> */}
+
+        <Modal
+          closable={false}
+          visible={searchVisible}
+          onOk={() => setSearchVisible(false)}
+          onCancel={() => setSearchVisible(false)}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              onClick={() => setSearchVisible(false)}
+            >
+              Search
+            </Button>,
+          ]}
+        >
+          <input />
+        </Modal>
+      </section>
+      <FullMenu toggleMenu={toggleMenu} menuVisible={menuVisible} />
+    </>
   );
 };
 

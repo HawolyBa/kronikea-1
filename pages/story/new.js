@@ -1,130 +1,149 @@
 import React from "react";
+import { Row, Col, Space, Divider } from "antd";
+
+import {
+  CATEGORIES,
+  COPYRIGHTS,
+  LANGUAGES,
+  STATUS,
+} from "../../utils/constants";
 import InputGroup from "../../components/common/Input";
+import SelectGroup from "../../components/common/Select";
+import Tags from "../../components/forms/Tags";
+import UploadImage from "../../components/forms/UploadImage";
 
 const newStory = () => {
   return (
-    <div className="new__story">
-      <div class="bg-gray-200 min-h-screen pt-2 my-16">
-        <div class="container mx-auto">
-          <div class="inputs w-full max-w-2xl p-6 mx-auto">
-            <h2 class="text-2xl text-gray-900">Add a new story</h2>
-            <form class="mt-6 border-t border-gray-400 pt-4">
-              <div class="flex flex-wrap -mx-3 mb-6">
-                <InputGroup
-                  title="Title"
-                  required={true}
-                  placeholder="Enter a title"
-                  type="text"
-                />
-                <div class="w-full md:w-full px-3 mb-6 ">
-                  <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    password
-                  </label>
-                  <button class="appearance-none bg-gray-200 text-gray-900 px-2 py-1 shadow-sm border border-gray-400 rounded-md ">
-                    change your password
-                  </button>
-                </div>
-                <div class="w-full md:w-full px-3 mb-6">
-                  <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    pick your country
-                  </label>
-                  <div class="flex-shrink w-full inline-block relative">
-                    <select class="block appearance-none text-gray-600 w-full bg-white border border-gray-400 shadow-inner px-4 py-2 pr-8 rounded">
-                      <option>choose ...</option>
-                      <option>USA</option>
-                      <option>France</option>
-                      <option>Spain</option>
-                      <option>UK</option>
-                    </select>
-                    <div class="pointer-events-none absolute top-0 mt-3  right-0 flex items-center px-2 text-gray-600">
-                      <svg
-                        class="fill-current h-4 w-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div class="w-full md:w-full px-3 mb-6">
-                  <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    fav language
-                  </label>
-                  <div class="flex-shrink w-full inline-block relative">
-                    <select class="block appearance-none text-gray-600 w-full bg-white border border-gray-400 shadow-inner px-4 py-2 pr-8 rounded">
-                      <option>choose ...</option>
-                      <option>English</option>
-                      <option>France</option>
-                      <option>Spanish</option>
-                    </select>
-                    <div class="pointer-events-none absolute top-0 mt-3  right-0 flex items-center px-2 text-gray-600">
-                      <svg
-                        class="fill-current h-4 w-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div class="personal w-full border-t border-gray-400 pt-4">
-                  <h2 class="text-2xl text-gray-900">Personal info:</h2>
-                  <div class="flex items-center justify-between mt-4">
-                    <div class="w-full md:w-1/2 px-3 mb-6">
-                      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                        first name
-                      </label>
+    <div className="new-story custom-form">
+      <div className="inner">
+        <h2 className="side-heading">Add a new story</h2>
+        <form className="form-group">
+          <Row gutter={[24, 24]}>
+            <InputGroup
+              sm={24}
+              md={18}
+              type="text"
+              name="title"
+              placeholder="Enter a title"
+            />
+            <SelectGroup md={6} name="categories" options={CATEGORIES} />
+          </Row>
+          <Row gutter={[24, 24]}>
+            <SelectGroup md={8} name="language" options={LANGUAGES} />
+            <SelectGroup md={8} name="status" options={STATUS} />
+            <SelectGroup md={8} name="copyright" options={COPYRIGHTS} />
+          </Row>
+          <textarea
+            name="summary"
+            id="summary"
+            className="form-input"
+            placeholder="Summarize your story here"
+          ></textarea>
+          <Row gutter={[24, 24]}>
+            <Col sm={12} md={4}>
+              <div className="input-group">
+                <label className="title-label" htmlFor="public">
+                  Mature content
+                </label>
+
+                <div className="radio">
+                  <Space size={32}>
+                    <div className="radio__1">
                       <input
-                        class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500"
-                        type="text"
-                        required
+                        id="radio-1"
+                        type="radio"
+                        name="radio"
+                        value={true}
                       />
+                      <label htmlFor="radio-1"></label>
+                      <p>Yes</p>
                     </div>
-                    <div class="w-full md:w-1/2 px-3 mb-6">
-                      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                        last name
-                      </label>
+
+                    <div className="radio__2">
                       <input
-                        class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500"
-                        type="text"
-                        required
+                        id="radio-2"
+                        type="radio"
+                        name="radio"
+                        value={false}
+                        checked
                       />
+                      <label htmlFor="radio-2"></label>
+                      <p>No</p>
                     </div>
-                  </div>
-                  <div class="w-full md:w-full px-3 mb-6">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      user name
-                    </label>
-                    <input
-                      class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500"
-                      type="text"
-                      required
-                    />
-                  </div>
-                  <div class="w-full md:w-full px-3 mb-6">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Bio
-                    </label>
-                    <textarea
-                      class="bg-gray-100 rounded-md border leading-normal resize-none w-full h-20 py-2 px-3 shadow-inner border border-gray-400 font-medium placeholder-gray-700 focus:outline-none focus:bg-white"
-                      required
-                    ></textarea>
-                  </div>
-                  <div class="flex justify-end">
-                    <button
-                      class="appearance-none bg-gray-200 text-gray-900 px-2 py-1 shadow-sm border border-gray-400 rounded-md mr-3"
-                      type="submit"
-                    >
-                      save changes
-                    </button>
-                  </div>
+                  </Space>
                 </div>
               </div>
-            </form>
-          </div>
-        </div>
+            </Col>
+            <Col sm={12} md={4}>
+              <div className="input-group">
+                <label className="title-label" htmlFor="public">
+                  Visibilty
+                </label>
+                <div className="radio">
+                  <Space size={32}>
+                    <div className="radio__1">
+                      <input
+                        id="radio-3"
+                        type="radio"
+                        name="radio"
+                        value={true}
+                      />
+                      <label htmlFor="radio-3"></label>
+                      <p>Public</p>
+                    </div>
+
+                    <div className="radio__2">
+                      <input
+                        id="radio-4"
+                        type="radio"
+                        name="radio"
+                        value={false}
+                        checked
+                      />
+                      <label htmlFor="radio-4"></label>
+                      <p>Private</p>
+                    </div>
+                  </Space>
+                </div>
+              </div>
+            </Col>
+            <Col md={8}>
+              <div className="input-group">
+                <label htmlFor="maincharacters">Main Characters</label>
+                <Row>
+                  <Col span={22}>
+                    <select className="form-input select-add-input">
+                      <option value="Caroline">Caroline</option>
+                    </select>
+                  </Col>
+                  <Col span={2}>
+                    <div className="form-input select-add-input-iconbox">
+                      <span>+</span>
+                    </div>
+                  </Col>
+                  <small>You can add up to 5 main characters</small>
+                </Row>
+              </div>
+            </Col>
+            <Col md={8}>
+              <label className="title-label" htmlFor="tags">
+                Tags
+              </label>
+              <Tags />
+            </Col>
+          </Row>
+          <Divider />
+          <Row gutter={[24, 24]}>
+            <Col md={8}>
+              <div className="input-group">
+                <label htmlFor="cover">Upload a cover</label>
+                <UploadImage />
+              </div>
+            </Col>
+          </Row>
+          <Divider />
+          <button type="submit">Create</button>
+        </form>
       </div>
     </div>
   );

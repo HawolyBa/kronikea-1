@@ -1,27 +1,11 @@
 .profile {
-  aside.profile-details {
-    width: 100%;
-    min-height: 60vh;
-    background-color: $platinum5;
-    position: relative;
-    margin-top: 140px;
-
-    img {
-      width: 100%;
-      height: 230px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 8px solid white;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: -130px;
-    }
-  }
-
   .avatar {
     height: 230px;
     width: 230px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.5s ease-in;
+    overflow: hidden;
 
     img {
       width: 100%;
@@ -31,6 +15,14 @@
       border: 8px solid $greyLight-1;
       box-shadow: $shadow;
     }
+
+    .ant-image-mask {
+      border-radius: 50%;
+      top: 8px;
+      left: 8px;
+      width: 214px;
+      height: 214px;
+    }
   }
 
   .profile-top {
@@ -39,25 +31,32 @@
     border-radius: 200px 5px 5px 200px;
     border: 8px solid $greyLight-1;
     box-shadow: $shadow;
+    padding-right: 20px;
   }
 
   .profile-details {
     width: 100%;
     height: 214px;
-    //background-color: $greyLight-1;
-    padding: 10px;
-    //box-shadow: $shadow;
 
     .inner {
       width: 100%;
       height: 100%;
       position: relative;
-      padding: 20px;
+      padding: 15px 25px;
+
+      .settings-icon {
+        position: absolute;
+        right: 30px;
+        top: 15px;
+        z-index: 9;
+      }
 
       h2 {
         letter-spacing: 2px;
-        color: #272727;
+        color: $black;
         text-shadow: $shadow;
+        font-size: 1.8rem;
+        font-weight: bold;
       }
 
       .dotted-border {
@@ -101,8 +100,14 @@
       }
 
       p.bio {
-        margin-bottom: 20px;
-        padding-right: 50px;
+        margin: 5px 0 20px 0;
+        max-width: 85%;
+        font-weight: 300;
+      }
+
+      .follow-count {
+        font-weight: 400;
+        color: $primary;
       }
 
       .social {
@@ -113,25 +118,119 @@
     }
   }
 
+  div.bio {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    background: $greyLight-1;
+    border-radius: 5px;
+    border: 8px solid $greyLight-1;
+    box-shadow: $inset-shadow2;
+    padding: 15px 10px;
+    top: -2px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    .ant-col {
+      display: flex;
+      justify-content: center;
+    }
+
+    .img-container {
+      width: 40px;
+      height: 40px;
+      border-width: 3px;
+      cursor: pointer;
+    }
+
+    p.more {
+      font-size: 0.7rem;
+      color: $primary;
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: pointer;
+    }
+  }
+
   .profile-content {
     margin-top: 50px;
     width: 100%;
 
     .profile-tabs {
-      width: 100%;
-      margin-bottom: 30px;
+      margin-bottom: 50px;
 
       .tab {
         background-color: $greyLight-1;
         color: $primary;
         padding: 15px;
         border-radius: 1.2rem;
-        box-shadow: $shadow;
+        box-shadow: $inset-shadow;
         cursor: pointer;
+        transition: all 0.5s ease;
+        margin-bottom: 15px;
+
+        span {
+          text-transform: capitalize;
+        }
 
         &.active {
           background-color: $primary;
           color: white;
+          box-shadow: $shadow;
+        }
+      }
+    }
+  }
+}
+
+// @media (max-width: 600px) {
+//   .profile {
+//     .profile-top {
+//       border-radius: 200px;
+//     }
+//   }
+// }
+
+@media (max-width: 576px) {
+  .profile {
+    .avatar {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .profile-details {
+      height: auto;
+      .inner {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        p.bio {
+          max-width: 100%;
+        }
+        .settings-icon {
+          top: -230px;
+          right: 0;
+        }
+      }
+    }
+    .profile-top {
+      border-radius: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+
+    .profile-content {
+      .profile-tabs {
+        .tab {
+          margin-bottom: 15px;
         }
       }
     }

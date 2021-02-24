@@ -1,0 +1,21 @@
+.category {
+  h2 {
+    margin-bottom: 25px;
+  }
+  .categories-col {
+    padding: 30px 20px;
+    box-shadow: $inner-shadow;
+
+    ul {
+      margin: 20px 0;
+    }
+  }
+}
+
+@media (max-width: 791px) {
+  .category {
+    .categories-col {
+      display: none;
+    }
+  }
+}
