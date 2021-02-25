@@ -9,8 +9,10 @@ import Characters from "../../components/profile/Characters";
 import Followers from "../../components/profile/Followers";
 import Locations from "../../components/profile/Locations";
 import Settings from "../../components/profile/Settings";
+import { connect } from "react-redux";
+import { getProfile } from "../../redux/actions/userActions";
 
-const Profile = () => {
+const Profile = ({ getProfile, profile }) => {
   const [tabs] = useState([
     "stories",
     "characters",
@@ -23,6 +25,11 @@ const Profile = () => {
   const [currentTab, setCurrentTab] = useState("stories");
   const changeTab = (tab) => setCurrentTab(tab);
 
+  useEffect(() => {
+    getProfile();
+  }, []);
+
+  console.log(profile);
   return (
     <div className="profile">
       <Banner openSettings={openSettings} setModalVisible={setModalVisible} />
@@ -71,4 +78,8 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+const mapStateToProps = (state, ownProps) => {
+  return { profile: state.auth.profile };
+};
+
+export default connect(mapStateToProps, { getProfile })(Profile);

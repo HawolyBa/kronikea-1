@@ -3,6 +3,14 @@ import App from "next/app";
 import Head from "next/head";
 import AOS from "aos";
 
+//REDUX
+import { Provider } from "react-redux";
+import { createFirestoreInstance } from "redux-firestore";
+import { ReactReduxFirebaseProvider } from "react-redux-firebase";
+import firebase from "firebase/app";
+import { wrapper, newStore } from "../redux/store";
+import { ProvideAuth } from "../hooks/userHooks";
+
 import "../style/custom-antd.less";
 import "../style/main.scss";
 import "aos/dist/aos.css";
@@ -10,11 +18,22 @@ import "aos/dist/aos.css";
 import Layout from "../components/common/Layout";
 
 const MyApp = ({ Component, pageProps }) => {
+  const rrfConfig = { userProfile: "users", useFirestoreForProfile: true };
+
+  const store = newStore();
+  const rrfProps = {
+    firebase,
+    config: rrfConfig,
+    dispatch: store.dispatch,
+    createFirestoreInstance,
+  };
+
   useEffect(() => {
     AOS.init({
       duration: 600,
     });
   }, []);
+
   return (
     <>
       <Head>
@@ -24,9 +43,15 @@ const MyApp = ({ Component, pageProps }) => {
           rel="stylesheet"
         />
       </Head>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <Provider store={store}>
+        <ReactReduxFirebaseProvider {...rrfProps}>
+          <ProvideAuth>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </ProvideAuth>
+        </ReactReduxFirebaseProvider>
+      </Provider>
     </>
   );
 };
@@ -36,4 +61,4 @@ MyApp.getInitialProps = async (appContext) => {
   return { ...appProps };
 };
 
-export default MyApp;
+export default wrapper.withRedux(MyApp);

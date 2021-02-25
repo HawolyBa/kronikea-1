@@ -218,3 +218,8 @@ export const STATUS = [
   { name: "In Hiatus", value: "in hiatus" },
   { name: "Completed", value: "completed" },
 ];
+
+// TYPES
+export const GET_PROFILE = "GET_PROFILE";
+export const LOGIN = "LOGIN";
+export const REISTER = "REGISTER";
