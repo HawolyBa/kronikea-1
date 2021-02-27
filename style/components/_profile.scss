@@ -5,7 +5,6 @@
     cursor: pointer;
     position: relative;
     transition: all 0.5s ease-in;
-    overflow: hidden;
 
     img {
       width: 100%;
@@ -22,6 +21,26 @@
       left: 8px;
       width: 214px;
       height: 214px;
+    }
+  }
+
+  .favorites {
+    width: 100%;
+    padding: 0 15px;
+    .img-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    ion-icon {
+      font-size: 1.2rem;
+      color: $greyDark;
+    }
+
+    .fav-item {
+      width: 100%;
+      display: flex;
+      justify-content: center;
     }
   }
 
@@ -132,10 +151,10 @@
     align-items: center;
     flex-direction: column;
 
-    .ant-col {
-      display: flex;
-      justify-content: center;
-    }
+    // .ant-col {
+    //   display: flex;
+    //   justify-content: center;
+    // }
 
     .img-container {
       width: 40px;
@@ -194,8 +213,11 @@
 //   }
 // }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .profile {
+    div.bio {
+      display: none;
+    }
     .avatar {
       width: 100%;
       height: 100%;

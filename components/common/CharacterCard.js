@@ -1,14 +1,16 @@
 import React from "react";
 
-const CharacterCard = () => {
+const CharacterCard = ({ character, type }) => {
   return (
     <figure className="card character-card" data-aos="zoom-in-up">
       <div className="img-container">
-        <img src="https://images.pexels.com/photos/4438639/pexels-photo-4438639.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" />
+        <img src={character?.image} />
       </div>
       <figcaption>
-        <h3>Night King</h3>
-        <span className="author">Author: George R.R. Martin</span>
+        <h3>{`${character?.firstname} ${character?.lastname}`}</h3>
+        {type === "favorites" && (
+          <span className="author">Author: {character?.authorName}</span>
+        )}
       </figcaption>
     </figure>
   );

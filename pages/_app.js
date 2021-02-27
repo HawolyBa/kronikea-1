@@ -37,7 +37,7 @@ const MyApp = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
+        <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
         <link
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet"

@@ -1,16 +1,23 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { Modal, Space, Tooltip, Button } from "antd";
+import { useRouter } from "next/router";
+import { Modal, Space, Tooltip, Button, Popconfirm } from "antd";
 
 import Search from "../forms/Search";
 import FullMenu from "./FullMenu";
+import { useAuth } from "../../hooks/userHooks";
 
 const Navbar = ({ toggleNotifications }) => {
   const onSearch = () => {};
   const [searchVisible, setSearchVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
+  const auth = useAuth();
+  const router = useRouter();
 
   const toggleMenu = () => setMenuVisible(!menuVisible);
+  const logout = () => {
+    auth.signout().then(() => router.push("/auth"));
+  };
 
   return (
     <>
@@ -63,12 +70,22 @@ const Navbar = ({ toggleNotifications }) => {
                         </a>
                       </Link>
                     </div>
-                    <div
-                      className="mobile-icon icon__home"
-                      onClick={() => setSearchVisible(true)}
+                    <Popconfirm
+                      title="Do you really want to log out ?"
+                      onConfirm={logout}
                     >
-                      <ion-icon name="search"></ion-icon>
-                    </div>
+                      <div className="header-icon icon__settings">
+                        <Tooltip title="Log out" placement="bottom">
+                          <ion-icon name="log-out"></ion-icon>
+                        </Tooltip>
+                      </div>
+                      <div
+                        className="mobile-icon icon__home"
+                        onClick={() => setSearchVisible(true)}
+                      >
+                        <ion-icon name="search"></ion-icon>
+                      </div>
+                    </Popconfirm>
                     <div className="menu-btn" onClick={toggleMenu}>
                       <div className="bar"></div>
                       <div className="bar"></div>

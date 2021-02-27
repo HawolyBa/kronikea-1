@@ -1,19 +1,41 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Row, Col, Image, Tag, Skeleton, Space } from "antd";
+import { connect } from "react-redux";
+import moment from "moment";
 
 import { dummy } from "../../../utils/dummy";
 import CharacterCard from "../../../components/common/CharacterCard";
 import LocationCard from "../../../components/common/LocationCard";
+import {
+  getStory,
+  getChapters,
+  getStoryCharacters,
+} from "../../../redux/actions/storiesActions";
 
-const Story = () => {
-  const [loading, setLoading] = useState(false);
+const Story = ({
+  getStory,
+  story,
+  loading,
+  getChapters,
+  chapters,
+  getStoryCharacters,
+}) => {
+  const router = useRouter();
   // useEffect(() => {
   //   setTimeout(() => {
   //     setLoading(false);
   //   }, 3000);
   // }, []);
 
+  useEffect(() => {
+    getStory(router.query.id);
+    getChapters(router.query.id);
+    getStoryCharacters(router.query.id);
+  }, []);
+
+  console.log(chapters);
   return (
     <div className="story">
       <Row gutter={24}>
@@ -23,32 +45,31 @@ const Story = () => {
               <>
                 <div className="poster" data-aos="zoom-in">
                   <Image
-                    src={dummy.poster}
-                    alt="poster"
+                    src={story.banner}
+                    alt={`poster ${story.title}`}
                     width={"100%"}
                     height={"100%"}
                   />
                 </div>
-                <h2>Becoming</h2>
+                <h2>{story.title}</h2>
                 <p className="author">
                   by{" "}
                   <Link href="/profile/1">
-                    <a>Michelle Obama</a>
+                    <a>{story.authorName}</a>
                   </Link>
                 </p>
-                <div className="btn-follow icon custom-icon">
+                <div className={`btn-follow icon custom-icon`}>
                   <ion-icon name="heart"></ion-icon>
                 </div>
                 <h3>Summary</h3>
                 <p className="summary">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque
-                  numquam, quibusdam debitis laborum quia rem nihil, deserunt,
-                  dolor aut repellendus illum doloremque consectetur dolorum id
-                  necessitatibus perspiciatis iste sint porro.
+                  {story.summary ? story.summary : "No summary yet"}
                 </p>
                 <h3>Details</h3>
                 <div className="details">
-                  <span>Created At: 2020-01-20</span>
+                  <span>
+                    Posted at: {moment(story.createdAt).format("MM-DD-YYYY")}
+                  </span>
                   <br />
                   <span>
                     Category:{" "}
@@ -57,24 +78,22 @@ const Story = () => {
                     </Link>
                   </span>
                   <br />
-                  <span>Language: EN</span>
+                  <span>Language: {story.language}</span>
                   <br />
-                  <span>Status: in progress</span>
+                  <span>Status: {story.status}</span>
                   <br />
-                  <span>Copyright: Public Domain</span>
+                  <span>Copyright: {story.copyright}</span>
                   <br />
-                  <span>Cover Copyright: Michelle Obama</span>
+                  <span>Cover Copyright: {story.imageCopyright}</span>
                   <br />
-                  <span>Mature content: NO</span>
+                  <span>Mature content: {story.mature ? "YES" : "NO"}</span>
                   <br />
                 </div>
                 <h3>Tags</h3>
                 <div className="tags">
-                  <Tag color="#6d5dfc">#drama</Tag>
-                  <Tag color="#6d5dfc">#biography</Tag>
-                  <Tag color="#6d5dfc">#romance</Tag>
-                  <Tag color="#6d5dfc">#history</Tag>
-                  <Tag color="#6d5dfc">#bestseller</Tag>
+                  {story.tags.map((tag) => (
+                    <Tag key={tag} color="#6d5dfc">{`#${tag}`}</Tag>
+                  ))}
                 </div>
               </>
             )}
@@ -96,81 +115,40 @@ const Story = () => {
           <div className="story-chapters">
             <h3 className="chap-title">Chapters</h3>
             <div className="chapters">
-              <div className="chapter" data-aos="flip-left">
-                <Row align="middle" gutter={60} justify="space-between">
-                  <Col>
-                    <h4>
-                      1. Chapter 1 -{" "}
-                      <span className="comments">15 comments</span>
-                    </h4>
-                  </Col>
-                  <Col>
-                    <div className="chapter-buttons">
-                      <Space size={20}>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn read-btn">Read</a>
-                        </Link>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn edit-btn">Edit</a>
-                        </Link>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn delete-btn">Delete</a>
-                        </Link>
-                      </Space>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-              <div className="chapter" data-aos="flip-left">
-                <Row align="middle" gutter={60} justify="space-between">
-                  <Col>
-                    <h4>
-                      2. Chapter 2 -{" "}
-                      <span className="comments">15 comments</span>
-                    </h4>
-                  </Col>
-                  <Col>
-                    <div className="chapter-buttons">
-                      <Space size={20}>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn read-btn">Read</a>
-                        </Link>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn edit-btn">Edit</a>
-                        </Link>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn delete-btn">Delete</a>
-                        </Link>
-                      </Space>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-              <div className="chapter" data-aos="flip-left">
-                <Row align="middle" gutter={60} justify="space-between">
-                  <Col>
-                    <h4>
-                      3. Chapter 3 -{" "}
-                      <span className="comments">15 comments</span>
-                    </h4>
-                  </Col>
-                  <Col>
-                    <div className="chapter-buttons">
-                      <Space size={20}>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn read-btn">Read</a>
-                        </Link>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn edit-btn">Edit</a>
-                        </Link>
-                        <Link href="/story/1/chapter/54">
-                          <a className="btn delete-btn">Delete</a>
-                        </Link>
-                      </Space>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
+              {!chapters.loading &&
+                chapters.items.map((item) => (
+                  <div key={item.id} className="chapter" data-aos="flip-left">
+                    <Row align="middle" gutter={60} justify="space-between">
+                      <Col>
+                        <h4>
+                          {item.number}. {item.title} -{" "}
+                          <span className="comments">
+                            {item.commentsCount} comments
+                          </span>
+                        </h4>
+                      </Col>
+                      <Col>
+                        <div className="chapter-buttons">
+                          <Space size={20}>
+                            <Link
+                              href={`/story/${router.query.id}/chapter/${item.id}`}
+                            >
+                              <a className="btn read-btn">Read</a>
+                            </Link>
+                            <Link
+                              href={`/story/${router.query.id}/chapter/${item.id}/edit`}
+                            >
+                              <a className="btn edit-btn">Edit</a>
+                            </Link>
+                            <Link href="/story/1/chapter/54">
+                              <a className="btn delete-btn">Delete</a>
+                            </Link>
+                          </Space>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                ))}
             </div>
             <h3 className="heading">Main Characters</h3>
             <Row gutter={[24, 16]}>
@@ -242,4 +220,14 @@ const Story = () => {
   );
 };
 
-export default Story;
+const mapStateToProps = (state) => ({
+  story: state.stories.story,
+  loading: state.stories.loading,
+  chapters: state.stories.chapters,
+});
+
+export default connect(mapStateToProps, {
+  getStory,
+  getChapters,
+  getStoryCharacters,
+})(Story);

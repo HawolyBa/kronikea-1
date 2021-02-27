@@ -39,14 +39,17 @@
       color: $primary;
     }
 
-    &.twitter-icon {
+    &.twitter-icon:hover {
       color: #00acee;
     }
-    &.fb-icon {
+    &.fb-icon:hover {
       color: #3b5998;
     }
-    &.instagram-icon {
+    &.instagram-icon:hover {
       color: #c13584;
+    }
+    &.deviantart-icon:hover {
+      color: #00e59b;
     }
   }
 

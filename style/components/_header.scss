@@ -132,6 +132,7 @@ header#main-navbar {
 
 .fullscreen-menu {
   position: fixed;
+
   top: 0;
   left: 0;
   width: 100vw;
@@ -140,6 +141,7 @@ header#main-navbar {
   background-color: transparent;
   transition: 0.5s ease;
   opacity: 0;
+  display: none;
 
   &.visible {
     opacity: 1;

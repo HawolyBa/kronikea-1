@@ -1,20 +1,17 @@
-import { dummy } from "../../utils/dummy";
-
-const Card = () => {
+const Card = ({ story }) => {
   return (
-    <figure className="card story-card" data-aos="zoom-in-up">
+    <figure className="card story-card">
       <div className="img-container">
-        <img src={dummy.cover} alt="image" />
+        <img src={story.banner} alt="image" />
       </div>
       <figcaption>
         <span className="tag">Drama</span>
-        <span className="author">
-          <img src={dummy.person} alt="photo" /> Hawoly Ba
-        </span>
-        <h3>Lord of The Rings: The Two Tours</h3>
+        <span className="author">Author: {story.authorName}</span>
+        <h3>{story?.title}</h3>
         <p className="description">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam enim
-          eligendi amet! Et reiciendis...
+          {story?.summary?.length > 150
+            ? `${story.summary.slice(0, 150)}...`
+            : story.summary}
         </p>
         <div className="count">
           <span>

@@ -1,18 +1,39 @@
-import { Col } from "antd";
+import { Col, Form } from "antd";
+import { capitalizeFirstLetter } from "../../utils/helpers";
 
-const InputGroup = ({ md, type, name, placeholder, value }) => {
+const InputGroup = ({
+  lg,
+  xs,
+  sm,
+  md,
+  type,
+  name,
+  placeholder,
+  value,
+  onChangeFunc,
+  storyInfo,
+  required,
+  title,
+}) => {
   return (
-    <Col md={md}>
-      <div className="input-group">
-        <label htmlFor={name}>{name}</label>
-        <input
-          className="form-input"
-          type={type}
-          id={name}
-          placeholder={placeholder}
-          value={value}
-        />
-      </div>
+    <Col lg={lg} xs={xs} sm={sm} md={md}>
+      <Form.Item
+        label={title ? title : capitalizeFirstLetter(name)}
+        required={required}
+      >
+        <div className="input-group">
+          <input
+            className="form-input"
+            type={type}
+            id={name}
+            placeholder={placeholder}
+            value={value}
+            onChange={(e) =>
+              onChangeFunc({ ...storyInfo, [name]: e.target.value })
+            }
+          />
+        </div>
+      </Form.Item>
     </Col>
   );
 };

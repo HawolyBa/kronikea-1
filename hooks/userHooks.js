@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
-import { auth } from "../redux/fbConfig";
+import firebase from "firebase";
+import { auth, db } from "../redux/fbConfig";
 
 const authContext = createContext();
 
@@ -14,6 +15,7 @@ export const useAuth = () => {
 
 function useProvideAuth() {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Wrap any Firebase methods we want to use making sure ...
   // ... to save the user to state.
@@ -24,11 +26,24 @@ function useProvideAuth() {
     });
   };
 
-  const signup = (email, password) => {
+  const signup = (email, password, username) => {
     return auth
       .createUserWithEmailAndPassword(email, password)
       .then((response) => {
         setUser(response.user);
+        db.collection("users").add({
+          badges: [],
+          biography: "",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          suspended: false,
+          facebook: "",
+          instagram: "",
+          twitter: "",
+          deviantart: "",
+          likesCount: "",
+          username: username,
+          image: "",
+        });
         return response.user;
       });
   };
@@ -55,8 +70,10 @@ function useProvideAuth() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
+        setIsLoading(false);
       } else {
         setUser(false);
+        setIsLoading(false);
       }
     });
 
@@ -66,6 +83,7 @@ function useProvideAuth() {
 
   // Return the user object and auth methods
   return {
+    isLoading,
     user,
     signin,
     signup,

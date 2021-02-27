@@ -1,21 +1,16 @@
 import { Tag, Tooltip } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-const Tags = () => {
+const Tags = ({ tags, setTags, storyInfo }) => {
   const inputButton = React.useRef();
   const editInputButton = React.useRef();
-  const [tags, setTags] = React.useState(["Unremovable", "Tag 2", "Tag 3"]);
   const [inputVisible, setInputVisible] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
   const [editInputIndex, setEditInputIndex] = React.useState(-1);
   const [editInputValue, setEditInputValue] = React.useState("");
 
-  React.useEffect(() => {
-    console.log(inputButton.current);
-  }, [inputButton]);
-
   const handleClose = (removedTag) =>
-    setTags(tags.filter((tag) => tags !== removedTag));
+    setTags({ ...storyInfo, tags: tags.filter((tag) => tag !== removedTag) });
 
   const showInput = () => {
     setInputVisible(true);
@@ -32,7 +27,7 @@ const Tags = () => {
       newTags = [...newTags, inputValue];
     }
 
-    setTags(newTags);
+    setTags({ ...storyInfo, tags: newTags });
     setInputValue("");
     setInputVisible(false);
   };
@@ -42,7 +37,7 @@ const Tags = () => {
   const handleEditInputConfirm = () => {
     const newTags = [...tags];
     newTags[editInputIndex] = editInputValue;
-    setTags(newTags);
+    setTags({ ...storyInfo, tags: newTags });
     setEditInputIndex(-1);
     setEditInputValue("");
   };

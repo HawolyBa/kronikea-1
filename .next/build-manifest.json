@@ -31,10 +31,10 @@
       "static/chunks/webpack.js",
       "static/chunks/pages/auth.js"
     ],
-    "/profile": [
+    "/story/new": [
       "static/chunks/main.js",
       "static/chunks/webpack.js",
-      "static/chunks/pages/profile.js"
+      "static/chunks/pages/story/new.js"
     ]
   },
   "ampFirstPages": []

@@ -1,4 +1,4 @@
-import { Upload, message } from "antd";
+import { Upload, message, Form } from "antd";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 
 function getBase64(img, callback) {
@@ -19,7 +19,7 @@ function beforeUpload(file) {
   return isJpgOrPng && isLt2M;
 }
 
-const UploadImage = () => {
+const UploadImage = ({ storyInfo, onChangeFunc }) => {
   const [loading, setLoading] = React.useState(false);
   const [imageUrl, setImageUrl] = React.useState("");
 
@@ -32,6 +32,7 @@ const UploadImage = () => {
       // Get this url from response in real world.
       getBase64(info.file.originFileObj, (imageUrl) => {
         setLoading(false);
+        onChangeFunc({ ...storyInfo, image: imageUrl });
         setImageUrl(imageUrl);
       });
     }
@@ -45,23 +46,37 @@ const UploadImage = () => {
   );
 
   return (
-    <div className="upload-image">
-      <Upload
-        name="cover"
-        listType="picture-card"
-        className="cover-uploader"
-        showUploadList={false}
-        beforeUpload={beforeUpload}
-        onChange={handleChange}
-      >
-        {imageUrl ? (
-          <img src={imageUrl} alt="cover" style={{ width: "100%" }} />
-        ) : (
-          uploadButton
-        )}
-      </Upload>
-      <input type="text" className="form-input" placeholder="image copyright" />
-    </div>
+    <Form.Item>
+      <div className="upload-image">
+        <Upload
+          name="image"
+          listType="picture-card"
+          className="cover-uploader"
+          showUploadList={false}
+          beforeUpload={beforeUpload}
+          onChange={handleChange}
+        >
+          {imageUrl ? (
+            <img src={imageUrl} alt="image" style={{ width: "100%" }} />
+          ) : (
+            uploadButton
+          )}
+        </Upload>
+        <div className="input-froup">
+          <label htmlFor="imageCopyright">Image copyright</label>
+          <input
+            required
+            type="text"
+            id="imageCopyright"
+            className="form-input"
+            onChange={(e) =>
+              onChangeFunc({ ...storyInfo, imageCopyright: e.target.value })
+            }
+            value={storyInfo.imageCopyright}
+          />
+        </div>
+      </div>
+    </Form.Item>
   );
 };
 

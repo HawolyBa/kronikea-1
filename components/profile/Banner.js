@@ -1,6 +1,17 @@
 import { Row, Col, Space, Tooltip, Image } from "antd";
+import Link from "next/link";
 
-const Banner = ({ setModalVisible, openSettings }) => {
+import Favorites from "./Favorites";
+
+const Banner = ({
+  setModalVisible,
+  openSettings,
+  profile,
+  favAuthors,
+  followers,
+  changeFavTab,
+  favTab,
+}) => {
   return (
     <div className="banner">
       <Row gutter={16}>
@@ -8,9 +19,9 @@ const Banner = ({ setModalVisible, openSettings }) => {
           <div className="profile-top">
             <Row gutter={32} align="middle">
               <Col xs={24} sm={8} md={9} lg={7}>
-                <div data-icon="image" className="avatar" data-aos="fade-in">
+                <div data-icon="image" className="avatar">
                   <Image
-                    src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg"
+                    src={profile?.image}
                     alt="aishwaraya"
                     width={230}
                     height={230}
@@ -26,27 +37,58 @@ const Banner = ({ setModalVisible, openSettings }) => {
                     >
                       <ion-icon name="settings"></ion-icon>
                     </div>
-                    <h2>Username</h2>
+                    <h2>{profile?.username}</h2>
                     <Space size={30}>
-                      <span className="follow-count">30 followers</span>
-                      <span className="follow-count">350 followings</span>
+                      <span className="follow-count">
+                        {followers?.authors.length} followers
+                      </span>
+                      <span className="follow-count">
+                        {favAuthors?.authors.length} followings
+                      </span>
                     </Space>
                     <p className="bio">
-                      Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                      A, eligendi eius cum omnis quo vel atque corporis at nemo
-                      porro ut aspernatur beatae
+                      {profile.biography && profile?.biography.length > 140
+                        ? `${profile?.biography.slice(0, 140)}...`
+                        : profile?.biography}
                     </p>
                     <div className="social">
                       <Space size={30}>
-                        <div className="icon custom-icon fb-icon">
-                          <ion-icon name="logo-facebook"></ion-icon>
-                        </div>
-                        <div className="icon custom-icon twitter-icon">
-                          <ion-icon name="logo-twitter"></ion-icon>
-                        </div>
-                        <div className="icon custom-icon instagram-icon">
-                          <ion-icon name="logo-instagram"></ion-icon>
-                        </div>
+                        {profile.facebook && (
+                          <Link href={profile?.facebook}>
+                            <a target="_blank">
+                              <div className="icon custom-icon fb-icon">
+                                <ion-icon name="logo-facebook"></ion-icon>
+                              </div>
+                            </a>
+                          </Link>
+                        )}
+                        {profile.twitter && (
+                          <Link href={profile?.twitter}>
+                            <a target="_blank">
+                              <div className="icon custom-icon twitter-icon">
+                                <ion-icon name="logo-twitter"></ion-icon>
+                              </div>
+                            </a>
+                          </Link>
+                        )}
+                        {profile.instagram && (
+                          <Link href={profile?.instagram}>
+                            <a target="_blank">
+                              <div className="icon custom-icon instagram-icon">
+                                <ion-icon name="logo-instagram"></ion-icon>
+                              </div>
+                            </a>
+                          </Link>
+                        )}
+                        {profile.deviantart && (
+                          <Link href={profile?.deviantart}>
+                            <a target="_blank">
+                              <div className="icon custom-icon deviantart-icon">
+                                <ion-icon name="logo-deviantart"></ion-icon>
+                              </div>
+                            </a>
+                          </Link>
+                        )}
                       </Space>
                     </div>
                   </div>
@@ -55,88 +97,38 @@ const Banner = ({ setModalVisible, openSettings }) => {
             </Row>
           </div>
         </Col>
-        <Col xl={6} lg={24}>
+        <Col flex="auto" xl={6} lg={24}>
           <div className="bio">
             <p className="more" onClick={() => setModalVisible(true)}>
               See all >>>
             </p>
             <div className="segmented-control">
-              <input type="radio" name="radio2" value="3" id="tab-1" />
+              <input
+                type="radio"
+                name="radio2"
+                value="3"
+                id="tab-1"
+                onClick={() => changeFavTab("favauthors")}
+              />
               <label htmlFor="tab-1" className="segmented-control__1">
-                <p>Favorite Authors</p>
+                <p>Recent Followings</p>
               </label>
 
-              <input type="radio" name="radio2" value="4" id="tab-2" />
+              <input
+                type="radio"
+                name="radio2"
+                value="4"
+                id="tab-2"
+                onClick={() => changeFavTab("followers")}
+              />
               <label htmlFor="tab-2" className="segmented-control__2">
-                <p>Followed By</p>
+                <p>Recent Followers</p>
               </label>
 
               <div className="segmented-control__color"></div>
             </div>
-            <Row gutter={[5, 5]} justify="center">
-              <Col span={6}>
-                <Tooltip title="Aishwaray Rai" color={"#6d5dfc"}>
-                  <div className="img-container-border img-container">
-                    <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                  </div>
-                </Tooltip>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="img-container-border img-container">
-                  <img src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg" />
-                </div>
-              </Col>
-            </Row>
+            {favTab === "favauthors" && <Favorites favs={favAuthors} />}
+            {favTab === "followers" && <Favorites favs={followers} />}
           </div>
         </Col>
       </Row>

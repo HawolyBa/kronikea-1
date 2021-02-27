@@ -222,4 +222,15 @@ export const STATUS = [
 // TYPES
 export const GET_PROFILE = "GET_PROFILE";
 export const LOGIN = "LOGIN";
-export const REISTER = "REGISTER";
+export const REGISTER = "REGISTER";
+
+export const GET_STORY = "GET_STORY";
+export const GET_CHAPTERS = "GET_CHAPTERS";
+export const GET_USER_STORIES = "GET_USER_STORIES";
+export const GET_FAVORITE_STORIES = "GET_FAVORITE_STORIES";
+
+export const GET_USER_CHARACTERS = "GET_USER_CHARACTERS";
+export const GET_FAVORITE_CHARACTERS = "GET_FAVORITE_CHARACTERS";
+
+export const GET_FAVORITE_AUTHORS = "GET_FAVORITE_AUTHORS";
+export const GET_FOLLOWERS = "GET_FOLLOWERS";
