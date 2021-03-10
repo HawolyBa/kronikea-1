@@ -1,7 +1,7 @@
-import { Tag, Tooltip } from "antd";
+import { Tag, Tooltip, Form } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-const Tags = ({ tags, setTags, storyInfo }) => {
+const Tags = ({ form }) => {
   const inputButton = React.useRef();
   const editInputButton = React.useRef();
   const [inputVisible, setInputVisible] = React.useState(false);
@@ -9,25 +9,27 @@ const Tags = ({ tags, setTags, storyInfo }) => {
   const [editInputIndex, setEditInputIndex] = React.useState(-1);
   const [editInputValue, setEditInputValue] = React.useState("");
 
-  const handleClose = (removedTag) =>
-    setTags({ ...storyInfo, tags: tags.filter((tag) => tag !== removedTag) });
+  const handleClose = (removedTag) => {
+    form.setFieldsValue({
+      tags: form.getFieldValue("tags")?.filter((tag) => tag !== removedTag),
+    });
+  };
 
   const showInput = () => {
     setInputVisible(true);
-    //console.log();
+    inputButton?.current?.focus();
     //editInputButton.current.focus();
-    //inputButton.current.focus();
+    //;
   };
 
   const handleInputChange = (e) => setInputValue(e.target.value);
 
   const handleInputConfirm = () => {
-    let newTags = tags;
-    if (inputValue && tags.indexOf(inputValue) === -1) {
+    let newTags = form.getFieldValue("tags");
+    if (inputValue && form.getFieldValue("tags")?.indexOf(inputValue) === -1) {
       newTags = [...newTags, inputValue];
     }
-
-    setTags({ ...storyInfo, tags: newTags });
+    form.setFieldsValue({ tags: newTags });
     setInputValue("");
     setInputVisible(false);
   };
@@ -35,9 +37,9 @@ const Tags = ({ tags, setTags, storyInfo }) => {
   const handleEditInputChange = (e) => setEditInputValue(e.target.value);
 
   const handleEditInputConfirm = () => {
-    const newTags = [...tags];
+    const newTags = [...form.getFieldValue("tags")];
     newTags[editInputIndex] = editInputValue;
-    setTags({ ...storyInfo, tags: newTags });
+    form.setFieldsValue({ tags: newTags });
     setEditInputIndex(-1);
     setEditInputValue("");
   };
@@ -47,8 +49,8 @@ const Tags = ({ tags, setTags, storyInfo }) => {
   };
 
   return (
-    <>
-      {tags?.map((tag, i) => {
+    <Form.Item label="Tags" name="tags">
+      {form.getFieldValue("tags")?.map((tag, i) => {
         if (editInputIndex === i) {
           return (
             <input
@@ -80,7 +82,7 @@ const Tags = ({ tags, setTags, storyInfo }) => {
                 }
               }}
             >
-              {isLongTag ? `${tag.slice(0, 20)}...` : tag}
+              {isLongTag ? `#${tag.slice(0, 20)}...` : `#${tag}`}
             </span>
           </Tag>
         );
@@ -104,7 +106,7 @@ const Tags = ({ tags, setTags, storyInfo }) => {
           value={inputValue}
           type="text"
           ref={inputButton}
-          className="form-input"
+          className="tag-input"
         />
       )}
       {!inputVisible && (
@@ -112,7 +114,7 @@ const Tags = ({ tags, setTags, storyInfo }) => {
           <PlusOutlined /> New Tag
         </Tag>
       )}
-    </>
+    </Form.Item>
   );
 };
 

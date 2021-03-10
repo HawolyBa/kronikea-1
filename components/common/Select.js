@@ -12,10 +12,10 @@ const SelectGroup = ({
   name,
   options,
   info,
-  value,
-  onChangeFunc,
-  storyInfo,
   type,
+  rules,
+  form,
+  extra,
 }) => {
   return (
     <Col xs={xs} sm={sm} md={md} lg={lg}>
@@ -33,18 +33,25 @@ const SelectGroup = ({
             capitalizeFirstLetter(name)
           )
         }
+        extra={extra}
         colon={false}
+        name={name}
+        rules={rules}
       >
-        <div className="input-group">
-          <label htmlFor="genre"></label>
+        <div id={name} className="input-group">
           {type === "multiple" ? (
             <Select
               mode="multiple"
               allowClear
               style={{ width: "100%" }}
               placeholder="Please select"
-              value={value}
-              onChange={(val) => onChangeFunc({ ...storyInfo, [name]: val })}
+              onChange={(val) =>
+                form.setFieldsValue({
+                  [name]: val,
+                })
+              }
+              defaultValue={[]}
+              maxTagCount={2}
             >
               {options
                 ?.sort((a, b) => {
@@ -57,6 +64,7 @@ const SelectGroup = ({
                 })
                 .map((option) => (
                   <Option
+                    title="boubou"
                     style={{ textTransform: "capitalize" }}
                     key={option.value}
                     value={option.value}
@@ -70,8 +78,8 @@ const SelectGroup = ({
               allowClear
               style={{ width: "100%" }}
               placeholder="Please select"
-              value={value}
-              onChange={(val) => onChangeFunc({ ...storyInfo, [name]: val })}
+              onChange={(val) => form.setFieldsValue({ [name]: val })}
+              defaultValue={""}
             >
               {options
                 ?.sort((a, b) => {

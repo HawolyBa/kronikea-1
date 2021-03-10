@@ -35,7 +35,7 @@ const Story = ({
     getStoryCharacters(router.query.id);
   }, []);
 
-  console.log(chapters);
+  console.log(story);
   return (
     <div className="story">
       <Row gutter={24}>

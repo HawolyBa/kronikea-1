@@ -25,7 +25,7 @@ const auth = ({ log_in }) => {
 
   useEffect(() => {
     if (auth.user) {
-      Router.push("/profile");
+      Router.back();
     }
   }, [auth.user]);
 

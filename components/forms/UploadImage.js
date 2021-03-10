@@ -1,5 +1,5 @@
-import { Upload, message, Form } from "antd";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { Upload, message, Form, Input } from "antd";
+import { LoadingOutlined, PlusOutlined, StarOutlined } from "@ant-design/icons";
 
 function getBase64(img, callback) {
   const reader = new FileReader();
@@ -19,7 +19,7 @@ function beforeUpload(file) {
   return isJpgOrPng && isLt2M;
 }
 
-const UploadImage = ({ storyInfo, onChangeFunc }) => {
+const UploadImage = ({ form }) => {
   const [loading, setLoading] = React.useState(false);
   const [imageUrl, setImageUrl] = React.useState("");
 
@@ -29,10 +29,10 @@ const UploadImage = ({ storyInfo, onChangeFunc }) => {
       return;
     }
     if (info.file.status === "done") {
-      // Get this url from response in real world.
+      form.setFieldsValue({ banner: info.file.originFileObj });
+      // setImage(info.file.originFileObj);
       getBase64(info.file.originFileObj, (imageUrl) => {
         setLoading(false);
-        onChangeFunc({ ...storyInfo, image: imageUrl });
         setImageUrl(imageUrl);
       });
     }
@@ -44,39 +44,50 @@ const UploadImage = ({ storyInfo, onChangeFunc }) => {
       <div style={{ marginTop: 8 }}>Upload</div>
     </div>
   );
-
   return (
-    <Form.Item>
-      <div className="upload-image">
+    <>
+      <Form.Item name="banner" label="Upload a cover">
         <Upload
-          name="image"
+          showUploadList={{
+            showRemoveIcon: true,
+            removeIcon: (
+              <StarOutlined
+                onClick={(e) => console.log(e, "custom removeIcon event")}
+              />
+            ),
+          }}
+          name="cover"
           listType="picture-card"
           className="cover-uploader"
-          showUploadList={false}
+          showUploadList={true}
           beforeUpload={beforeUpload}
           onChange={handleChange}
+          maxCount={1}
         >
           {imageUrl ? (
-            <img src={imageUrl} alt="image" style={{ width: "100%" }} />
+            <img
+              src={imageUrl}
+              alt="image"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           ) : (
             uploadButton
           )}
         </Upload>
-        <div className="input-froup">
-          <label htmlFor="imageCopyright">Image copyright</label>
-          <input
-            required
-            type="text"
-            id="imageCopyright"
-            className="form-input"
-            onChange={(e) =>
-              onChangeFunc({ ...storyInfo, imageCopyright: e.target.value })
-            }
-            value={storyInfo.imageCopyright}
-          />
-        </div>
-      </div>
-    </Form.Item>
+      </Form.Item>
+      <Form.Item
+        label="Image Copyright"
+        name="imageCopyright"
+        rules={[
+          {
+            required: form.getFieldValue("banner") ? true : false,
+            message: "An image copyright is required",
+          },
+        ]}
+      >
+        <Input />
+      </Form.Item>
+    </>
   );
 };
 

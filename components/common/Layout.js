@@ -42,7 +42,7 @@ const Layout = ({ children }) => {
         {/* <Header menuRef={menuRef} isOpen={isOpen} openMenu={openMenu} /> */}
         <div className="content">{children}</div>
       </main>
-      <StickyMenu />
+      {/* <StickyMenu /> */}
       <Drawer
         title="Notifications"
         placement="right"

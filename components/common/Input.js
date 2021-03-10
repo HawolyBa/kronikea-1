@@ -12,16 +12,17 @@ const InputGroup = ({
   value,
   onChangeFunc,
   storyInfo,
-  required,
   title,
+  rules,
 }) => {
   return (
     <Col lg={lg} xs={xs} sm={sm} md={md}>
       <Form.Item
         label={title ? title : capitalizeFirstLetter(name)}
-        required={required}
+        name={name}
+        rules={rules}
       >
-        <div className="input-group">
+        <div id={name} className="input-group">
           <input
             className="form-input"
             type={type}

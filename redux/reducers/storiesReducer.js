@@ -3,6 +3,7 @@ import {
   GET_FAVORITE_STORIES,
   GET_STORY,
   GET_CHAPTERS,
+  ADD_STORY,
 } from "../../utils/constants";
 
 const initialState = {
@@ -22,6 +23,9 @@ const initialState = {
     loading: true,
     items: [],
   },
+  message: "",
+  storyId: "",
+  loadingStory: false,
 };
 
 const storiesReducer = (state = initialState, action) => {
@@ -31,6 +35,13 @@ const storiesReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         story: action.payload,
+      };
+    case ADD_STORY:
+      return {
+        ...state,
+        message: action.payload.message,
+        storyId: action.payload.storyId,
+        loadingStory: action.payload.loading,
       };
     case GET_USER_STORIES:
       return {

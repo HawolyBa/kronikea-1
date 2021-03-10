@@ -38,28 +38,27 @@ const Navbar = ({ toggleNotifications }) => {
                 <div className="icon">
                   <Space align="center" size={16}>
                     <div className="header-icon icon__home">
-                      <Link href="/">
-                        <a>
-                          <Tooltip title="Home" placement="bottom">
+                      <Tooltip title="Home" placement="bottom">
+                        <Link href="/">
+                          <a>
                             <ion-icon name="home"></ion-icon>
-                          </Tooltip>
-                        </a>
-                      </Link>
+                          </a>
+                        </Link>
+                      </Tooltip>
                     </div>
-
-                    <div
-                      className="header-icon icon__settings"
-                      onClick={toggleNotifications}
-                    >
-                      <Tooltip title="Notifications" placement="bottom">
+                    <Tooltip title="Notifications" placement="bottom">
+                      <div
+                        className="header-icon icon__settings"
+                        onClick={toggleNotifications}
+                      >
                         <ion-icon name="notifications"></ion-icon>
-                      </Tooltip>
-                    </div>
-                    <div className="header-icon icon__settings">
-                      <Tooltip title="Night mode" placement="bottom">
+                      </div>
+                    </Tooltip>
+                    <Tooltip title="Night mode" placement="bottom">
+                      <div className="header-icon icon__settings">
                         <ion-icon name="contrast"></ion-icon>
-                      </Tooltip>
-                    </div>
+                      </div>
+                    </Tooltip>
                     <div className="header-icon icon__account">
                       <Link href="/profile">
                         <a>
@@ -74,11 +73,11 @@ const Navbar = ({ toggleNotifications }) => {
                       title="Do you really want to log out ?"
                       onConfirm={logout}
                     >
-                      <div className="header-icon icon__settings">
-                        <Tooltip title="Log out" placement="bottom">
+                      <Tooltip title="Log out" placement="bottom">
+                        <div className="header-icon icon__settings">
                           <ion-icon name="log-out"></ion-icon>
-                        </Tooltip>
-                      </div>
+                        </div>
+                      </Tooltip>
                       <div
                         className="mobile-icon icon__home"
                         onClick={() => setSearchVisible(true)}
@@ -136,7 +135,7 @@ const Navbar = ({ toggleNotifications }) => {
           <input />
         </Modal>
       </section>
-      <FullMenu toggleMenu={toggleMenu} menuVisible={menuVisible} />
+      {/* <FullMenu toggleMenu={toggleMenu} menuVisible={menuVisible} /> */}
     </>
   );
 };

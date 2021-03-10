@@ -12,8 +12,8 @@ import { wrapper, newStore } from "../redux/store";
 import { ProvideAuth } from "../hooks/userHooks";
 
 import "../style/custom-antd.less";
-import "../style/main.scss";
 import "aos/dist/aos.css";
+import "../style/main.scss";
 
 import Layout from "../components/common/Layout";
 
@@ -37,7 +37,10 @@ const MyApp = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
+        <script
+          type="module"
+          src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.esm.js"
+        ></script>
         <link
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet"

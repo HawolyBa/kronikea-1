@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
-import firebase from "firebase";
+import firebase from "firebase/app";
 import { auth, db } from "../redux/fbConfig";
 
 const authContext = createContext();
@@ -70,7 +70,16 @@ function useProvideAuth() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
-        setIsLoading(false);
+        if (user.uid) {
+          let username = "";
+          setIsLoading(false);
+          db.collection("users")
+            .doc(user.uid)
+            .onSnapshot((doc) => {
+              username = doc.data().username;
+              setUser({ ...user, username });
+            });
+        }
       } else {
         setUser(false);
         setIsLoading(false);

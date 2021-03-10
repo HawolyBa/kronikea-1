@@ -295,9 +295,8 @@ figure.character-card {
   user-select: none;
   max-width: 120px;
   padding: 5px 15px;
-  border-radius: 1rem;
-  box-shadow: $inner-shadow;
-  background-color: transparent;
+  background-color: $primary;
+  color: white;
   border: none;
   margin-bottom: 5px;
 }
@@ -305,9 +304,21 @@ figure.character-card {
   width: 78px;
   margin-right: 8px;
   vertical-align: top;
+  border: none;
+  box-shadow: $inset-shadow;
+  border-radius: 1rem;
+  padding: 5px 10px;
 }
 
 // Loader
+
+.loader-container {
+  width: 100%;
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .loader {
   display: inline-block;
