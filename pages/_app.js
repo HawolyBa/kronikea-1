@@ -45,6 +45,7 @@ const MyApp = ({ Component, pageProps }) => {
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet"
         />
+        <meta charset="utf-8" />
       </Head>
       <Provider store={store}>
         <ReactReduxFirebaseProvider {...rrfProps}>

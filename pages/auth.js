@@ -7,7 +7,7 @@ import Login from "../components/auth/Login";
 import Register from "../components/auth/Register";
 import { log_in } from "../redux/actions/userActions";
 import { useAuth } from "../hooks/userHooks";
-import Loader from "../components/common/Loader";
+//import Loader from "../components/common/Loader";
 
 const auth = ({ log_in }) => {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -58,7 +58,13 @@ const auth = ({ log_in }) => {
           />
         </ReactCardFlip>
       ) : (
-        <Loader />
+        <div className="loader-container">
+          <div className="loader">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
       )}
     </div>
   );

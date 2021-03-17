@@ -19,9 +19,9 @@ function beforeUpload(file) {
   return isJpgOrPng && isLt2M;
 }
 
-const UploadImage = ({ form }) => {
+const UploadImage = ({ form, image }) => {
   const [loading, setLoading] = React.useState(false);
-  const [imageUrl, setImageUrl] = React.useState("");
+  const [imageUrl, setImageUrl] = React.useState(image ? image : "");
 
   const handleChange = (info) => {
     if (info.file.status === "uploading") {
@@ -50,11 +50,7 @@ const UploadImage = ({ form }) => {
         <Upload
           showUploadList={{
             showRemoveIcon: true,
-            removeIcon: (
-              <StarOutlined
-                onClick={(e) => console.log(e, "custom removeIcon event")}
-              />
-            ),
+            removeIcon: <StarOutlined />,
           }}
           name="cover"
           listType="picture-card"
