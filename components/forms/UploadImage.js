@@ -19,7 +19,7 @@ function beforeUpload(file) {
   return isJpgOrPng && isLt2M;
 }
 
-const UploadImage = ({ form, image }) => {
+const UploadImage = ({ form, image, name }) => {
   const [loading, setLoading] = React.useState(false);
   const [imageUrl, setImageUrl] = React.useState(image ? image : "");
 
@@ -29,7 +29,7 @@ const UploadImage = ({ form, image }) => {
       return;
     }
     if (info.file.status === "done") {
-      form.setFieldsValue({ banner: info.file.originFileObj });
+      form.setFieldsValue({ [name]: info.file.originFileObj });
       // setImage(info.file.originFileObj);
       getBase64(info.file.originFileObj, (imageUrl) => {
         setLoading(false);
@@ -46,13 +46,12 @@ const UploadImage = ({ form, image }) => {
   );
   return (
     <>
-      <Form.Item name="banner" label="Upload a cover">
+      <Form.Item name={name} label="Upload a cover">
         <Upload
           showUploadList={{
             showRemoveIcon: true,
             removeIcon: <StarOutlined />,
           }}
-          name="cover"
           listType="picture-card"
           className="cover-uploader"
           showUploadList={true}
@@ -76,7 +75,7 @@ const UploadImage = ({ form, image }) => {
         name="imageCopyright"
         rules={[
           {
-            required: form.getFieldValue("banner") ? true : false,
+            required: form.getFieldValue(name) ? true : false,
             message: "An image copyright is required",
           },
         ]}

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Row, Col, Image, Tag, Skeleton, Space } from "antd";
 import { connect } from "react-redux";
 import moment from "moment";
 
-import { dummy } from "../../../utils/dummy";
+import { LANGUAGES } from "../../../utils/constants";
 import CharacterCard from "../../../components/common/CharacterCard";
 import LocationCard from "../../../components/common/LocationCard";
 import {
@@ -23,11 +23,8 @@ const Story = ({
   getStoryCharacters,
 }) => {
   const router = useRouter();
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //   }, 3000);
-  // }, []);
+
+  console.log(story);
 
   useEffect(() => {
     getStory(router.query.id);
@@ -35,7 +32,6 @@ const Story = ({
     getStoryCharacters(router.query.id);
   }, []);
 
-  console.log(story);
   return (
     <div className="story">
       <Row gutter={24}>
@@ -78,7 +74,10 @@ const Story = ({
                     </Link>
                   </span>
                   <br />
-                  <span>Language: {story.language}</span>
+                  <span>
+                    Language:{" "}
+                    {LANGUAGES.find((l) => l.value === story.language).name}
+                  </span>
                   <br />
                   <span>Status: {story.status}</span>
                   <br />

@@ -58,7 +58,8 @@
           margin-bottom: 0;
         }
         span.author {
-          display: none;
+          display: block;
+          text-align: center;
         }
       }
     }
@@ -89,6 +90,7 @@
       font-size: 1.3rem;
       font-weight: 300;
       margin: 0;
+      margin-bottom: 15px;
       text-transform: uppercase;
       color: lighten($greyDark, 5%);
     }
@@ -129,5 +131,11 @@
       border-radius: 1rem;
       cursor: pointer;
     }
+  }
+}
+
+.new-character {
+  .select-add-input-iconbox {
+    margin-top: 32px;
   }
 }

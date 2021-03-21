@@ -63,7 +63,7 @@ const Profile = ({
     if (auth.user) {
       getProfile();
       getUserStories();
-      getUserCharacters();
+      getUserCharacters(auth.user.uid);
       getFavoriteAuthors();
       getFollowers();
       getFavoriteCharacters();

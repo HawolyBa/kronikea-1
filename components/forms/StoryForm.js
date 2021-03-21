@@ -1,6 +1,5 @@
 import React from "react";
 import { Row, Col, Divider, Form, Spin, Input, Select, message } from "antd";
-import isImageUrl from "is-image-url";
 
 import {
   CATEGORIES,
@@ -10,9 +9,9 @@ import {
 } from "../../utils/constants";
 
 import Tags from "../../components/forms/Tags";
-import UploadImage from "../../components/forms/UploadImage";
 import RadioButton from "../../components/forms/RadioButton";
 import ItemSelector from "./ItemSelector";
+import ImageRow from "./ImageRow";
 
 const { Option } = Select;
 
@@ -32,10 +31,6 @@ const StoryForm = ({
 }) => {
   const [linkVisible, setLinkVisible] = React.useState(false);
   const [uploadVisible, setUploadVisible] = React.useState(false);
-  // const [currentChar, setCurrentChar] = React.useState("");
-  // const [selectedCharacters, setSelectedCharacters] = React.useState(
-  //   story ? characters.filter((c) => story.mainCharacters.includes(c.id)) : []
-  // );
 
   const filterSort = (a, b) => {
     const keyA = a.name,
@@ -49,33 +44,6 @@ const StoryForm = ({
     window.scrollTo(0, 0);
     message.error("There are some errors");
   };
-
-  // const addCharacter = () => {
-  //   if (
-  //     currentChar &&
-  //     form.getFieldValue("mainCharacters")?.indexOf(currentChar) === -1 &&
-  //     form.getFieldValue("mainCharacters")?.length < 5
-  //   ) {
-  //     setSelectedCharacters([
-  //       ...selectedCharacters,
-  //       characters.find((c) => c.id === currentChar),
-  //     ]);
-  //     form.setFieldsValue({
-  //       mainCharacters: [...form.getFieldValue("mainCharacters"), currentChar],
-  //     });
-  //   }
-  //   setCurrentChar("");
-  //   form.setFieldsValue({ currentChar: "" });
-  // };
-
-  // const removeCharacter = (id) => {
-  //   form.setFieldsValue({
-  //     mainCharacters: form
-  //       .getFieldValue("mainCharacters")
-  //       .filter((c) => c !== id),
-  //   });
-  //   setSelectedCharacters(selectedCharacters.filter((c) => c.id !== id));
-  // };
 
   const showLink = () => {
     form.setFieldsValue({ banner: null });
@@ -303,66 +271,7 @@ const StoryForm = ({
             subjectType="characters"
           />
           <Divider />
-          {!uploadVisible && !linkVisible && (
-            <div className="upload-btns">
-              <button onClick={showUpload} type="button" className="upload-btn">
-                Upload a cover
-              </button>
-
-              <button onClick={showLink} type="button" className="upload-btn">
-                Submit a link to a cover
-              </button>
-            </div>
-          )}
-          {uploadVisible && (
-            <Row align="bottom" gutter={[24, 24]}>
-              <Col md={12} sm={24} xs={24}>
-                <UploadImage form={form} image={story?.banner} />
-              </Col>
-              <Col md={12} sm={24} xs={24}>
-                <button onClick={showLink} type="button" className="upload-btn">
-                  OR Submit a link to a cover
-                </button>
-              </Col>
-            </Row>
-          )}
-          {linkVisible && (
-            <Row align="bottom" gutter={[24, 24]}>
-              <Col sm={24} xs={24} md={12} lg={12}>
-                <Form.Item
-                  rules={[
-                    {
-                      type: "url",
-                      message: "This field must be a valid url.",
-                    },
-                    () => ({
-                      validator(_, value) {
-                        if (isImageUrl(value)) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(
-                          new Error("The link needs to be an image")
-                        );
-                      },
-                    }),
-                  ]}
-                  label="Submit a link to your image"
-                  name="banner"
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col md={12} sm={24} xs={24}>
-                <button
-                  onClick={showUpload}
-                  type="button"
-                  className="upload-btn"
-                >
-                  Upload a cover
-                </button>
-              </Col>
-            </Row>
-          )}
+          <ImageRow name="banner" form={form} itemImage={story?.banner} />
           <Divider />
           {type === "add" ? (
             loading || storyId ? (

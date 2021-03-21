@@ -26,10 +26,15 @@
       "static/chunks/webpack.js",
       "static/chunks/pages/_error.js"
     ],
-    "/story/[id]/chapter/[chapid]/edit": [
+    "/character/[id]": [
       "static/chunks/main.js",
       "static/chunks/webpack.js",
-      "static/chunks/pages/story/[id]/chapter/[chapid]/edit.js"
+      "static/chunks/pages/character/[id].js"
+    ],
+    "/story/[id]": [
+      "static/chunks/main.js",
+      "static/chunks/webpack.js",
+      "static/chunks/pages/story/[id].js"
     ]
   },
   "ampFirstPages": []

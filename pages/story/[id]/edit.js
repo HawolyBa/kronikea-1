@@ -23,7 +23,7 @@ const EditStory = (props) => {
 
   React.useEffect(() => {
     if (auth.user) {
-      props.getUserCharacters();
+      props.getUserCharacters(auth.user.uid);
     }
   }, [auth]);
 

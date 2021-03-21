@@ -61,7 +61,6 @@ const EditChapter = (props) => {
       router.query.chapid
     );
   };
-  // console.log(form.getFieldsValue());
 
   return (
     <LoadingScreen loading={loading}>

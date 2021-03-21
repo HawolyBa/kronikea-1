@@ -152,8 +152,38 @@ a {
 
 // Character card
 figure.character-card {
+  position: relative;
   img {
     height: 200px;
+  }
+
+  &.add {
+    span.remove-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      color: white;
+      background: rgb(214, 82, 82);
+      box-shadow: $shadow;
+      opacity: 0;
+      transition: all 0.5s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+    h3 {
+      font-size: 16px;
+    }
+    img {
+      height: 160px;
+    }
   }
 
   figcaption {
