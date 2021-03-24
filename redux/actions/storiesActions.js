@@ -1,20 +1,10 @@
-import {
-  GET_USER_STORIES,
-  GET_FAVORITE_STORIES,
-  GET_USER_LOCATIONS,
-  GET_STORY,
-  GET_CHAPTERS,
-  ADD_STORY,
-  ADD_CHAPTER,
-  EDIT_CHAPTER,
-  GET_CHAPTER,
-  EDIT_STORY,
-  DISPATCH_ERROR,
-} from "../../utils/constants";
+import { types } from "../../utils/constants";
 import { db, auth, storage } from "../fbConfig";
 import firebase from "firebase/app";
 import { message } from "antd";
 import Router from "next/router";
+
+// STORIES
 
 export const getStory = (id) => (dispatch) => {
   db.collection("stories")
@@ -22,14 +12,41 @@ export const getStory = (id) => (dispatch) => {
     .get()
     .then((doc) => {
       if (doc.exists) {
-        dispatch({
-          type: GET_STORY,
-          storyExists: true,
-          payload: { ...doc.data(), id: doc.id },
+        const main = doc.data().mainCharacters;
+        const secondary = doc.data().secondaryCharacters;
+        let mainArr = [];
+        let secondaryArr = [];
+        const mainQuery = main.map((c) =>
+          db.collection("characters").doc(c).get()
+        );
+        const secondaryQuery = secondary.map((c) =>
+          db.collection("characters").doc(c.id).get()
+        );
+        const mainRes = Promise.all(mainQuery);
+        const secondaryRes = Promise.all(secondaryQuery);
+        Promise.all([mainRes, secondaryRes]).then((result) => {
+          result[0].forEach((docu) => {
+            mainArr = [...mainArr, { ...docu.data(), id: docu.id }];
+          });
+          result[1].forEach((docu) => {
+            secondaryArr = [...secondaryArr, { ...docu.data(), id: docu.id }];
+          });
+          dispatch({
+            type: types.GET_STORY,
+            storyExists: true,
+            payload: {
+              ...doc.data(),
+              id: doc.id,
+              secondaryCharacters: secondaryArr,
+              mainCharacters: mainArr,
+              mainArr: doc.data().mainCharacters,
+              secondaryArr: doc.data().secondaryCharacters,
+            },
+          });
         });
       } else {
         dispatch({
-          type: DISPATCH_ERROR,
+          type: types.DISPATCH_ERROR,
           storyExists: false,
         });
       }
@@ -38,9 +55,8 @@ export const getStory = (id) => (dispatch) => {
 };
 
 export const addStory = (data) => (dispatch) => {
-  dispatch({ type: ADD_STORY, payload: { loading: true } });
+  dispatch({ type: types.ADD_STORY, payload: { loading: true } });
   const imageName = data.title.toLowerCase().split(" ").join("_");
-  console.log(data);
   if (typeof data.banner === "object") {
     storage
       .ref(`${auth.currentUser.uid}/${imageName}`)
@@ -61,7 +77,6 @@ export const addStory = (data) => (dispatch) => {
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           likesCount: 0,
           chaptersCount: 0,
-          locationsCount: 0,
           secondaryCharacters: [],
           featured: false,
           note: 0,
@@ -72,7 +87,7 @@ export const addStory = (data) => (dispatch) => {
         setTimeout(() => {
           Router.push(`/story/${res.id}`);
           dispatch({
-            type: ADD_STORY,
+            type: types.ADD_STORY,
             payload: {
               message: "Story added successfully",
               storyId: res.id,
@@ -94,7 +109,6 @@ export const addStory = (data) => (dispatch) => {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         likesCount: 0,
         chaptersCount: 0,
-        locationsCount: 0,
         featured: false,
         secondaryCharacters: [],
         note: 0,
@@ -104,7 +118,7 @@ export const addStory = (data) => (dispatch) => {
         setTimeout(() => {
           Router.push(`/story/${res.id}`);
           dispatch({
-            type: ADD_STORY,
+            type: types.ADD_STORY,
             payload: {
               message: "Story added successfully",
               storyId: res.id,
@@ -120,7 +134,7 @@ export const addStory = (data) => (dispatch) => {
 };
 
 export const editStory = (data, storyId) => (dispatch) => {
-  dispatch({ type: EDIT_STORY, payload: { loadingStory: true } });
+  dispatch({ type: types.EDIT_STORY, payload: { loadingStory: true } });
   const imageName = data.title.toLowerCase().split(" ").join("_");
 
   if (typeof data.banner === "object") {
@@ -143,13 +157,30 @@ export const editStory = (data, storyId) => (dispatch) => {
           });
       })
       .then(() => {
-        message.success("Story added successfully");
-        dispatch({
-          type: EDIT_STORY,
-          payload: {
-            message: "Story edited successfully",
-          },
-        });
+        db.collection("locations")
+          .where("storyId", "==", storyId)
+          .get()
+          .then((docs) => {
+            let locationQuery = [];
+            docs.forEach((doc) => {
+              locationQuery = [
+                ...locationQuery,
+                db
+                  .collection("locations")
+                  .doc(doc.id)
+                  .update({ storyTitle: data.title }),
+              ];
+            });
+            Promise.all(locationQuery).then(() => {
+              message.success("Story added successfully");
+              dispatch({
+                type: types.EDIT_STORY,
+                payload: {
+                  message: "Story edited successfully",
+                },
+              });
+            });
+          });
       })
       .catch((err) => {
         message.error(err.message);
@@ -161,173 +192,36 @@ export const editStory = (data, storyId) => (dispatch) => {
         ...data,
       })
       .then(() => {
-        message.success("Story added successfully");
-        dispatch({
-          type: EDIT_STORY,
-          payload: {
-            message: "Story edited successfully",
-          },
-        });
+        db.collection("locations")
+          .where("storyId", "==", storyId)
+          .get()
+          .then((docs) => {
+            let locationQuery = [];
+            docs.forEach((doc) => {
+              locationQuery = [
+                ...locationQuery,
+                db
+                  .collection("locations")
+                  .doc(doc.id)
+                  .update({ storyTitle: data.title }),
+              ];
+            });
+            Promise.all(locationQuery).then(() => {
+              message.success("Story added successfully");
+              dispatch({
+                type: types.EDIT_STORY,
+                payload: {
+                  message: "Story edited successfully",
+                },
+              });
+            });
+          });
       })
       .catch((err) => {
         message.error(err.message);
       });
   }
 };
-
-export const addChapter = (data) => (dispatch) => {
-  dispatch({ type: ADD_CHAPTER, payload: { loading: true } });
-  db.collection("chapters")
-    .add({
-      ...data,
-      authorId: auth.currentUser.uid,
-      commentsCount: 0,
-      note: 0,
-      voters: [],
-      votesCount: 0,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    })
-    .then((res) => {
-      db.collection("stories")
-        .doc(data.storyId)
-        .get()
-        .then((doc) => {
-          const characters = doc.data().secondaryCharacters;
-          const main = doc.data().mainCharacters;
-          db.collection("stories")
-            .doc(data.storyId)
-            .update({
-              secondaryCharacters: [
-                ...new Set([
-                  ...characters,
-                  ...data.characters.filter((c) => !main.includes(c)),
-                ]),
-              ],
-            })
-            .then(() => {
-              dispatch({
-                type: ADD_CHAPTER,
-                payload: {
-                  message: "Chapter added successfully",
-                  chapId: res.id,
-                  loading: false,
-                },
-              });
-            });
-        });
-    });
-  // .then((res) => {
-  //   dispatch({
-  //     type: ADD_CHAPTER,
-  //     payload: {
-  //       message: "Chapter added successfully",
-  //       chapId: res.id,
-  //     },
-  //   });
-  // })
-  // .catch((err) =>
-  //   dispatch({
-  //     type: ADD_CHAPTER,
-  //     payload: { message: err.message, chapId: "" },
-  //   })
-  // );
-};
-
-export const getChapter = (storyId, id) => (dispatch) => {
-  db.collection("stories")
-    .doc(storyId)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        db.collection("chapters")
-          .doc(id)
-          .get()
-          .then((doc) => {
-            if (doc.exists) {
-              dispatch({
-                type: GET_CHAPTER,
-                payload: {
-                  chapter: { ...doc.data(), id: doc.id },
-                  chapterExists: true,
-                },
-              });
-            } else {
-              dispatch({
-                type: GET_CHAPTER,
-                payload: { chapterExists: false },
-              });
-            }
-          });
-      } else {
-        dispatch({
-          type: GET_CHAPTER,
-          payload: { chapterExists: false },
-        });
-      }
-    });
-};
-
-export const editChapter = (data, storyId, chapid) => (dispatch) => {
-  dispatch({ type: EDIT_CHAPTER, payload: { loading: true } });
-  db.collection("chapters")
-    .doc(chapid)
-    .update({ ...data })
-    .then(() => {
-      db.collection("stories")
-        .doc(storyId)
-        .get()
-        .then((doc) => {
-          const characters = doc.data().secondaryCharacters;
-          const main = doc.data().mainCharacters;
-          db.collection("stories")
-            .doc(storyId)
-            .update({
-              secondaryCharacters: data.characters
-                ? [
-                    ...new Set([
-                      ...characters,
-                      ...data.characters.filter((c) => !main.includes(c)),
-                    ]),
-                  ]
-                : characters,
-            })
-            .then(() => {
-              dispatch({
-                type: EDIT_CHAPTER,
-                payload: {
-                  message: "Chapter edited successfully",
-                  loading: false,
-                },
-              });
-            });
-        });
-    });
-};
-
-export const getChapters = (id) => (dispatch) => {
-  db.collection("chapters")
-    .where("storyId", "==", id)
-    .orderBy("number", "asc")
-    .onSnapshot((docs) => {
-      let arr = [];
-      docs.forEach((doc) => {
-        arr.push({
-          authorId: doc.data().authorId,
-          id: doc.id,
-          createdAt: doc.data().createdAt,
-          number: doc.data().number,
-          title: doc.data().title,
-          commentsCount: doc.data().commentsCount,
-        });
-      });
-      dispatch({
-        type: GET_CHAPTERS,
-        payload: arr,
-      });
-    });
-};
-
-export const getStoryCharacters = (id) => (dispatch) => {};
 
 export const getUserStories = () => (dispatch) => {
   db.collection("stories")
@@ -341,23 +235,7 @@ export const getUserStories = () => (dispatch) => {
       return items;
     })
     .then((items) => {
-      dispatch({ type: GET_USER_STORIES, payload: items });
-    });
-};
-
-export const getUserLocations = () => (dispatch) => {
-  db.collection("locations")
-    .where("authorId", "==", auth.currentUser.uid)
-    .get()
-    .then((docs) => {
-      let locations = [];
-      docs.forEach((doc) => {
-        locations = [...locations, { id: doc.id, ...doc.data() }];
-      });
-      dispatch({
-        type: GET_USER_LOCATIONS,
-        payload: locations,
-      });
+      dispatch({ type: types.GET_USER_STORIES, payload: items });
     });
 };
 
@@ -382,9 +260,349 @@ export const getFavoriteStories = () => (dispatch) => {
           (doc) => (favUsers = [...favUsers, { id: doc.id, ...doc.data() }])
         );
         dispatch({
-          type: GET_FAVORITE_STORIES,
+          type: types.GET_FAVORITE_STORIES,
           payload: favUsers,
         });
+      });
+    });
+};
+
+export const isStoryFavorite = (storyId) => (dispatch) => {
+  if (auth.currentUser) {
+    db.collection("storiesLikes")
+      .where("senderId", "==", auth.currentUser.uid)
+      .where("storyId", "==", storyId)
+      .onSnapshot((snapshot) => {
+        const answer = snapshot.docs[0] ? true : false;
+        return dispatch({
+          type: types.IS_STORY_FAVORITE,
+          payload: answer,
+          loadingFav: false,
+        });
+      });
+  }
+};
+
+export const addStoryToFavorite = (id, username, storyTitle) => (dispatch) => {
+  // if (isFavorite) return message.warning("You've already liked this story");
+  if (!auth.currentUser)
+    return message.error("You need to be logged in to like a story");
+  if (!auth.currentUser.emailVerified)
+    return message.error("You need to verify your email first");
+
+  db.collection("storiesLikes")
+    .add({
+      sender: username,
+      senderId: auth.currentUser.uid,
+      storyId: id,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then(() => message.success(`${storyTitle} added to your favorites`))
+    .catch((err) => message.error("There has been a problem"));
+};
+
+export const removeStoryFromFavorite = (id, storyTitle) => (dispatch) => {
+  db.collection("storiesLikes")
+    .where("storyId", "==", id)
+    .where("senderId", "==", auth.currentUser.uid)
+    .get()
+    .then((data) => {
+      return db.collection("storiesLikes").doc(data.docs[0].id).delete();
+    })
+    .then(() => message.success(`${storyTitle} removed from your favorites`))
+    .catch((err) => message.error("There has been a problem"));
+};
+
+export const getStoryCharacters = () => (dispatch) => {};
+
+// CHAPTERs
+
+export const addChapter = (data, secondaryCharacters) => (dispatch) => {
+  dispatch({ type: types.ADD_CHAPTER, payload: { loading: true } });
+  db.collection("chapters")
+    .add({
+      ...data,
+      authorId: auth.currentUser.uid,
+      commentsCount: 0,
+      note: 0,
+      voters: [],
+      votesCount: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then((res) => {
+      db.collection("stories")
+        .doc(data.storyId)
+        .get()
+        .then((doc) => {
+          db.collection("stories")
+            .doc(data.storyId)
+            .update({
+              secondaryCharacters,
+            })
+            .then(() => {
+              dispatch({
+                type: types.ADD_CHAPTER,
+                payload: {
+                  message: "Chapter added successfully",
+                  chapId: res.id,
+                  loading: false,
+                },
+              });
+            });
+        });
+    });
+  // .then((res) => {
+  //   dispatch({
+  //     type: types.ADD_CHAPTER,
+  //     payload: {
+  //       message: "Chapter added successfully",
+  //       chapId: res.id,
+  //     },
+  //   });
+  // })
+  // .catch((err) =>
+  //   dispatch({
+  //     type: types.ADD_CHAPTER,
+  //     payload: { message: err.message, chapId: "" },
+  //   })
+  // );
+};
+
+export const editChapter = (data, storyId, chapid, secondaryCharacters) => (
+  dispatch
+) => {
+  dispatch({ type: types.EDIT_CHAPTER, payload: { loading: true } });
+  db.collection("chapters")
+    .doc(chapid)
+    .update({ ...data })
+    .then(() => {
+      db.collection("stories")
+        .doc(storyId)
+        .get()
+        .then((doc) => {
+          db.collection("stories")
+            .doc(storyId)
+            .update({
+              secondaryCharacters,
+            })
+            .then(() => {
+              dispatch({
+                type: types.EDIT_CHAPTER,
+                payload: {
+                  message: "Chapter edited successfully",
+                  loading: false,
+                },
+              });
+            });
+        });
+    });
+};
+
+export const deleteChapter = (id, storyId) => (dispatch) => {
+  dispatch({ type: types.DELETE_CHAPTER, payload: { loadingChapter: true } });
+  db.collection("chapters")
+    .doc(id)
+    .get()
+    .then((doc) => {
+      const charactersFromChapter = doc.data().characters;
+      db.collection("stories")
+        .doc(storyId)
+        .get()
+        .then((story) => {
+          const charactersFromStory = story.data().secondaryCharacters;
+          let newArr = charactersFromStory.map((c) => {
+            if (charactersFromChapter.includes(c.id)) {
+              return { ...c, times: c.times - 1 };
+            } else {
+              return c;
+            }
+          });
+          newArr = newArr.filter((c) => c.times > 0);
+          db.collection("stories")
+            .doc(storyId)
+            .update({ secondaryCharacters: newArr })
+            .then(() => {
+              db.collection("chapters")
+                .doc(id)
+                .delete()
+                .then(() => {
+                  dispatch({
+                    type: types.DELETE_CHAPTER,
+                    payload: {
+                      message: "Chapter deleted successfully",
+                      loadingChapter: false,
+                    },
+                  });
+                });
+            });
+        });
+    });
+};
+
+export const getChapter = (storyId, id) => (dispatch) => {
+  db.collection("stories")
+    .doc(storyId)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        db.collection("chapters")
+          .doc(id)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              dispatch({
+                type: types.GET_CHAPTER,
+                payload: {
+                  chapter: { ...doc.data(), id: doc.id },
+                  chapterExists: true,
+                },
+              });
+            } else {
+              dispatch({
+                type: types.GET_CHAPTER,
+                payload: { chapterExists: false },
+              });
+            }
+          });
+      } else {
+        dispatch({
+          type: types.GET_CHAPTER,
+          payload: { chapterExists: false },
+        });
+      }
+    });
+};
+
+export const getChapters = (id) => (dispatch) => {
+  db.collection("chapters")
+    .where("storyId", "==", id)
+    .orderBy("number", "asc")
+    .onSnapshot((docs) => {
+      let arr = [];
+      docs.forEach((doc) => {
+        arr.push({
+          authorId: doc.data().authorId,
+          id: doc.id,
+          createdAt: doc.data().createdAt,
+          number: doc.data().number,
+          title: doc.data().title,
+          commentsCount: doc.data().commentsCount,
+        });
+      });
+      dispatch({
+        type: types.GET_CHAPTERS,
+        payload: arr,
+      });
+    });
+};
+
+// LOCATIONS
+
+export const addLocation = (data) => (dispatch) => {
+  console.log("coucou");
+  dispatch({ type: types.ADD_LOCATION, payload: { loadingLoc: true } });
+
+  const imageName = data.name.toLowerCase().split(" ").join("_");
+
+  if (typeof data.image === "object") {
+    storage
+      .ref(`${auth.currentUser.uid}/${imageName}`)
+      .put(data.image)
+      .then(() => {
+        return storage
+          .ref(auth.currentUser.uid)
+          .child(imageName)
+          .getDownloadURL();
+      })
+      .then((url) => {
+        return db.collection("locations").add({
+          ...data,
+          image: url,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      })
+      .then((res) =>
+        dispatch({
+          type: types.ADD_LOCATION,
+          payload: {
+            message: "Location added successfully",
+            locId: res.id,
+            loadingLoc: false,
+          },
+        })
+      )
+      .catch((err) => {
+        message.error(err.message);
+      });
+  } else {
+    db.collection("locations")
+      .add({
+        ...data,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then((res) =>
+        dispatch({
+          type: types.ADD_LOCATION,
+          payload: {
+            message: "Location added successfully",
+            locId: res.id,
+            loadingLoc: false,
+          },
+        })
+      )
+      .catch((err) => {
+        message.error(err.message);
+      });
+  }
+};
+
+export const editLocation = (data) => (dispatch) => {};
+
+export const getLocation = (id) => (dispatch) => {
+  db.collection("locations")
+    .doc(id)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        dispatch({
+          type: types.GET_LOCATION,
+          payload: { ...doc.data(), id: doc.id },
+          locationExists: true,
+        });
+      } else {
+        dispatch({
+          type: types.GET_LOCATION,
+          locationExists: false,
+        });
+      }
+    });
+};
+
+export const getUserLocations = () => (dispatch) => {
+  db.collection("locations")
+    .where("authorId", "==", auth.currentUser.uid)
+    .get()
+    .then((docs) => {
+      let locations = [];
+      docs.forEach((doc) => {
+        locations = [...locations, { id: doc.id, ...doc.data() }];
+      });
+      dispatch({
+        type: types.GET_USER_LOCATIONS,
+        payload: locations,
+      });
+    });
+};
+
+export const getStoryLocations = (storyId) => (dispatch) => {
+  db.collection("locations")
+    .where("storyId", "==", storyId)
+    .get()
+    .then((docs) => {
+      const locations = docs.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      dispatch({
+        type: types.GET_STORY_LOCATIONS,
+        payload: locations,
       });
     });
 };

@@ -47,6 +47,7 @@ const newCharacter = (props) => {
       ...values,
       authorId: auth.user.uid,
       authorName: auth.user.username,
+      authorImage: auth.user.image ? auth.user.image : "",
     });
   };
 

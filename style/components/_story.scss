@@ -185,6 +185,10 @@
 
     .btn-follow {
       margin: 15px auto;
+
+      &.liked {
+        color: $primary;
+      }
     }
 
     .poster {
@@ -265,12 +269,12 @@
           }
 
           &.edit-btn {
-            color: $greyDark;
+            color: $greyDark-2;
           }
+        }
 
-          &.delete-btn {
-            color: red;
-          }
+        ion-icon {
+          color: #e05858;
         }
       }
       .chapter {
@@ -297,8 +301,9 @@
       figcaption {
         padding: 10px 0 0 0;
         h3 {
-          font-size: 0.9rem;
+          font-size: 0.7rem;
           text-align: center;
+          color: $greyDark-2;
         }
         span.author {
           display: none;

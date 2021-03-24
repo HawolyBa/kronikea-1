@@ -1,51 +1,80 @@
 import React from "react";
-import { Row, Col, Divider } from "antd";
+import { connect } from "react-redux";
+import { Form, message } from "antd";
+import { useRouter } from "next/router";
 
-import UploadImage from "../../components/forms/UploadImage";
-import InputGroup from "../../components/common/Input";
-import SelectGroup from "../../components/common/Select";
+import {
+  addLocation,
+  getUserStories,
+} from "../../redux/actions/storiesActions";
+import { useAuth } from "../../hooks/userHooks";
 
-const newLocation = () => {
+import LocationForm from "../../components/forms/LocationForm";
+import RedirectComp from "../../components/hoc/RedirectComp";
+import LoadingScreen from "../../components/hoc/LoadingScreen";
+
+const newLocation = (props) => {
+  const { stories, loadingLoc, actionMessage, locId } = props;
+  const [form] = Form.useForm();
+  const auth = useAuth();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (auth.user) {
+      props.getUserStories();
+    }
+  }, [auth]);
+
+  React.useEffect(() => {
+    if (actionMessage) {
+      message.success(actionMessage);
+    }
+  }, [actionMessage]);
+
+  React.useEffect(() => {
+    if (locId) {
+      router.push(`/location/${locId}/edit`);
+    }
+  }, [locId]);
+
+  const submit = (values) => {
+    props.addLocation({
+      ...values,
+      authorId: auth.user.uid,
+      authorName: auth.user.username,
+      storyTitle: stories.find((s) => s.id === values.storyId).title,
+    });
+  };
+
   return (
-    <div className="new-location custom-form">
-      <div className="inner">
-        <h2 className="side-heading">Add a new location</h2>
-        <form className="form-group">
-          <Row align="bottom" gutter={[24, 24]}>
-            <Col flex="auto" md={6}>
-              <div className="input-group">
-                <label htmlFor="cover">Upload a cover</label>
-                <UploadImage />
-              </div>
-            </Col>
-            <InputGroup
-              placeholder="Name of your location"
-              name="name"
-              type="text"
-              md={12}
+    <LoadingScreen loading={auth.isLoading}>
+      <RedirectComp type="redirect" condition={auth.user}>
+        <div className="new-location custom-form">
+          <div className="inner">
+            <h2 className="side-heading">Add a new location</h2>
+            <LocationForm
+              form={form}
+              stories={stories}
+              type="add"
+              loadingLoc={loadingLoc}
+              submit={submit}
+              locId={locId}
+              initialValues={{ name: "" }}
             />
-            <SelectGroup
-              name="story"
-              md={6}
-              options={[
-                { value: "Lord of The Rings", name: "Lord of The Rings" },
-              ]}
-            />
-          </Row>
-          <div className="input-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              className="form-input"
-              name="description"
-              id="description"
-            ></textarea>
           </div>
-          <Divider />
-          <button type="submit">Create</button>
-        </form>
-      </div>
-    </div>
+        </div>
+      </RedirectComp>
+    </LoadingScreen>
   );
 };
 
-export default newLocation;
+const mapStateToProps = (state) => ({
+  stories: state.stories.userStories,
+  locId: state.stories.locId,
+  actionMessage: state.stories.message,
+  loadingLoc: state.stories.loadingLoc,
+});
+
+export default connect(mapStateToProps, { addLocation, getUserStories })(
+  newLocation
+);

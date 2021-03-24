@@ -25,7 +25,6 @@ const Card = ({ story }) => {
             <ion-icon name="chatbubble"></ion-icon>
           </span>
         </div>
-        {/* <time>2019.01.01</time> */}
       </figcaption>
     </figure>
   );

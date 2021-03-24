@@ -4,6 +4,7 @@ import {
   ADD_CHARACTER,
   GET_CHARACTER,
   EDIT_CHARACTER,
+  GET_STORY_CHARACTERS,
 } from "../../utils/constants";
 
 const initialState = {
@@ -29,6 +30,8 @@ const initialState = {
     relatives: [],
   },
   charaExists: false,
+  secondaryCharacters: [],
+  mainArr: [],
 };
 
 const charactersReducer = (state = initialState, action) => {
@@ -65,6 +68,12 @@ const charactersReducer = (state = initialState, action) => {
       return {
         ...state,
         favCharacters: action.payload,
+      };
+    case GET_STORY_CHARACTERS:
+      return {
+        ...state,
+        secondaryCharacters: action.payload.secondaryCharacters,
+        mainArr: action.payload.mainArr,
       };
     default:
       return state;

@@ -77,7 +77,7 @@ function useProvideAuth() {
             .doc(user.uid)
             .onSnapshot((doc) => {
               username = doc.data().username;
-              setUser({ ...user, username });
+              setUser({ ...user, username, image: doc.data().image });
             });
         }
       } else {

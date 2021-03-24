@@ -1,20 +1,9 @@
-import {
-  GET_USER_STORIES,
-  GET_FAVORITE_STORIES,
-  GET_STORY,
-  GET_CHAPTERS,
-  ADD_STORY,
-  EDIT_STORY,
-  DISPATCH_ERROR,
-  GET_USER_LOCATIONS,
-  ADD_CHAPTER,
-  GET_CHAPTER,
-  EDIT_CHAPTER,
-} from "../../utils/constants";
+import { types } from "../../utils/constants";
 
 const initialState = {
   userStories: [],
   favStories: [],
+  storyLocations: [],
   story: {
     id: "",
     banner: "",
@@ -37,6 +26,7 @@ const initialState = {
   storyExists: true,
   userLocations: [],
   chapId: "",
+  locId: "",
   chapter: {
     id: "",
     title: "",
@@ -49,26 +39,39 @@ const initialState = {
     authorName: "",
     status: true,
   },
+  location: {
+    id: "",
+    name: "",
+    authorId: "",
+    storyId: "",
+    description: "",
+    image: "",
+    imageCopyright: "",
+  },
   chapterExists: true,
+  isFavorite: false,
+  loadingFav: true,
+  loadingLoc: false,
+  locationExists: true,
 };
 
 const storiesReducer = (state = initialState, action) => {
   switch (action.type) {
-    case DISPATCH_ERROR: {
+    case types.DISPATCH_ERROR: {
       return {
         ...state,
         storyExists: action.storyExists,
         loading: false,
       };
     }
-    case GET_STORY:
+    case types.GET_STORY:
       return {
         ...state,
         loading: false,
         story: action.payload,
         storyExists: action.storyExists,
       };
-    case GET_CHAPTER:
+    case types.GET_CHAPTER:
       return {
         ...state,
         loading: false,
@@ -77,55 +80,86 @@ const storiesReducer = (state = initialState, action) => {
           : state.chapter,
         chapterExists: action.payload.chapterExists,
       };
-    case ADD_STORY:
+    case types.ADD_STORY:
       return {
         ...state,
         message: action.payload.message,
         storyId: action.payload.storyId,
         loadingStory: action.payload.loading,
       };
-    case ADD_CHAPTER:
+    case types.ADD_CHAPTER:
       return {
         ...state,
         message: action.payload.message,
         chapId: action.payload.chapId,
         loadingChapter: action.payload.loading,
       };
-    case EDIT_CHAPTER:
+    case types.EDIT_CHAPTER:
       return {
         ...state,
         message: action.payload.message,
         loadingChapter: action.payload.loading,
       };
-    case EDIT_STORY:
+    case types.DELETE_CHAPTER:
+      return {
+        ...state,
+        message: action.payload.message,
+        loadingChapter: action.payload.loadingChapter,
+      };
+    case types.EDIT_STORY:
       return {
         ...state,
         message: action.payload.message,
         loadingStory: action.payload.loadingStory,
       };
-    case GET_USER_STORIES:
+    case types.ADD_LOCATION:
+      return {
+        ...state,
+        locId: action.payload.locId,
+        message: action.payload.message,
+        loadingLoc: action.payload.loadingLoc,
+      };
+    case types.GET_LOCATION:
+      return {
+        ...state,
+        loading: false,
+        location: action.payload ? action.payload : state.location,
+        locationExists: action.locationExists,
+      };
+    case types.GET_USER_STORIES:
       return {
         ...state,
         loading: false,
         userStories: action.payload,
       };
-    case GET_USER_LOCATIONS:
+    case types.GET_USER_LOCATIONS:
       return {
         ...state,
         userLocations: action.payload,
       };
-    case GET_FAVORITE_STORIES:
+    case types.GET_FAVORITE_STORIES:
       return {
         ...state,
         favStories: action.payload,
       };
-    case GET_CHAPTERS:
+    case types.GET_CHAPTERS:
       return {
         ...state,
         chapters: {
           loading: false,
           items: action.payload,
         },
+      };
+    case types.IS_STORY_FAVORITE:
+      return {
+        ...state,
+        isFavorite: action.payload,
+        loadingFav: action.loadingFav,
+      };
+    case types.GET_STORY_LOCATIONS:
+      return {
+        ...state,
+        storyLocations: action.payload,
       };
     default:
       return state;

@@ -9,7 +9,11 @@ import {
   editChapter,
   getUserLocations,
 } from "../../../../../redux/actions/storiesActions";
-import { getUserCharacters } from "../../../../../redux/actions/charactersActions";
+import {
+  getUserCharacters,
+  getCharactersInStory,
+} from "../../../../../redux/actions/charactersActions";
+import { arr_diff } from "../../../../../utils/helpers";
 
 import ChapterForm from "../../../../../components/forms/ChapterForm";
 import LoadingScreen from "../../../../../components/hoc/LoadingScreen";
@@ -25,20 +29,17 @@ const EditChapter = (props) => {
     chapter,
     chapterExists,
     editMessage,
+    secondaryCharacters,
+    mainArr,
   } = props;
   const auth = useAuth();
   const router = useRouter();
   const [body, setBody] = React.useState("");
 
   React.useEffect(() => {
+    props.getCharactersInStory(router.query.id);
     props.getChapter(router.query.id, router.query.chapid);
-  }, []);
-
-  React.useEffect(() => {
-    if (editMessage) {
-      message.success(editMessage);
-    }
-  }, [editMessage]);
+  }, [router.query.id, router.query.chapid]);
 
   React.useEffect(() => {
     if (auth.user) {
@@ -47,9 +48,43 @@ const EditChapter = (props) => {
     }
   }, [auth]);
 
+  React.useEffect(() => {
+    if (editMessage) {
+      props.getChapter(router.query.id, router.query.chapid);
+      message.success(editMessage);
+    }
+  }, [editMessage]);
+
   const submit = (values) => {
     delete values.currentChar;
     delete values.currentLoc;
+
+    const originArr = chapter.characters.filter((c) => !mainArr.includes(c)); // Array d'ids
+    let secondaryCharactersArr = [...secondaryCharacters]; // Array d'objets contenant les perso et le nombre de fois
+    let charInChapter = values.characters.filter((c) => !mainArr.includes(c)); // Array contenant les nouveaux perso moins les mains
+    let newArr = arr_diff(originArr, charInChapter); // Array contenant tous les changements à traiter
+
+    // Vérifie si le perso est nouvellement ajouté ou retiré
+    newArr.forEach((char) => {
+      const index = secondaryCharactersArr.findIndex((c) => c.id === char);
+      // Vérifier si rajouté ou retiré
+      if (!originArr.includes(char)) {
+        // Char n'existe pas
+        if (index === -1) {
+          secondaryCharactersArr.push({ id: char, times: 1 });
+        } else {
+          // char existe donc on ajoute time 1
+          secondaryCharactersArr[index].times =
+            secondaryCharactersArr[index].times + 1;
+        }
+      } else {
+        // char retiré donc on enlève time 1
+        secondaryCharactersArr[index].times =
+          secondaryCharactersArr[index].times - 1;
+      }
+    });
+    // Retirer les objets dont le times =0
+    secondaryCharactersArr = secondaryCharactersArr.filter((c) => c.times > 0);
 
     props.editChapter(
       {
@@ -58,7 +93,8 @@ const EditChapter = (props) => {
         status: values.status === "true",
       },
       router.query.id,
-      router.query.chapid
+      router.query.chapid,
+      secondaryCharactersArr
     );
   };
 
@@ -94,6 +130,8 @@ const EditChapter = (props) => {
 
 const mapStateToProps = (state) => ({
   chapter: state.stories.chapter,
+  mainArr: state.characters.mainArr,
+  secondaryCharacters: state.characters.secondaryCharacters,
   characters: state.characters.userCharacters,
   loading: state.stories.loading,
   locations: state.stories.userLocations,
@@ -107,4 +145,5 @@ export default connect(mapStateToProps, {
   getUserCharacters,
   getUserLocations,
   editChapter,
+  getCharactersInStory,
 })(EditChapter);

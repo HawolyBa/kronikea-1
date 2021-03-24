@@ -388,3 +388,21 @@ figure.character-card {
     height: 32px;
   }
 }
+
+.modal-img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 15px;
+  border-radius: 10px;
+}
+
+.modal-story-link {
+  font-size: 0.8rem;
+  margin-top: 10px;
+  color: $greyDark;
+
+  a {
+    text-decoration: underline;
+    color: $greyDark;
+  }
+}

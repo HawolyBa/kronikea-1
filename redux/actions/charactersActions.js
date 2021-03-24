@@ -4,9 +4,10 @@ import {
   ADD_CHARACTER,
   EDIT_CHARACTER,
   GET_CHARACTER,
+  GET_STORY_CHARACTERS,
 } from "../../utils/constants";
 import { message } from "antd";
-import { db, auth } from "../fbConfig";
+import { db, auth, storage } from "../fbConfig";
 import firebase from "firebase/app";
 
 export const getCharacter = (id) => (dispatch) => {
@@ -197,6 +198,20 @@ export const getFavoriteCharacters = () => (dispatch) => {
           type: GET_FAVORITE_CHARACTERS,
           payload: favUsers,
         });
+      });
+    });
+};
+
+export const getCharactersInStory = (id) => (dispatch) => {
+  db.collection("stories")
+    .doc(id)
+    .onSnapshot((doc) => {
+      dispatch({
+        type: GET_STORY_CHARACTERS,
+        payload: {
+          secondaryCharacters: doc.data().secondaryCharacters,
+          mainArr: doc.data().mainCharacters,
+        },
       });
     });
 };

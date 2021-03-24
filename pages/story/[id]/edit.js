@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Result, Button } from "antd";
+import { Form } from "antd";
 import { connect } from "react-redux";
 import { useRouter } from "next/router";
 
@@ -7,16 +7,15 @@ import { useAuth } from "../../../hooks/userHooks";
 import { getUserCharacters } from "../../../redux/actions/charactersActions";
 import { getStory, editStory } from "../../../redux/actions/storiesActions";
 
-//import Loader from "../../../components/hoc/withLoading";
 import StoryForm from "../../../components/forms/StoryForm";
+import LoadingScreen from "../../../components/hoc/LoadingScreen";
+import RedirectComp from "../../../components/hoc/RedirectComp";
 
 const EditStory = (props) => {
   const auth = useAuth();
   const router = useRouter();
   const { story, loading, characters, loadingStory, storyExists } = props;
   const [form] = Form.useForm();
-
-  console.log(loading);
 
   const [mature, setMature] = React.useState(false);
   const [visibility, setVisibility] = React.useState(true);
@@ -38,46 +37,34 @@ const EditStory = (props) => {
     props.editStory(values, router.query.id);
   };
 
-  return !loading ? (
-    storyExists && story.title ? (
-      auth.user.uid === story.authorId ? (
-        <StoryForm
-          type="edit"
-          submit={submit}
-          characters={characters}
-          loading={loading}
-          form={form}
-          mature={mature}
-          setMature={setMature}
-          visibility={visibility}
-          setVisibility={setVisibility}
-          story={story}
-          loadingStory={loadingStory}
-        />
-      ) : (
-        <Result
-          status="403"
-          title="403"
-          subTitle="Sorry, you are not authorized to access this page."
-          extra={<Button type="primary">Back Home</Button>}
-        />
-      )
-    ) : (
-      <Result
-        status="404"
-        title="404"
-        subTitle="Sorry, the page you visited does not exist."
-        extra={<Button type="primary">Back Home</Button>}
-      />
-    )
-  ) : (
-    <div className="loader-container">
-      <div className="loader">
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-    </div>
+  return (
+    <LoadingScreen loading={loading}>
+      <RedirectComp type={"404"} condition={storyExists}>
+        <RedirectComp
+          type="403"
+          condition={auth.user && auth.user.uid === story.authorId}
+        >
+          <div className="new-story custom-form">
+            <div className="inner">
+              <h2 className="side-heading">Edit story: {story.title}</h2>
+              <StoryForm
+                type="edit"
+                submit={submit}
+                characters={characters}
+                loading={loading}
+                form={form}
+                mature={mature}
+                setMature={setMature}
+                visibility={visibility}
+                setVisibility={setVisibility}
+                story={story}
+                loadingStory={loadingStory}
+              />
+            </div>
+          </div>
+        </RedirectComp>
+      </RedirectComp>
+    </LoadingScreen>
   );
 };
 

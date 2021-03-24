@@ -1,6 +1,7 @@
 import React from "react";
 import { Form } from "antd";
 import { connect } from "react-redux";
+import { useRouter } from "next/router";
 
 import { useAuth } from "../../hooks/userHooks";
 import { getUserCharacters } from "../../redux/actions/charactersActions";
@@ -13,6 +14,7 @@ import LoadingScreen from "../../components/hoc/LoadingScreen";
 const NewStory = (props) => {
   const [form] = Form.useForm();
   const auth = useAuth();
+  const router = useRouter();
 
   const [mature, setMature] = React.useState(false);
   const [visibility, setVisibility] = React.useState(true);
@@ -41,7 +43,7 @@ const NewStory = (props) => {
     delete values.currentChar;
     props.addStory({
       ...values,
-      authorName: props.auth.user.username,
+      authorName: auth.user.username,
       banner: form.getFieldValue("banner") ? form.getFieldValue("banner") : "",
     });
   };
@@ -49,18 +51,23 @@ const NewStory = (props) => {
   return (
     <LoadingScreen loading={auth.isLoading}>
       <RedirectComp condition={auth.user} type="redirect">
-        <StoryForm
-          type="add"
-          submit={submit}
-          characters={props.characters}
-          loading={props.loading}
-          storyId={props.storyId}
-          form={form}
-          mature={mature}
-          setMature={setMature}
-          visibility={visibility}
-          setVisibility={setVisibility}
-        />
+        <div className="new-story custom-form">
+          <div className="inner">
+            <h2 className="side-heading">Edit story {story.title}</h2>
+            <StoryForm
+              type="add"
+              submit={submit}
+              characters={props.characters}
+              loading={props.loading}
+              storyId={props.storyId}
+              form={form}
+              mature={mature}
+              setMature={setMature}
+              visibility={visibility}
+              setVisibility={setVisibility}
+            />
+          </div>
+        </div>
       </RedirectComp>
     </LoadingScreen>
   );

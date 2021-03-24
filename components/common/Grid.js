@@ -3,6 +3,8 @@ import { Row, Col } from "antd";
 import Card from "../common/Card";
 import UserCard from "../common/UserCard";
 import CharacterCard from "../common/CharacterCard";
+import LocationCard from "../common/LocationCard";
+import WithLink from "../hoc/WithLink";
 
 const StoryGrid = () => {
   return (
@@ -57,29 +59,44 @@ const UserGrid = () => {
   );
 };
 
-const CharacterGrid = () => {
+const LocationGrid = ({ locations, gutter, lg, md, sm, xs, type }) => {
   return (
-    <Row gutter={[16, 16]}>
-      <Col xxl={4} xl={6} lg={8}>
-        <CharacterCard />
-      </Col>
-      <Col xxl={4} xl={6} lg={8}>
-        <CharacterCard />
-      </Col>
-      <Col xxl={4} xl={6} lg={8}>
-        <CharacterCard />
-      </Col>
-      <Col xxl={4} xl={6} lg={8}>
-        <CharacterCard />
-      </Col>
-      <Col xxl={4} xl={6} lg={8}>
-        <CharacterCard />
-      </Col>
-      <Col xxl={4} xl={6} lg={8}>
-        <CharacterCard />
-      </Col>
+    <Row gutter={gutter}>
+      {locations.map((loc) => (
+        <Col xs={xs} sm={sm} md={md} lg={lg} key={loc.id}>
+          <LocationCard type={type} location={loc} />
+        </Col>
+      ))}
     </Row>
   );
 };
 
-export { StoryGrid, CharacterGrid, UserGrid };
+const CharacterGrid = ({
+  gutter,
+  xxl,
+  xl,
+  lg,
+  md,
+  sm,
+  xs,
+  characters,
+  type,
+}) => {
+  return (
+    <Row gutter={gutter}>
+      {characters?.map((c) => (
+        <Col key={c.id} xxl={xxl} xl={xl} lg={lg} md={md} sm={sm} xs={xs}>
+          {type === "show" ? (
+            <WithLink link={`/character/${c.id}`}>
+              <CharacterCard character={c} type={type} />
+            </WithLink>
+          ) : (
+            <CharacterCard character={c} type={type} />
+          )}
+        </Col>
+      ))}
+    </Row>
+  );
+};
+
+export { StoryGrid, CharacterGrid, UserGrid, LocationGrid };

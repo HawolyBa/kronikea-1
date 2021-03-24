@@ -54,13 +54,29 @@ const NewChapter = (props) => {
     delete values.currentChar;
     delete values.currentLoc;
 
-    props.addChapter({
-      ...values,
-      authorName: auth.user.username,
-      storyId: story.id,
-      body,
-      status: values.status === "true",
+    const main = story.mainArr;
+    let secondaryCharacters = [...story.secondaryArr];
+    let charInChapter = values.characters.filter((c) => !main.includes(c));
+
+    charInChapter.forEach((char) => {
+      const index = secondaryCharacters.findIndex((c) => c.id === char);
+      if (index !== -1) {
+        secondaryCharacters[index].times++;
+      } else {
+        secondaryCharacters.push({ id: char, times: 1 });
+      }
     });
+
+    props.addChapter(
+      {
+        ...values,
+        authorName: auth.user.username,
+        storyId: story.id,
+        body,
+        status: values.status === "true",
+      },
+      secondaryCharacters
+    );
   };
 
   return (
