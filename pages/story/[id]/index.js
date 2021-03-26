@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Row, Col, message } from "antd";
+import { Row, Col, message, Empty } from "antd";
 import { connect } from "react-redux";
 
 import {
@@ -15,7 +15,6 @@ import {
 } from "../../../redux/actions/storiesActions";
 import { useAuth } from "../../../hooks/userHooks";
 
-import LocationCard from "../../../components/common/LocationCard";
 import RedirectComp from "../../../components/hoc/RedirectComp";
 import LoadingScreen from "../../../components/hoc/LoadingScreen";
 import Chapters from "../../../components/story/Chapters";
@@ -43,6 +42,10 @@ const Story = ({
   const router = useRouter();
   const auth = useAuth();
 
+  const [mains, setMains] = React.useState([]);
+  const [secondaries, setSecondaries] = React.useState([]);
+  const [chaptersArr, setChaptersArr] = React.useState([]);
+
   React.useEffect(() => {
     getStory(router.query.id);
     getChapters(router.query.id);
@@ -64,11 +67,44 @@ const Story = ({
     deleteChapter(id, router.query.id);
   };
 
+  React.useEffect(() => {
+    if (story.mainCharacters) {
+      setMains(
+        story.mainCharacters.filter(
+          (c) => c.public || c.authorId === auth.user.uid
+        )
+      );
+    }
+  }, [story]);
+
+  React.useEffect(() => {
+    if (story.secondaryCharacters) {
+      setSecondaries(
+        story.secondaryCharacters.filter(
+          (c) => c.public || c.authorId === auth.user.uid
+        )
+      );
+    }
+  }, [story]);
+
+  React.useEffect(() => {
+    if (!chapters.loading) {
+      setChaptersArr(
+        chapters.items.filter((c) => c.status || c.authorId === auth.user.uid)
+      );
+    }
+  }, [chapters]);
+
   return (
     <LoadingScreen loading={loading}>
       <LoadingScreen loading={loadingFav}>
         <RedirectComp type="404" condition={storyExists}>
-          <RedirectComp type="403" condition={story.public}>
+          <RedirectComp
+            type="403"
+            condition={
+              story.public || (auth.user && auth.user.uid === story.authorId)
+            }
+          >
             <div className="story">
               <Row gutter={24}>
                 <Banner
@@ -82,11 +118,20 @@ const Story = ({
                 />
                 <Col sm={24} md={16} lg={18}>
                   <div className="story-chapters">
-                    <Chapters
-                      chapters={chapters}
-                      id={router.query.id}
-                      deleteChapter={deleteChapterFunc}
-                    />
+                    {chaptersArr.length > 0 ? (
+                      <Chapters
+                        loading={chapters.loading}
+                        chapters={chaptersArr}
+                        id={router.query.id}
+                        deleteChapter={deleteChapterFunc}
+                      />
+                    ) : (
+                      <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description="No chapters yet"
+                      />
+                    )}
+
                     <h3 className="heading">Main Characters</h3>
                     <CharacterGrid
                       gutter={[24, 16]}
@@ -97,7 +142,7 @@ const Story = ({
                       sm={8}
                       xs={12}
                       type="show"
-                      characters={story.mainCharacters}
+                      characters={mains}
                     />
                     <h3 className="heading">Secondary Characters</h3>
                     <CharacterGrid
@@ -109,7 +154,7 @@ const Story = ({
                       sm={8}
                       xs={12}
                       type="show"
-                      characters={story.secondaryCharacters}
+                      characters={secondaries}
                     />
                     <h3 className="heading">Locations</h3>
                     <LocationGrid

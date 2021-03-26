@@ -4,6 +4,7 @@ import moment from "moment";
 import { Image, Col, Tag, Skeleton } from "antd";
 
 import { LANGUAGES } from "../../utils/constants";
+import { dummy } from "../../utils/dummy";
 
 import Like from "../common/Like";
 
@@ -16,6 +17,10 @@ const Banner = ({
   removeStoryFromFavorite,
   auth,
 }) => {
+  let lang = LANGUAGES.find(
+    (l) => l.value.toLocaleLowerCase() === story.language
+  );
+  lang = lang ? lang.name : story.language;
   return (
     <Col sm={24} md={8} lg={6}>
       <div className="story-details">
@@ -23,7 +28,7 @@ const Banner = ({
           <>
             <div className="poster" data-aos="zoom-in">
               <Image
-                src={story.banner}
+                src={story.banner ? story.banner : dummy.noImage}
                 alt={`poster ${story.title}`}
                 width={"100%"}
                 height={"100%"}
@@ -65,10 +70,7 @@ const Banner = ({
                 </Link>
               </span>
               <br />
-              <span>
-                Language:{" "}
-                {LANGUAGES.find((l) => l.value === story.language).name}
-              </span>
+              <span>Language: {lang}</span>
               <br />
               <span>Status: {story.status}</span>
               <br />

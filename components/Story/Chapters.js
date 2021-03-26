@@ -3,13 +3,13 @@ import { Col, Popconfirm, Row, Space } from "antd";
 
 import WithLink from "../hoc/WithLink";
 
-const Chapters = ({ chapters, id, deleteChapter }) => {
+const Chapters = ({ chapters, id, deleteChapter, loading }) => {
   return (
     <>
       <h3 className="chap-title">Chapters</h3>
       <div className="chapters">
-        {!chapters.loading &&
-          chapters.items.map((item) => (
+        {!loading &&
+          chapters.map((item) => (
             <div key={item.id} className="chapter" data-aos="flip-left">
               <Row align="middle" gutter={60} justify="space-between">
                 <Col>

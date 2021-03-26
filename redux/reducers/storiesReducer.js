@@ -48,6 +48,8 @@ const initialState = {
     image: "",
     imageCopyright: "",
   },
+  comments: [],
+  loadingComments: true,
   chapterExists: true,
   isFavorite: false,
   loadingFav: true,
@@ -160,6 +162,12 @@ const storiesReducer = (state = initialState, action) => {
       return {
         ...state,
         storyLocations: action.payload,
+      };
+    case types.GET_COMMENTS:
+      return {
+        ...state,
+        comments: action.payload.comments,
+        loadingComments: action.payload.loadingComments,
       };
     default:
       return state;

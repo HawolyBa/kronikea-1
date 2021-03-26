@@ -69,22 +69,35 @@ const Navbar = ({ toggleNotifications }) => {
                         </a>
                       </Link>
                     </div>
-                    <Popconfirm
-                      title="Do you really want to log out ?"
-                      onConfirm={logout}
-                    >
-                      <Tooltip title="Log out" placement="bottom">
-                        <div className="header-icon icon__settings">
-                          <ion-icon name="log-out"></ion-icon>
-                        </div>
-                      </Tooltip>
-                      <div
-                        className="mobile-icon icon__home"
-                        onClick={() => setSearchVisible(true)}
+                    {!auth.isLoading && auth.user ? (
+                      <Popconfirm
+                        title="Do you really want to log out ?"
+                        onConfirm={logout}
                       >
-                        <ion-icon name="search"></ion-icon>
-                      </div>
-                    </Popconfirm>
+                        <Tooltip title="Log out" placement="bottom">
+                          <div className="header-icon icon__settings">
+                            <ion-icon name="log-out"></ion-icon>
+                          </div>
+                        </Tooltip>
+                      </Popconfirm>
+                    ) : (
+                      <Tooltip title="Log out" placement="bottom">
+                        <Link href="/auth">
+                          <a>
+                            <div className="header-icon icon__settings">
+                              <ion-icon name="log-in"></ion-icon>
+                            </div>
+                          </a>
+                        </Link>
+                      </Tooltip>
+                    )}
+                    <div
+                      className="mobile-icon icon__home"
+                      onClick={() => setSearchVisible(true)}
+                    >
+                      <ion-icon name="search"></ion-icon>
+                    </div>
+
                     <div className="menu-btn" onClick={toggleMenu}>
                       <div className="bar"></div>
                       <div className="bar"></div>
@@ -97,25 +110,25 @@ const Navbar = ({ toggleNotifications }) => {
           </div>
         </header>
         {/* <header className="categories">
-        <ul>
-          <li>Drama</li>
-          <li>Comedy</li>
-          <li>Horror</li>
-          <li>Romance</li>
-          <li>Sci-fi</li>
-          <li>Fantasy</li>
-          <li>Humor</li>
-          <li>Action</li>
-          <li>Thriller</li>
-          <li>Supernatural</li>
-          <li>Adventure</li>
-          <li>Mystery</li>
-          <li>Western</li>
-          <li>History</li>
-          <li>Crime</li>
-          <li>Fanfiction</li>
-        </ul>
-      </header> */}
+          <ul>
+            <li>Drama</li>
+            <li>Comedy</li>
+            <li>Horror</li>
+            <li>Romance</li>
+            <li>Sci-fi</li>
+            <li>Fantasy</li>
+            <li>Humor</li>
+            <li>Action</li>
+            <li>Thriller</li>
+            <li>Supernatural</li>
+            <li>Adventure</li>
+            <li>Mystery</li>
+            <li>Western</li>
+            <li>History</li>
+            <li>Crime</li>
+            <li>Fanfiction</li>
+          </ul>
+        </header> */}
 
         <Modal
           closable={false}

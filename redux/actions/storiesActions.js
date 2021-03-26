@@ -439,7 +439,7 @@ export const deleteChapter = (id, storyId) => (dispatch) => {
     });
 };
 
-export const getChapter = (storyId, id) => (dispatch) => {
+export const getChapter = (storyId, id, type) => (dispatch) => {
   db.collection("stories")
     .doc(storyId)
     .get()
@@ -448,15 +448,58 @@ export const getChapter = (storyId, id) => (dispatch) => {
         db.collection("chapters")
           .doc(id)
           .get()
-          .then((doc) => {
-            if (doc.exists) {
-              dispatch({
-                type: types.GET_CHAPTER,
-                payload: {
-                  chapter: { ...doc.data(), id: doc.id },
-                  chapterExists: true,
-                },
-              });
+          .then((chap) => {
+            if (chap.exists) {
+              if (type === "show") {
+                let characters = [];
+                let locations = [];
+                let charaQuery = [];
+                let locQuery = [];
+                const charactersInChaper = chap.data().characters;
+                const locationsInChaper = chap.data().locations;
+                charactersInChaper.forEach((char) => {
+                  charaQuery.push(db.collection("characters").doc(char).get());
+                });
+                locationsInChaper.forEach((loc) => {
+                  locQuery.push(db.collection("locations").doc(loc).get());
+                });
+                charaQuery = Promise.all(charaQuery);
+                locQuery = Promise.all(locQuery);
+                Promise.all([charaQuery, locQuery]).then((res) => {
+                  res[0].forEach((c) => {
+                    characters.push({ ...c.data(), id: c.id });
+                  });
+                  res[1].forEach((l) => {
+                    locations.push({ ...l.data(), id: l.id });
+                  });
+                  dispatch({
+                    type: types.GET_CHAPTER,
+                    payload: {
+                      chapter: {
+                        ...chap.data(),
+                        id: chap.id,
+                        locations,
+                        characters,
+                        public: doc.data().public,
+                        storyTitle: doc.data().title,
+                      },
+                      chapterExists: true,
+                    },
+                  });
+                });
+              } else {
+                dispatch({
+                  type: types.GET_CHAPTER,
+                  payload: {
+                    chapter: {
+                      ...chap.data(),
+                      id: chap.id,
+                      public: doc.data().public,
+                    },
+                    chapterExists: true,
+                  },
+                });
+              }
             } else {
               dispatch({
                 type: types.GET_CHAPTER,
@@ -604,5 +647,74 @@ export const getStoryLocations = (storyId) => (dispatch) => {
         type: types.GET_STORY_LOCATIONS,
         payload: locations,
       });
+    });
+};
+
+// COMMENTS
+
+export const getComments = (id) => (dispatch) => {
+  db.collection("comments")
+    .where("chapterId", "==", id)
+    .orderBy("createdAt", "desc")
+    .onSnapshot((snap) => {
+      let comments = snap.docs.map((comment) => ({
+        ...comment.data(),
+        id: comment.id,
+      }));
+      let queries = [];
+      comments.forEach((comm) => {
+        queries.push(db.collection("users").doc(comm.userId).get());
+      });
+      Promise.all(queries).then((res) => {
+        comments = comments.map((comm) => ({
+          ...comm,
+          userImage: res.find((d) => d.id === comm.userId).data().image,
+        }));
+        dispatch({
+          type: types.GET_COMMENTS,
+          payload: {
+            loadingComments: false,
+            comments,
+          },
+        });
+      });
+    });
+};
+
+export const submitComment = (info) => (dispatch) => {
+  if (!auth.currentUser.emailVerified)
+    return message.error("You need to verify your email first");
+  if (!info.content) return message.error("Content must not be empty");
+
+  db.collection("comments")
+    .add({
+      ...info,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then(() => {
+      message.success("Comment posted successfully");
+      db.collection("chapters")
+        .doc(info.chapterId)
+        .get()
+        .then((chap) => {
+          db.collection("chapters")
+            .doc(info.chapterId)
+            .update({ commentsCount: chap.data().commentsCount + 1 });
+        });
+    })
+    .catch((err) => message.error(err.message));
+};
+
+export const deleteComment = (id, chapid) => (dispatch) => {
+  db.collection("chapters")
+    .doc(chapid)
+    .get()
+    .then((chap) => {
+      db.collection("chapters")
+        .doc(chapid)
+        .update({ commentsCount: chap.data().commentsCount - 1 })
+        .then(() => {
+          db.collection("comments").doc(id).delete();
+        });
     });
 };

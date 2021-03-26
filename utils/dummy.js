@@ -6,4 +6,5 @@ export const dummy = {
   name: "Aishwarya Rai",
   poster: "https://images-na.ssl-images-amazon.com/images/I/81h2gWPTYJL.jpg",
   avatar: "https://bip.cnrs.fr/wp-content/uploads/2019/11/user.jpg",
+  noImage: "https://i.stack.imgur.com/y9DpT.jpg",
 };

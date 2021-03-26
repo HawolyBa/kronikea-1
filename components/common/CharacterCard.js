@@ -1,5 +1,7 @@
 import React from "react";
 
+import { dummy } from "../../utils/dummy";
+
 const CharacterCard = ({ character, type, removeCharacter }) => {
   return (
     <figure
@@ -15,7 +17,7 @@ const CharacterCard = ({ character, type, removeCharacter }) => {
         </span>
       )}
       <div className="img-container">
-        <img src={character?.image} />
+        <img src={character?.image ? character.image : dummy.noImage} />
       </div>
       <figcaption>
         <h3>{`${character?.firstname} ${character?.lastname}`}</h3>

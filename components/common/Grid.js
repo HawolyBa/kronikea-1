@@ -1,4 +1,4 @@
-import { Row, Col } from "antd";
+import { Row, Col, Empty } from "antd";
 
 import Card from "../common/Card";
 import UserCard from "../common/UserCard";
@@ -60,7 +60,7 @@ const UserGrid = () => {
 };
 
 const LocationGrid = ({ locations, gutter, lg, md, sm, xs, type }) => {
-  return (
+  return locations.length > 0 ? (
     <Row gutter={gutter}>
       {locations.map((loc) => (
         <Col xs={xs} sm={sm} md={md} lg={lg} key={loc.id}>
@@ -68,6 +68,11 @@ const LocationGrid = ({ locations, gutter, lg, md, sm, xs, type }) => {
         </Col>
       ))}
     </Row>
+  ) : (
+    <Empty
+      image={Empty.PRESENTED_IMAGE_SIMPLE}
+      description="No locations yet"
+    />
   );
 };
 
@@ -82,7 +87,7 @@ const CharacterGrid = ({
   characters,
   type,
 }) => {
-  return (
+  return characters.length > 0 ? (
     <Row gutter={gutter}>
       {characters?.map((c) => (
         <Col key={c.id} xxl={xxl} xl={xl} lg={lg} md={md} sm={sm} xs={xs}>
@@ -96,6 +101,11 @@ const CharacterGrid = ({
         </Col>
       ))}
     </Row>
+  ) : (
+    <Empty
+      image={Empty.PRESENTED_IMAGE_SIMPLE}
+      description="No characters yet"
+    />
   );
 };
 

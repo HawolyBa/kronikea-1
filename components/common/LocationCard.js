@@ -2,6 +2,8 @@ import React from "react";
 import { Modal, Button } from "antd";
 import Link from "next/Link";
 
+import { dummy } from "../../utils/dummy";
+
 const LocationCard = ({ location, type }) => {
   const [visible, setVisible] = React.useState(false);
   return (
@@ -12,7 +14,7 @@ const LocationCard = ({ location, type }) => {
         onClick={() => setVisible(true)}
       >
         <div className="img-container">
-          <img src={location.image} />
+          <img src={location.image ? location.image : dummy.noImage} />
         </div>
         <figcaption>
           <h3>{location.name}</h3>
@@ -31,7 +33,11 @@ const LocationCard = ({ location, type }) => {
           </Button>,
         ]}
       >
-        <img className="modal-img" src={location.image} alt={location.name} />
+        <img
+          className="modal-img"
+          src={location.image ? location.image : dummy.noImage}
+          alt={location.name}
+        />
         <p>{location.description}</p>
         {type !== "story" && (
           <p className="modal-story-link">
