@@ -8,6 +8,7 @@ import {
   editCharacter,
   getCharacter,
   getUserCharacters,
+  deleteCharacter,
 } from "../../../redux/actions/charactersActions";
 
 import LoadingScreen from "../../../components/hoc/LoadingScreen";
@@ -22,6 +23,7 @@ const EditCharacter = (props) => {
     loading,
     charaExists,
     editMessage,
+    deleted,
   } = props;
   const auth = useAuth();
   const [form] = Form.useForm();
@@ -35,6 +37,12 @@ const EditCharacter = (props) => {
       props.getUserCharacters(auth.user.uid);
     }
   }, [auth]);
+
+  React.useEffect(() => {
+    if (deleted) {
+      router.push("/profile");
+    }
+  }, [deleted]);
 
   React.useEffect(() => {
     if (editMessage) {
@@ -52,6 +60,7 @@ const EditCharacter = (props) => {
   };
 
   const submit = (values) => {
+    console.log(values);
     props.editCharacter({ ...values }, router.query.id);
   };
 
@@ -80,7 +89,23 @@ const EditCharacter = (props) => {
                 setVisibility={setVisibility}
                 loadingCharacter={loadingCharacter}
                 type="edit"
-                initialValues={{ ...character }}
+                initialValues={{
+                  firstname: character.firstname,
+                  lastname: character.lastname || "",
+                  age: character.age || 0,
+                  gender: character.gender || "",
+                  public: character.public,
+                  ethnicity: character.ethnicity || "",
+                  group: character.group || "",
+                  residence: character.residence || "",
+                  description: character.description || "",
+                  nickname: character.nickname || "",
+                  occupation: character.occupation || "",
+                  relatives: character.relatives || [],
+                  image: character.image || "",
+                  imageCopyright: character.imageCopyright || "",
+                }}
+                deleteCharacter={props.deleteCharacter}
               />
             </div>
           </div>
@@ -98,10 +123,12 @@ const mapStateToProps = (state) => ({
   characterId: state.characters.characterId,
   charaExists: state.characters.charaExists,
   editMessage: state.characters.message,
+  deleted: state.characters.deleted,
 });
 
 export default connect(mapStateToProps, {
   getCharacter,
   editCharacter,
   getUserCharacters,
+  deleteCharacter,
 })(EditCharacter);

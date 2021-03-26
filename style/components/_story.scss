@@ -409,7 +409,8 @@
 }
 
 button.spin-btn,
-button[type="submit"] {
+button[type="submit"],
+button.delete-btn {
   display: block;
   width: 100%;
   border-radius: 10px;
@@ -419,6 +420,10 @@ button[type="submit"] {
   &:active {
     box-shadow: none;
   }
+}
+
+button.delete-btn {
+  background-color: $delete;
 }
 
 button[type="submit"].draft-btn {

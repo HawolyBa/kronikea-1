@@ -43,6 +43,8 @@ const newCharacter = (props) => {
   };
 
   const submit = (values) => {
+    if (typeof values.image === null) values.image = "";
+    if (!values.image) delete values.imageCopyright;
     props.addCharacter({
       ...values,
       authorId: auth.user.uid,
@@ -70,6 +72,7 @@ const newCharacter = (props) => {
                 firstname: "",
                 lastname: "",
                 age: 0,
+                gender: "",
                 public: true,
                 ethnicity: "",
                 group: "",

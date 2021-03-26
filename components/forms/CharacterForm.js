@@ -1,5 +1,14 @@
 import React from "react";
-import { Row, Col, Divider, Form, Input, InputNumber, Spin } from "antd";
+import {
+  Row,
+  Col,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  Spin,
+  Popconfirm,
+} from "antd";
 
 import Relatives from "./Relatives";
 import ImageRow from "./ImageRow";
@@ -16,6 +25,7 @@ const CharacterForm = ({
   type,
   loadingCharacter,
   initialValues,
+  deleteCharacter,
 }) => {
   return (
     <Form
@@ -138,7 +148,27 @@ const CharacterForm = ({
           <Spin />
         </button>
       ) : (
-        <button type="submit">Edit</button>
+        <Row gutter={[32, 16]}>
+          <Col md={16} sm={24} xs={24}>
+            <button type="submit">Edit</button>
+          </Col>
+          <Col md={8} sm={24} xs={24}>
+            <Popconfirm
+              title="Do you really want to delete this character ?"
+              onConfirm={() =>
+                deleteCharacter(
+                  character.id,
+                  character.firstname,
+                  character.lastname
+                )
+              }
+            >
+              <button className="delete-btn" type="button">
+                Delete
+              </button>
+            </Popconfirm>
+          </Col>
+        </Row>
       )}
     </Form>
   );

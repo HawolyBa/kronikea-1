@@ -40,7 +40,6 @@ export const getStory = (id) => (dispatch) => {
               secondaryCharacters: secondaryArr,
               mainCharacters: mainArr,
               mainArr: doc.data().mainCharacters,
-              secondaryArr: doc.data().secondaryCharacters,
             },
           });
         });
@@ -78,6 +77,7 @@ export const addStory = (data) => (dispatch) => {
           likesCount: 0,
           chaptersCount: 0,
           secondaryCharacters: [],
+          secondaryArr: [],
           featured: false,
           note: 0,
         });
@@ -111,6 +111,7 @@ export const addStory = (data) => (dispatch) => {
         chaptersCount: 0,
         featured: false,
         secondaryCharacters: [],
+        secondaryArr: [],
         note: 0,
       })
       .then((res) => {
@@ -338,6 +339,7 @@ export const addChapter = (data, secondaryCharacters) => (dispatch) => {
             .doc(data.storyId)
             .update({
               secondaryCharacters,
+              secondaryArr: secondaryCharacters.map((c) => c.id),
             })
             .then(() => {
               dispatch({
@@ -351,21 +353,6 @@ export const addChapter = (data, secondaryCharacters) => (dispatch) => {
             });
         });
     });
-  // .then((res) => {
-  //   dispatch({
-  //     type: types.ADD_CHAPTER,
-  //     payload: {
-  //       message: "Chapter added successfully",
-  //       chapId: res.id,
-  //     },
-  //   });
-  // })
-  // .catch((err) =>
-  //   dispatch({
-  //     type: types.ADD_CHAPTER,
-  //     payload: { message: err.message, chapId: "" },
-  //   })
-  // );
 };
 
 export const editChapter = (data, storyId, chapid, secondaryCharacters) => (
@@ -384,6 +371,7 @@ export const editChapter = (data, storyId, chapid, secondaryCharacters) => (
             .doc(storyId)
             .update({
               secondaryCharacters,
+              secondaryArr: secondaryCharacters.map((c) => c.id),
             })
             .then(() => {
               dispatch({
@@ -420,7 +408,10 @@ export const deleteChapter = (id, storyId) => (dispatch) => {
           newArr = newArr.filter((c) => c.times > 0);
           db.collection("stories")
             .doc(storyId)
-            .update({ secondaryCharacters: newArr })
+            .update({
+              secondaryCharacters: newArr,
+              secondaryArr: newArr.map((c) => c.id),
+            })
             .then(() => {
               db.collection("chapters")
                 .doc(id)

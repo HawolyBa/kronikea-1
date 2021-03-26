@@ -26,15 +26,15 @@
       "static/chunks/webpack.js",
       "static/chunks/pages/_error.js"
     ],
-    "/story/[id]": [
+    "/auth": [
       "static/chunks/main.js",
       "static/chunks/webpack.js",
-      "static/chunks/pages/story/[id].js"
+      "static/chunks/pages/auth.js"
     ],
-    "/story/[id]/chapter/[chapid]": [
+    "/character/[id]": [
       "static/chunks/main.js",
       "static/chunks/webpack.js",
-      "static/chunks/pages/story/[id]/chapter/[chapid].js"
+      "static/chunks/pages/character/[id].js"
     ]
   },
   "ampFirstPages": []

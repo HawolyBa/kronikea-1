@@ -143,7 +143,7 @@ const Character = (props) => {
             </section>
             <section className="character-feedback">
               <h3 className="side-heading">Feedback</h3>
-              <Comments />
+              {/* <Comments /> */}
             </section>
           </div>
         </RedirectComp>

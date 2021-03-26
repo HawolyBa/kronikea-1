@@ -9,7 +9,6 @@ import Characters from "../../components/profile/Characters";
 import Followers from "../../components/profile/Followers";
 import Locations from "../../components/profile/Locations";
 import Settings from "../../components/profile/Settings";
-import Loader from "../../components/common/Loader";
 
 import { getProfile } from "../../redux/actions/userActions";
 import {
@@ -25,6 +24,8 @@ import {
   getFollowers,
 } from "../../redux/actions/userActions";
 import { useAuth } from "../../hooks/userHooks";
+import LoadingScreen from "../../components/hoc/LoadingScreen";
+import RedirectComp from "../../components/hoc/RedirectComp";
 
 const Profile = ({
   getProfile,
@@ -75,8 +76,8 @@ const Profile = ({
 
   return (
     <div className="profile">
-      {!auth.isLoading && auth.user ? (
-        <>
+      <LoadingScreen loading={auth.isLoading}>
+        <RedirectComp condition={auth.user} type="redirect">
           <Banner
             profile={profile}
             openSettings={openSettings}
@@ -135,12 +136,8 @@ const Profile = ({
           >
             <Settings />
           </Modal>
-        </>
-      ) : auth.isLoading ? (
-        <Loader />
-      ) : (
-        <p>Oula</p>
-      )}
+        </RedirectComp>
+      </LoadingScreen>
     </div>
   );
 };

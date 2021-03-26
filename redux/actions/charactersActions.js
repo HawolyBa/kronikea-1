@@ -1,11 +1,4 @@
-import {
-  GET_USER_CHARACTERS,
-  GET_FAVORITE_CHARACTERS,
-  ADD_CHARACTER,
-  EDIT_CHARACTER,
-  GET_CHARACTER,
-  GET_STORY_CHARACTERS,
-} from "../../utils/constants";
+import { types } from "../../utils/constants";
 import { message } from "antd";
 import { db, auth, storage } from "../fbConfig";
 import firebase from "firebase/app";
@@ -17,7 +10,7 @@ export const getCharacter = (id) => (dispatch) => {
     .then((doc) => {
       if (doc.exists) {
         dispatch({
-          type: GET_CHARACTER,
+          type: types.GET_CHARACTER,
           payload: {
             character: { ...doc.data(), id: doc.id },
             charaExists: true,
@@ -26,7 +19,7 @@ export const getCharacter = (id) => (dispatch) => {
         });
       } else {
         dispatch({
-          type: GET_CHARACTER,
+          type: types.GET_CHARACTER,
           payload: {
             charaExists: false,
             loading: false,
@@ -37,75 +30,75 @@ export const getCharacter = (id) => (dispatch) => {
 };
 
 export const addCharacter = (data) => (dispatch) => {
-  dispatch({ type: ADD_CHARACTER, payload: { loading: true } });
-  const imageName = `${data.firstname.toLowerCase()}${data.lastname && "_"}${
-    data.lastname && data.lastname.toLowerCase()
-  }`;
-  if (typeof data.image === "object") {
-    storage
-      .ref(`${auth.currentUser.uid}/${imageName}`)
-      .put(data.image)
-      .then(() => {
-        return storage
-          .ref(auth.currentUser.uid)
-          .child(imageName)
-          .getDownloadURL();
-      })
-      .then((url) => {
-        return db.collection("characters").add({
-          ...data,
-          image: url,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          likesCount: 0,
-          likes: [],
-          dislikes: [],
-        });
-      })
-      .then((res) => {
+  dispatch({ type: types.ADD_CHARACTER, payload: { loading: true } });
+
+  let charaId = "";
+  db.collection("characters")
+    .add({
+      ...data,
+      image: typeof data.image === "string" ? data.image : "",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      likesCount: 0,
+      likes: [],
+      dislikes: [],
+    })
+    .then((res) => {
+      charaId = res.id;
+      const imageName = `${res.id}${"_"}${data.firstname.toLowerCase()}${
+        data.lastname && "_"
+      }${data.lastname && data.lastname.toLowerCase()}`;
+
+      if (typeof data.image === "object") {
+        storage
+          .ref(`${auth.currentUser.uid}/${imageName}`)
+          .put(data.image)
+          .then(() => {
+            return storage
+              .ref(auth.currentUser.uid)
+              .child(imageName)
+              .getDownloadURL();
+          })
+          .then((url) => {
+            return db
+              .collection("characters")
+              .doc(charaId)
+              .update({ image: url });
+          })
+          .then(() => {
+            message.success("Character added successfully");
+            dispatch({
+              type: types.ADD_CHARACTER,
+              payload: {
+                message: "Character added successfully",
+                characterId: charaId,
+                loading: false,
+              },
+            });
+          });
+      } else {
         message.success("Character added successfully");
         dispatch({
-          type: ADD_CHARACTER,
+          type: types.ADD_CHARACTER,
           payload: {
             message: "Character added successfully",
-            characterId: res.id,
+            characterId: charaId,
             loading: false,
           },
         });
-      })
-      .catch((err) => {
-        message.error(err.message);
-      });
-  } else {
-    db.collection("characters")
-      .add({
-        ...data,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        likesCount: 0,
-        likes: [],
-        dislikes: [],
-      })
-      .then((res) => {
-        message.success("Character added successfully");
-        dispatch({
-          type: ADD_CHARACTER,
-          payload: {
-            message: "Character added successfully",
-            characterId: res.id,
-            loading: false,
-          },
-        });
-      })
-      .catch((err) => {
-        message.error(err.message);
-      });
-  }
+      }
+    })
+    .catch((err) => {
+      message.error(err.message);
+    });
 };
 
 export const editCharacter = (data, id) => (dispatch) => {
-  dispatch({ type: EDIT_CHARACTER, payload: { loadingCharacter: true } });
-  const imageName = `${data.firstname.toLowerCase()}${data.lastname && "_"}${
-    data.lastname && data.lastname.toLowerCase()
-  }`;
+  dispatch({ type: types.EDIT_CHARACTER, payload: { loadingCharacter: true } });
+
+  const imageName = `${id}${"_"}${data.firstname.toLowerCase()}${
+    data.lastname && "_"
+  }${data.lastname && data.lastname.toLowerCase()}`;
+
   if (data.image && typeof data.image === "object") {
     storage
       .ref(`${auth.currentUser.uid}/${imageName}`)
@@ -123,11 +116,12 @@ export const editCharacter = (data, id) => (dispatch) => {
           .update({
             ...data,
             image: url,
+            relativesArr: data.relatives.map((c) => c.character_id),
           });
       })
       .then(() => {
         dispatch({
-          type: EDIT_CHARACTER,
+          type: types.EDIT_CHARACTER,
           payload: {
             message: "Character edited successfully",
             loadingCharacter: false,
@@ -142,10 +136,11 @@ export const editCharacter = (data, id) => (dispatch) => {
       .doc(id)
       .update({
         ...data,
+        relativesArr: data.relatives.map((c) => c.character_id),
       })
       .then(() => {
         dispatch({
-          type: EDIT_CHARACTER,
+          type: types.EDIT_CHARACTER,
           payload: {
             message: "Character edited successfully",
             loadingCharacter: false,
@@ -156,6 +151,94 @@ export const editCharacter = (data, id) => (dispatch) => {
         message.error(err.message);
       });
   }
+};
+
+export const deleteCharacter = (id, firstname, lastname) => (dispatch) => {
+  dispatch({ type: types.DELETE_CHARACTER, payload: { loading: true } });
+  const imageName = `${id}${"_"}${firstname.toLowerCase()}${lastname && "_"}${
+    lastname && lastname.toLowerCase()
+  }`;
+  const batch = db.batch();
+  db.collection("characters")
+    .doc(id)
+    .delete()
+    .then(() => {
+      if (storage.ref(`${auth.currentUser.uid}/${imageName}`)) {
+        return storage.ref(`${auth.currentUser.uid}/${imageName}`).delete();
+      }
+    })
+    .then(() => {
+      db.collection("chapters")
+        .where("characters", "array-contains", id)
+        .get()
+        .then((docs) => {
+          docs.forEach((doc) => {
+            batch.update(db.collection("chapters").doc(doc.id), {
+              characters: doc.data().characters.filter((c) => c !== id),
+            });
+          });
+        })
+        .then(() => {
+          db.collection("stories")
+            .where("secondaryArr", "array-contains", id)
+            .get()
+            .then((stories) => {
+              stories.forEach((story) => {
+                batch.update(db.collection("stories").doc(story.id), {
+                  mainCharacters: story
+                    .data()
+                    .mainCharacters.filter((c) => c !== id),
+                  secondaryArr: story
+                    .data()
+                    .secondaryArr.filter((c) => c !== id),
+                  secondaryCharacters: story
+                    .data()
+                    .secondaryCharacters.filter((c) => c.id !== id),
+                });
+              });
+            })
+            .then(() => {
+              db.collection("characters")
+                .where("relativesArr", "array-contains", id)
+                .get()
+                .then((characters) => {
+                  characters.forEach((char) => {
+                    batch.update(db.collection("characters").doc(char.id), {
+                      relativesArr: char
+                        .data()
+                        .relativesArr.filter((c) => c !== id),
+                      relatives: char
+                        .data()
+                        .relatives.filter((c) => c.character_id !== id),
+                    });
+                  });
+                })
+                .then(() => {
+                  db.collection("charactersLikes")
+                    .where("characterId", "==", id)
+                    .get()
+                    .then((likes) => {
+                      likes.forEach((like) => {
+                        batch.delete(
+                          db.collection("charactersLikes").doc(like.id)
+                        );
+                      });
+                      batch.commit().then(() => {
+                        dispatch({
+                          type: types.DELETE_CHARACTER,
+                          payload: {
+                            message: "Character deleted successfully",
+                            loading: false,
+                            deleted: true,
+                            charaExists: false,
+                          },
+                        });
+                      });
+                    });
+                });
+            });
+        });
+    });
 };
 
 export const getUserCharacters = (userId) => (dispatch) => {
@@ -170,7 +253,7 @@ export const getUserCharacters = (userId) => (dispatch) => {
       return items;
     })
     .then((items) => {
-      dispatch({ type: GET_USER_CHARACTERS, payload: items });
+      dispatch({ type: types.GET_USER_CHARACTERS, payload: items });
     });
 };
 
@@ -195,7 +278,7 @@ export const getFavoriteCharacters = () => (dispatch) => {
           (doc) => (favUsers = [...favUsers, { id: doc.id, ...doc.data() }])
         );
         dispatch({
-          type: GET_FAVORITE_CHARACTERS,
+          type: types.GET_FAVORITE_CHARACTERS,
           payload: favUsers,
         });
       });
@@ -207,7 +290,7 @@ export const getCharactersInStory = (id) => (dispatch) => {
     .doc(id)
     .onSnapshot((doc) => {
       dispatch({
-        type: GET_STORY_CHARACTERS,
+        type: types.GET_STORY_CHARACTERS,
         payload: {
           secondaryCharacters: doc.data().secondaryCharacters,
           mainArr: doc.data().mainCharacters,

@@ -1,14 +1,12 @@
 import Link from "next/link";
-import { Row, Col, Tooltip } from "antd";
-
-import Loader from "../common/Loader";
+import { Row, Col, Tooltip, Spin } from "antd";
 
 const Favorites = ({ favs }) => {
   return (
     <div className="favorites">
       <Row gutter={[15, 10]} justify="space-between">
         {favs.isLoading ? (
-          <Loader />
+          <Spin />
         ) : (
           favs.authors.slice(0, 12).map((fav) => (
             <Col key={fav.id} span={6}>
