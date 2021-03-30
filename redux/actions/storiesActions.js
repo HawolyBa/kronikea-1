@@ -2,7 +2,6 @@ import { types } from "../../utils/constants";
 import { db, auth, storage } from "../fbConfig";
 import firebase from "firebase/app";
 import { message } from "antd";
-import Router from "next/router";
 
 // STORIES
 
@@ -55,83 +54,72 @@ export const getStory = (id) => (dispatch) => {
 
 export const addStory = (data) => (dispatch) => {
   dispatch({ type: types.ADD_STORY, payload: { loading: true } });
-  const imageName = data.title.toLowerCase().split(" ").join("_");
-  if (typeof data.banner === "object") {
-    storage
-      .ref(`${auth.currentUser.uid}/${imageName}`)
-      .put(data.banner)
-      .then(() => {
-        return storage
-          .ref(auth.currentUser.uid)
-          .child(imageName)
-          .getDownloadURL();
-      })
-      .then((url) => {
-        return db.collection("stories").add({
-          ...data,
-          authorId: auth.currentUser.uid,
-          authorName: data.authorName,
-          oneShot: false,
-          banner: url,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          likesCount: 0,
-          chaptersCount: 0,
-          secondaryCharacters: [],
-          secondaryArr: [],
-          featured: false,
-          note: 0,
+  let storyId = "";
+
+  db.collection("stories")
+    .add({
+      ...data,
+      authorId: auth.currentUser.uid,
+      authorName: data.authorName,
+      oneShot: false,
+      banner: typeof data.banner === "string" ? data.banner : "",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      likesCount: 0,
+      chaptersCount: 0,
+      secondaryCharacters: [],
+      secondaryArr: [],
+      featured: false,
+      note: 0,
+      chaptersCount: 0,
+      commentsCount: 0,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then((res) => {
+      storyId = res.id;
+      if (typeof data.banner === "object") {
+        const imageName = `${res.id}_${data.title
+          .toLowerCase()
+          .split(" ")
+          .join("_")}`;
+        storage
+          .ref(`${auth.currentUser.uid}/${imageName}`)
+          .put(data.banner)
+          .then(() => {
+            return storage
+              .ref(auth.currentUser.uid)
+              .child(imageName)
+              .getDownloadURL();
+          })
+          .then((url) => {
+            return db
+              .collection("stories")
+              .doc(storyId)
+              .update({ banner: url });
+          })
+          .then(() => {
+            dispatch({
+              type: types.ADD_STORY,
+              payload: {
+                message: "Story added successfully",
+                storyId: storyId,
+                loading: false,
+              },
+            });
+          });
+      } else {
+        dispatch({
+          type: types.ADD_STORY,
+          payload: {
+            message: "Story added successfully",
+            storyId: storyId,
+            loading: false,
+          },
         });
-      })
-      .then((res) => {
-        message.success("Story added successfully");
-        setTimeout(() => {
-          Router.push(`/story/${res.id}`);
-          dispatch({
-            type: types.ADD_STORY,
-            payload: {
-              message: "Story added successfully",
-              storyId: res.id,
-              loading: false,
-            },
-          });
-        }, 1000);
-      })
-      .catch((err) => {
-        message.error(err.message);
-      });
-  } else {
-    db.collection("stories")
-      .add({
-        ...data,
-        authorId: auth.currentUser.uid,
-        authorName: data.authorName,
-        oneShot: false,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        likesCount: 0,
-        chaptersCount: 0,
-        featured: false,
-        secondaryCharacters: [],
-        secondaryArr: [],
-        note: 0,
-      })
-      .then((res) => {
-        message.success("Story added successfully");
-        setTimeout(() => {
-          Router.push(`/story/${res.id}`);
-          dispatch({
-            type: types.ADD_STORY,
-            payload: {
-              message: "Story added successfully",
-              storyId: res.id,
-              loading: false,
-            },
-          });
-        }, 1000);
-      })
-      .catch((err) => {
-        message.error(err.message);
-      });
-  }
+      }
+    })
+    .catch((err) => {
+      message.error(err.message);
+    });
 };
 
 export const editStory = (data, storyId) => (dispatch) => {
@@ -155,6 +143,7 @@ export const editStory = (data, storyId) => (dispatch) => {
           .update({
             ...data,
             banner: url,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
           });
       })
       .then(() => {
@@ -173,7 +162,6 @@ export const editStory = (data, storyId) => (dispatch) => {
               ];
             });
             Promise.all(locationQuery).then(() => {
-              message.success("Story added successfully");
               dispatch({
                 type: types.EDIT_STORY,
                 payload: {
@@ -191,6 +179,7 @@ export const editStory = (data, storyId) => (dispatch) => {
       .doc(storyId)
       .update({
         ...data,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
       })
       .then(() => {
         db.collection("locations")
@@ -208,7 +197,6 @@ export const editStory = (data, storyId) => (dispatch) => {
               ];
             });
             Promise.all(locationQuery).then(() => {
-              message.success("Story added successfully");
               dispatch({
                 type: types.EDIT_STORY,
                 payload: {
@@ -224,14 +212,59 @@ export const editStory = (data, storyId) => (dispatch) => {
   }
 };
 
-export const getUserStories = () => (dispatch) => {
+export const deleteStory = (id) => (dispatch) => {
+  dispatch({ type: types.DELETE_STORY, payload: { loading: true } });
+  const batch = db.batch();
+  batch.delete(db.collection("stories").doc(id));
+  const chaptersToDelete = db
+    .collection("chapters")
+    .where("storyId", "==", id)
+    .get();
+  const likesToDelete = db
+    .collection("storiesLikes")
+    .where("storyId", "==", id)
+    .get();
+  const locationsToDelete = db
+    .collection("locations")
+    .where("storyId", "==", id)
+    .get();
+  Promise.all([chaptersToDelete, likesToDelete, locationsToDelete]).then(
+    (res) => {
+      res[0].forEach((chap) => {
+        batch.delete(db.collection("chapters").doc(chap.id));
+      });
+      res[1].forEach((like) => {
+        batch.delete(db.collection("storiesLikes").doc(like.id));
+      });
+      res[2].forEach((loc) => {
+        batch.delete(db.collection("locations").doc(loc.id));
+      });
+      batch.commit().then(() => {
+        dispatch({
+          type: types.DELETE_STORY,
+          payload: {
+            message: "Story deleted successfully",
+            loading: true,
+            deleted: true,
+          },
+        });
+      });
+    }
+  );
+};
+
+export const getUserStories = (id, type) => (dispatch) => {
+  const userId = id ? id : auth.currentUser.uid;
   db.collection("stories")
-    .where("authorId", "==", auth.currentUser.uid)
+    .where("authorId", "==", userId)
+    .orderBy("createdAt", "desc")
     .get()
     .then((docs) => {
       let items = [];
       docs.forEach((doc) => {
-        items = [...items, { id: doc.id, ...doc.data() }];
+        items = [...items, { id: doc.id, ...doc.data() }].filter((s) =>
+          id ? s.public : s
+        );
       });
       return items;
     })
@@ -240,9 +273,11 @@ export const getUserStories = () => (dispatch) => {
     });
 };
 
-export const getFavoriteStories = () => (dispatch) => {
+export const getFavoriteStories = (id) => (dispatch) => {
+  const userId = id ? id : auth.currentUser.uid;
   db.collection("storiesLikes")
-    .where("senderId", "==", auth.currentUser.uid)
+    .where("senderId", "==", userId)
+    .orderBy("createdAt", "desc")
     .get()
     .then((docs) => {
       let favArr = [];
@@ -319,8 +354,11 @@ export const getStoryCharacters = () => (dispatch) => {};
 // CHAPTERs
 
 export const addChapter = (data, secondaryCharacters) => (dispatch) => {
+  let chapId = "";
   dispatch({ type: types.ADD_CHAPTER, payload: { loading: true } });
-  db.collection("chapters")
+
+  return db
+    .collection("chapters")
     .add({
       ...data,
       authorId: auth.currentUser.uid,
@@ -331,14 +369,16 @@ export const addChapter = (data, secondaryCharacters) => (dispatch) => {
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
     .then((res) => {
+      chapId = res.id;
       db.collection("stories")
         .doc(data.storyId)
         .get()
-        .then((doc) => {
+        .then((story) => {
           db.collection("stories")
             .doc(data.storyId)
             .update({
-              secondaryCharacters,
+              chaptersCount: story.data().chaptersCount + 1,
+              secondaryCharacters: secondaryCharacters,
               secondaryArr: secondaryCharacters.map((c) => c.id),
             })
             .then(() => {
@@ -346,7 +386,7 @@ export const addChapter = (data, secondaryCharacters) => (dispatch) => {
                 type: types.ADD_CHAPTER,
                 payload: {
                   message: "Chapter added successfully",
-                  chapId: res.id,
+                  chapId: chapId,
                   loading: false,
                 },
               });
@@ -388,46 +428,46 @@ export const editChapter = (data, storyId, chapid, secondaryCharacters) => (
 
 export const deleteChapter = (id, storyId) => (dispatch) => {
   dispatch({ type: types.DELETE_CHAPTER, payload: { loadingChapter: true } });
-  db.collection("chapters")
-    .doc(id)
-    .get()
-    .then((doc) => {
-      const charactersFromChapter = doc.data().characters;
-      db.collection("stories")
-        .doc(storyId)
-        .get()
-        .then((story) => {
-          const charactersFromStory = story.data().secondaryCharacters;
-          let newArr = charactersFromStory.map((c) => {
-            if (charactersFromChapter.includes(c.id)) {
-              return { ...c, times: c.times - 1 };
-            } else {
-              return c;
-            }
-          });
-          newArr = newArr.filter((c) => c.times > 0);
-          db.collection("stories")
-            .doc(storyId)
-            .update({
-              secondaryCharacters: newArr,
-              secondaryArr: newArr.map((c) => c.id),
-            })
-            .then(() => {
-              db.collection("chapters")
-                .doc(id)
-                .delete()
-                .then(() => {
-                  dispatch({
-                    type: types.DELETE_CHAPTER,
-                    payload: {
-                      message: "Chapter deleted successfully",
-                      loadingChapter: false,
-                    },
-                  });
-                });
-            });
-        });
+  const batch = db.batch();
+
+  const commentsToDelete = db
+    .collection("comments")
+    .where("chapterId", "==", id)
+    .get();
+  const chapter = db.collection("chapters").doc(id).get();
+  const story = db.collection("stories").doc(storyId).get();
+
+  Promise.all([chapter, story, commentsToDelete]).then((res) => {
+    const charactersFromChapter = res[0].data().characters;
+    const charactersFromStory = res[1].data().secondaryCharacters;
+    let newArr = charactersFromStory
+      .map((c) => {
+        if (charactersFromChapter.includes(c.id)) {
+          return { ...c, times: c.times - 1 };
+        } else {
+          return c;
+        }
+      })
+      .filter((c) => c.times > 0);
+    batch.update(db.collection("stories").doc(storyId), {
+      chaptersCount: res[1].data().chaptersCount - 1,
+      secondaryCharacters: newArr,
+      secondaryArr: newArr.map((c) => c.id),
     });
+    res[2].forEach((comm) =>
+      batch.delete(db.collection("comments").doc(comm.id))
+    );
+    batch.delete(db.collection("chapters").doc(id));
+    batch.commit().then(() => {
+      dispatch({
+        type: types.DELETE_CHAPTER,
+        payload: {
+          message: "Chapter deleted successfully",
+          loadingChapter: false,
+        },
+      });
+    });
+  });
 };
 
 export const getChapter = (storyId, id, type) => (dispatch) => {
@@ -533,61 +573,58 @@ export const getChapters = (id) => (dispatch) => {
 // LOCATIONS
 
 export const addLocation = (data) => (dispatch) => {
-  console.log("coucou");
   dispatch({ type: types.ADD_LOCATION, payload: { loadingLoc: true } });
+  let locId = "";
 
-  const imageName = data.name.toLowerCase().split(" ").join("_");
-
-  if (typeof data.image === "object") {
-    storage
-      .ref(`${auth.currentUser.uid}/${imageName}`)
-      .put(data.image)
-      .then(() => {
-        return storage
-          .ref(auth.currentUser.uid)
-          .child(imageName)
-          .getDownloadURL();
-      })
-      .then((url) => {
-        return db.collection("locations").add({
-          ...data,
-          image: url,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  db.collection("locations")
+    .add({
+      ...data,
+      image: typeof data.image === "string" ? data.image : "",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then((res) => {
+      locId = res.id;
+      if (typeof data.image === "object") {
+        const imageName = `${locId}_${data.name
+          .toLowerCase()
+          .split(" ")
+          .join("_")}`;
+        storage
+          .ref(`${auth.currentUser.uid}/${imageName}`)
+          .put(data.image)
+          .then(() => {
+            return storage
+              .ref(auth.currentUser.uid)
+              .child(imageName)
+              .getDownloadURL();
+          })
+          .then((url) => {
+            return db.collection("locations").doc(locId).update({ image: url });
+          })
+          .then(() => {
+            dispatch({
+              type: types.ADD_LOCATION,
+              payload: {
+                message: "Location added successfully",
+                locId: res.id,
+                loadingLoc: false,
+              },
+            });
+          });
+      } else {
+        dispatch({
+          type: types.ADD_LOCATION,
+          payload: {
+            message: "Location added successfully",
+            locId: res.id,
+            loadingLoc: false,
+          },
         });
-      })
-      .then((res) =>
-        dispatch({
-          type: types.ADD_LOCATION,
-          payload: {
-            message: "Location added successfully",
-            locId: res.id,
-            loadingLoc: false,
-          },
-        })
-      )
-      .catch((err) => {
-        message.error(err.message);
-      });
-  } else {
-    db.collection("locations")
-      .add({
-        ...data,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      })
-      .then((res) =>
-        dispatch({
-          type: types.ADD_LOCATION,
-          payload: {
-            message: "Location added successfully",
-            locId: res.id,
-            loadingLoc: false,
-          },
-        })
-      )
-      .catch((err) => {
-        message.error(err.message);
-      });
-  }
+      }
+    })
+    .catch((err) => {
+      message.error(err.message);
+    });
 };
 
 export const editLocation = (data) => (dispatch) => {};
@@ -612,9 +649,58 @@ export const getLocation = (id) => (dispatch) => {
     });
 };
 
-export const getUserLocations = () => (dispatch) => {
+export const deleteLocation = (id, name) => (dispatch) => {
+  dispatch({ type: types.DELETE_CHAPTER, payload: { loading: true } });
+  const batch = db.batch();
+  const imageName = `${id}_${name.toLowerCase().split(" ").join("_")}`;
+
+  batch.delete(db.collection("locations").doc(id));
+  db.collection("chapters")
+    .where("locations", "array-contains", id)
+    .get()
+    .then((res) => {
+      res.forEach((chap) =>
+        batch.update(db.collection("chapters").doc(chap.id), {
+          locations: chap.data().locations.filter((c) => c !== id),
+        })
+      );
+
+      storage
+        .ref(`${auth.currentUser.uid}/${imageName}`)
+        .delete()
+        .then(() => {
+          batch.commit().then(() => {
+            dispatch({
+              type: types.DELETE_CHAPTER,
+              payload: {
+                loading: false,
+                message: "Location deleted successfully",
+                deleted: true,
+              },
+            });
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          batch.commit().then(() => {
+            dispatch({
+              type: types.DELETE_CHAPTER,
+              payload: {
+                loading: false,
+                message: "Location deleted successfully",
+                deleted: true,
+              },
+            });
+          });
+        });
+    })
+    .catch((err) => console.log(err));
+};
+
+export const getUserLocations = (id) => (dispatch) => {
+  const userId = id ? id : auth.currentUser.uid;
   db.collection("locations")
-    .where("authorId", "==", auth.currentUser.uid)
+    .where("authorId", "==", userId)
     .get()
     .then((docs) => {
       let locations = [];
@@ -677,35 +763,44 @@ export const submitComment = (info) => (dispatch) => {
     return message.error("You need to verify your email first");
   if (!info.content) return message.error("Content must not be empty");
 
-  db.collection("comments")
-    .add({
-      ...info,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    })
-    .then(() => {
-      message.success("Comment posted successfully");
-      db.collection("chapters")
-        .doc(info.chapterId)
-        .get()
-        .then((chap) => {
-          db.collection("chapters")
-            .doc(info.chapterId)
-            .update({ commentsCount: chap.data().commentsCount + 1 });
-        });
+  const batch = db.batch();
+  const story = db.collection("stories").doc(info.storyId).get();
+  const chapter = db.collection("chapters").doc(info.chapterId).get();
+
+  Promise.all([story, chapter])
+    .then((res) => {
+      batch.update(db.collection("stories").doc(info.storyId), {
+        commentsCount: res[0].data().commentsCount + 1,
+      });
+      batch.update(db.collection("chapters").doc(info.chapterId), {
+        commentsCount: res[1].data().commentsCount + 1,
+      });
+      batch.commit().then(() => {
+        db.collection("comments")
+          .add({
+            ...info,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          })
+          .then(() => message.success("Comment posted successfully"));
+      });
     })
     .catch((err) => message.error(err.message));
 };
 
-export const deleteComment = (id, chapid) => (dispatch) => {
-  db.collection("chapters")
-    .doc(chapid)
-    .get()
-    .then((chap) => {
-      db.collection("chapters")
-        .doc(chapid)
-        .update({ commentsCount: chap.data().commentsCount - 1 })
-        .then(() => {
-          db.collection("comments").doc(id).delete();
-        });
+export const deleteComment = (id, chapid, storyId) => (dispatch) => {
+  const batch = db.batch();
+  const story = db.collection("stories").doc(storyId).get();
+  const chapter = db.collection("chapters").doc(chapid).get();
+
+  Promise.all([story, chapter]).then((res) => {
+    batch.update(db.collection("stories").doc(storyId), {
+      commentsCount: res[0].data().commentsCount - 1,
     });
+    batch.update(db.collection("chapters").doc(chapid), {
+      commentsCount: res[1].data().commentsCount - 1,
+    });
+    batch.commit().then(() => {
+      db.collection("comments").doc(id).delete();
+    });
+  });
 };

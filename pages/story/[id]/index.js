@@ -95,6 +95,8 @@ const Story = ({
     }
   }, [chapters]);
 
+  console.log(chapters);
+
   return (
     <LoadingScreen loading={loading}>
       <LoadingScreen loading={loadingFav}>

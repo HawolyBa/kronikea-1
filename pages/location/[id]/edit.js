@@ -7,6 +7,7 @@ import {
   getLocation,
   editLocation,
   getUserStories,
+  deleteLocation,
 } from "../../../redux/actions/storiesActions";
 import { useAuth } from "../../../hooks/userHooks";
 
@@ -22,6 +23,7 @@ const EditLocation = (props) => {
     location,
     loading,
     locationExists,
+    deleted,
   } = props;
   const [form] = Form.useForm();
   const auth = useAuth();
@@ -32,6 +34,12 @@ const EditLocation = (props) => {
       props.getUserStories();
     }
   }, [auth]);
+
+  React.useEffect(() => {
+    if (deleted) {
+      router.push("/profile");
+    }
+  }, [deleted]);
 
   React.useEffect(() => {
     props.getLocation(router.query.id);
@@ -64,6 +72,7 @@ const EditLocation = (props) => {
                 type="edit"
                 loadingLoc={loadingLoc}
                 submit={submit}
+                deleteLocation={props.deleteLocation}
                 initialValues={{
                   name: location.name,
                   storyId: location.storyId,
@@ -87,10 +96,12 @@ const mapStateToProps = (state) => ({
   actionMessage: state.stories.message,
   loadingLoc: state.stories.loadingLoc,
   locationExists: state.stories.locationExists,
+  deleted: state.stories.deleted,
 });
 
 export default connect(mapStateToProps, {
   getLocation,
   editLocation,
   getUserStories,
+  deleteLocation,
 })(EditLocation);

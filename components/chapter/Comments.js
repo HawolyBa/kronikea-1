@@ -141,7 +141,9 @@ const Comments = ({
                   title="Do you want to delete this comment ?"
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => deleteComment(comment.id, chapid)}
+                  onConfirm={() =>
+                    deleteComment(comment.id, chapid, comment.storyId)
+                  }
                 >
                   <span>Delete</span>
                 </Popconfirm>
@@ -212,7 +214,9 @@ const Comments = ({
                           title="Do you want to delete this comment ?"
                           okText="Yes"
                           cancelText="No"
-                          onConfirm={() => deleteComment(c.id, chapid)}
+                          onConfirm={() =>
+                            deleteComment(c.id, chapid, c.storyId)
+                          }
                         >
                           <span>Delete</span>
                         </Popconfirm>

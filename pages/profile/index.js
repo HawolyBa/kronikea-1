@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Row, Modal, Button } from "antd";
+import { Modal, Button } from "antd";
 
 import Banner from "../../components/profile/Banner";
 import Tabs from "../../components/profile/Tabs";
@@ -14,6 +14,7 @@ import { getProfile } from "../../redux/actions/userActions";
 import {
   getUserStories,
   getFavoriteStories,
+  getUserLocations,
 } from "../../redux/actions/storiesActions";
 import {
   getUserCharacters,
@@ -31,17 +32,20 @@ const Profile = ({
   getProfile,
   profile,
   stories,
+  locations,
   getUserStories,
   getUserCharacters,
   getFavoriteAuthors,
   getFavoriteCharacters,
   getFavoriteStories,
+  getUserLocations,
   getFollowers,
   characters,
   favAuthors,
   followers,
   favCharacters,
   favStories,
+  loading,
 }) => {
   const [tabs] = useState([
     "stories",
@@ -52,10 +56,11 @@ const Profile = ({
     "followers",
     "followings",
   ]);
-  const [modalVisible, setModalVisible] = useState(false);
   const [settings, openSettings] = useState(false);
   const [currentTab, setCurrentTab] = useState("stories");
   const [favTab, setFavTab] = useState("favauthors");
+  const [favoriteStories, setFavoriteStories] = useState([]);
+  const [favoriteCharacters, setFavoriteCharacters] = useState(favCharacters);
   const changeTab = (tab) => setCurrentTab(tab);
 
   const auth = useAuth();
@@ -63,14 +68,24 @@ const Profile = ({
   useEffect(() => {
     if (auth.user) {
       getProfile();
-      getUserStories();
-      getUserCharacters(auth.user.uid);
+      getUserStories(null, "profile");
+      getUserCharacters();
       getFavoriteAuthors();
       getFollowers();
       getFavoriteCharacters();
       getFavoriteStories();
+      getUserLocations();
     }
   }, [auth]);
+
+  useEffect(() => {
+    setFavoriteStories(
+      favStories.filter((s) => s.public || s.authorId === auth.user.uid)
+    );
+    setFavoriteCharacters(
+      favCharacters.filter((s) => s.public || s.authorId === auth.user.uid)
+    );
+  }, [auth, favStories, favCharacters]);
 
   const changeFavTab = (tab) => setFavTab(tab);
 
@@ -79,29 +94,51 @@ const Profile = ({
       <LoadingScreen loading={auth.isLoading}>
         <RedirectComp condition={auth.user} type="redirect">
           <Banner
+            context="private"
             profile={profile}
             openSettings={openSettings}
-            setModalVisible={setModalVisible}
             favAuthors={favAuthors}
             followers={followers}
             changeFavTab={changeFavTab}
             favTab={favTab}
+            setCurrentTab={setCurrentTab}
           />
           <section className="profile-content">
             <Tabs currentTab={currentTab} tabs={tabs} changeTab={changeTab} />
-            {currentTab === "stories" && <Stories stories={stories} />}
-            {currentTab === "characters" && (
-              <Characters characters={characters} />
+            {currentTab === "stories" && (
+              <Stories
+                auth={auth}
+                loading={loading}
+                type={"show"}
+                stories={stories}
+                type={"privateProfile"}
+                context="private"
+              />
             )}
-            {currentTab === "locations" && <Locations />}
+            {currentTab === "characters" && (
+              <Characters context="private" characters={characters} />
+            )}
+            {currentTab === "locations" && (
+              <Locations
+                context="private"
+                locations={locations}
+                type="profile"
+              />
+            )}
             {currentTab === "favorites stories" && (
-              <Stories stories={favStories} />
+              <Stories
+                loading={loading}
+                type="favorites"
+                stories={favoriteStories}
+              />
             )}
             {currentTab === "favorites characters" && (
-              <Characters type="favorites" characters={favCharacters} />
+              <Characters type="favorites" characters={favoriteCharacters} />
             )}
             {currentTab === "followers" && (
               <Followers
+                title="Followers"
+                type={"followers"}
                 lg={4}
                 md={6}
                 sm={8}
@@ -111,6 +148,8 @@ const Profile = ({
             )}
             {currentTab === "followings" && (
               <Followers
+                title="Followings"
+                type={"followings"}
                 lg={4}
                 md={6}
                 sm={8}
@@ -134,7 +173,7 @@ const Profile = ({
               </Button>,
             ]}
           >
-            <Settings />
+            <Settings user={auth.user} />
           </Modal>
         </RedirectComp>
       </LoadingScreen>
@@ -150,6 +189,8 @@ const mapStateToProps = (state, ownProps) => ({
   followers: state.auth.followers,
   favCharacters: state.characters.favCharacters,
   favStories: state.stories.favStories,
+  locations: state.stories.userLocations,
+  loading: state.stories.loading,
 });
 
 export default connect(mapStateToProps, {
@@ -160,4 +201,5 @@ export default connect(mapStateToProps, {
   getFollowers,
   getFavoriteCharacters,
   getFavoriteStories,
+  getUserLocations,
 })(Profile);

@@ -1,5 +1,15 @@
 import React from "react";
-import { Row, Col, Divider, Form, Spin, Input, Select, message } from "antd";
+import {
+  Row,
+  Col,
+  Divider,
+  Form,
+  Spin,
+  Input,
+  Select,
+  message,
+  Popconfirm,
+} from "antd";
 
 import {
   CATEGORIES,
@@ -28,6 +38,7 @@ const StoryForm = ({
   visibility,
   setVisibility,
   loadingStory,
+  deleteStory,
 }) => {
   const filterSort = (a, b) => {
     const keyA = a.name,
@@ -191,15 +202,15 @@ const StoryForm = ({
         name="summary"
         rules={[
           {
-            max: 180,
-            message: "Your summary cannot exceed 180 characters",
+            max: 300,
+            message: "Your summary cannot exceed 300 characters",
           },
         ]}
       >
         <Input.TextArea
           autoSize={{ minRows: 5 }}
           showCount={true}
-          maxLength={180}
+          maxLength={300}
         ></Input.TextArea>
       </Form.Item>
       <Row justify="space-between" gutter={[24, 24]}>
@@ -262,7 +273,21 @@ const StoryForm = ({
           <Spin />
         </button>
       ) : (
-        <button type="submit">Edit</button>
+        <Row gutter={[32, 16]}>
+          <Col md={16} sm={24} xs={24}>
+            <button type="submit">Edit</button>
+          </Col>
+          <Col md={8} sm={24} xs={24}>
+            <Popconfirm
+              title="Do you really want to delete this character ?"
+              onConfirm={() => deleteStory(story.id)}
+            >
+              <button className="delete-btn" type="button">
+                Delete
+              </button>
+            </Popconfirm>
+          </Col>
+        </Row>
       )}
     </Form>
   );

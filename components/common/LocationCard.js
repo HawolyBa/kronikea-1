@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, Button } from "antd";
-import Link from "next/Link";
+import Link from "next/link";
 
 import { dummy } from "../../utils/dummy";
 

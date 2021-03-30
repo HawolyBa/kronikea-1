@@ -1,5 +1,5 @@
 import React from "react";
-import { Form } from "antd";
+import { Form, message } from "antd";
 import { connect } from "react-redux";
 import { useRouter } from "next/router";
 
@@ -35,12 +35,21 @@ const NewStory = (props) => {
 
   React.useEffect(() => {
     if (props.storyId) {
-      router.push(`/story/${storyId}`);
+      router.push(`/story/${props.storyId}`);
     }
   }, [props.storyId]);
 
+  React.useEffect(() => {
+    if (props.confirmMessage) {
+      message.success(props.confirmMessage);
+    }
+  }, [props.confirmMessage]);
+
   const submit = (values) => {
     delete values.currentChar;
+    if (typeof values.banner === null) values.banner = "";
+    if (!values.banner) delete values.imageCopyright;
+
     props.addStory({
       ...values,
       authorName: auth.user.username,
@@ -53,7 +62,7 @@ const NewStory = (props) => {
       <RedirectComp condition={auth.user} type="redirect">
         <div className="new-story custom-form">
           <div className="inner">
-            <h2 className="side-heading">Edit story {story.title}</h2>
+            <h2 className="side-heading">Add a new story</h2>
             <StoryForm
               type="add"
               submit={submit}

@@ -31,19 +31,24 @@ function useProvideAuth() {
       .createUserWithEmailAndPassword(email, password)
       .then((response) => {
         setUser(response.user);
-        db.collection("users").add({
-          badges: [],
-          biography: "",
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          suspended: false,
-          facebook: "",
-          instagram: "",
-          twitter: "",
-          deviantart: "",
-          likesCount: "",
-          username: username,
-          image: "",
-        });
+        db.collection("users")
+          .doc(response.user.uid)
+          .set({
+            username,
+            likesCount: 0,
+            twitter: "",
+            facebook: "",
+            instagram: "",
+            deviantart: "",
+            biography: "",
+            badges: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            image: "",
+            suspended: false,
+          })
+          .then(() => {
+            setUser({ ...user, username: username });
+          });
         return response.user;
       });
   };

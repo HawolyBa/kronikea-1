@@ -8,6 +8,7 @@ import {
   getChapter,
   editChapter,
   getUserLocations,
+  deleteChapter,
 } from "../../../../../redux/actions/storiesActions";
 import {
   getUserCharacters,
@@ -58,6 +59,9 @@ const EditChapter = (props) => {
   const submit = (values) => {
     delete values.currentChar;
     delete values.currentLoc;
+
+    if (typeof values.banner === null) values.banner = "";
+    if (!values.banner) delete values.imageCopyright;
 
     const originArr = chapter.characters.filter((c) => !mainArr.includes(c)); // Array d'ids
     let secondaryCharactersArr = [...secondaryCharacters]; // Array d'objets contenant les perso et le nombre de fois
@@ -119,6 +123,8 @@ const EditChapter = (props) => {
                 loadingChapter={loadingChapter}
                 loading={loading}
                 chapter={chapter}
+                deleteChapter={props.deleteChapter}
+                storyid={router.query.id}
               />
             </div>
           </div>
@@ -146,4 +152,5 @@ export default connect(mapStateToProps, {
   getUserLocations,
   editChapter,
   getCharactersInStory,
+  deleteChapter,
 })(EditChapter);

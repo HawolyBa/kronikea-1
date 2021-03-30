@@ -1,5 +1,15 @@
 import React from "react";
-import { Form, Col, Row, Select, Input, message, Divider, Spin } from "antd";
+import {
+  Form,
+  Col,
+  Row,
+  Select,
+  Input,
+  message,
+  Divider,
+  Spin,
+  Popconfirm,
+} from "antd";
 
 import ImageRow from "./ImageRow";
 
@@ -12,6 +22,7 @@ const LocationForm = ({
   locId,
   initialValues,
   location,
+  deleteLocation,
 }) => {
   const onFailed = () => {
     window.scrollTo(0, 0);
@@ -71,7 +82,7 @@ const LocationForm = ({
         ></Input.TextArea>
       </Form.Item>
       <Divider />
-      <ImageRow name="image" form={form} itemImage={location.image} />
+      <ImageRow name="image" form={form} itemImage={location?.image} />
       {type === "add" ? (
         loadingLoc || locId ? (
           <button disabled className="spin-btn">
@@ -85,7 +96,21 @@ const LocationForm = ({
           <Spin />
         </button>
       ) : (
-        <button type="submit">Edit</button>
+        <Row gutter={[32, 16]}>
+          <Col md={16} sm={24} xs={24}>
+            <button type="submit">Edit</button>
+          </Col>
+          <Col md={8} sm={24} xs={24}>
+            <Popconfirm
+              title="Do you really want to delete this location ?"
+              onConfirm={() => deleteLocation(location.id, location.name)}
+            >
+              <button className="delete-btn" type="button">
+                Delete
+              </button>
+            </Popconfirm>
+          </Col>
+        </Row>
       )}
     </Form>
   );

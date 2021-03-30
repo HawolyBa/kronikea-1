@@ -47,6 +47,7 @@ const newCharacter = (props) => {
     if (!values.image) delete values.imageCopyright;
     props.addCharacter({
       ...values,
+      relativesArr: values.relatives.map((c) => c.character_id),
       authorId: auth.user.uid,
       authorName: auth.user.username,
       authorImage: auth.user.image ? auth.user.image : "",

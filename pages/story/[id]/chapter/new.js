@@ -57,13 +57,17 @@ const NewChapter = (props) => {
     const main = story.mainArr;
     let secondaryCharacters = [...story.secondaryArr];
     let charInChapter = values.characters.filter((c) => !main.includes(c));
+    let newArr = [];
 
     charInChapter.forEach((char) => {
       const index = secondaryCharacters.findIndex((c) => c.id === char);
       if (index !== -1) {
-        secondaryCharacters[index].times++;
+        newArr.push({
+          id: secondaryCharacters[index].id,
+          times: secondaryCharacters[index].times++,
+        });
       } else {
-        secondaryCharacters.push({ id: char, times: 1 });
+        newArr.push({ id: char, times: 1 });
       }
     });
 
@@ -71,11 +75,11 @@ const NewChapter = (props) => {
       {
         ...values,
         authorName: auth.user.username,
-        storyId: story.id,
+        storyId: router.query.id,
         body,
         status: values.status === "true",
       },
-      secondaryCharacters
+      newArr
     );
   };
 

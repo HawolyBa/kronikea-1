@@ -1,6 +1,15 @@
 import React from "react";
 import dynamic from "next/dynamic";
-import { Form, Row, Col, InputNumber, Input, Divider, Spin } from "antd";
+import {
+  Form,
+  Row,
+  Col,
+  InputNumber,
+  Input,
+  Divider,
+  Spin,
+  Popconfirm,
+} from "antd";
 import { EditorState } from "draft-js";
 import { convertToHTML, convertFromHTML } from "draft-convert";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -21,6 +30,8 @@ const ChapterForm = ({
   loadingChapter,
   type,
   chapter,
+  deleteChapter,
+  storyid,
 }) => {
   const [status, setStatus] = React.useState("true");
 
@@ -149,7 +160,21 @@ const ChapterForm = ({
           <Spin />
         </button>
       ) : (
-        <button type="submit">Edit</button>
+        <Row gutter={[32, 16]}>
+          <Col md={16} sm={24} xs={24}>
+            <button type="submit">Edit</button>
+          </Col>
+          <Col md={8} sm={24} xs={24}>
+            <Popconfirm
+              title="Do you really want to delete this character ?"
+              onConfirm={() => deleteChapter(chapter.id, storyid)}
+            >
+              <button className="delete-btn" type="button">
+                Delete
+              </button>
+            </Popconfirm>
+          </Col>
+        </Row>
       )}
     </Form>
   );

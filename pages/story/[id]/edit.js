@@ -1,11 +1,15 @@
 import React from "react";
-import { Form } from "antd";
+import { Form, message } from "antd";
 import { connect } from "react-redux";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../hooks/userHooks";
 import { getUserCharacters } from "../../../redux/actions/charactersActions";
-import { getStory, editStory } from "../../../redux/actions/storiesActions";
+import {
+  getStory,
+  editStory,
+  deleteStory,
+} from "../../../redux/actions/storiesActions";
 
 import StoryForm from "../../../components/forms/StoryForm";
 import LoadingScreen from "../../../components/hoc/LoadingScreen";
@@ -14,7 +18,15 @@ import RedirectComp from "../../../components/hoc/RedirectComp";
 const EditStory = (props) => {
   const auth = useAuth();
   const router = useRouter();
-  const { story, loading, characters, loadingStory, storyExists } = props;
+  const {
+    story,
+    loading,
+    characters,
+    loadingStory,
+    storyExists,
+    deleted,
+    confirmMessage,
+  } = props;
   const [form] = Form.useForm();
 
   const [mature, setMature] = React.useState(false);
@@ -31,6 +43,18 @@ const EditStory = (props) => {
       props.getStory(router.query.id);
     }
   }, [router.query.id]);
+
+  React.useEffect(() => {
+    if (deleted) {
+      router.push("/profile");
+    }
+  }, [deleted]);
+
+  React.useEffect(() => {
+    if (confirmMessage) {
+      message.success(confirmMessage);
+    }
+  }, [confirmMessage]);
 
   const submit = (values) => {
     delete values.currentChar;
@@ -59,6 +83,7 @@ const EditStory = (props) => {
                 setVisibility={setVisibility}
                 story={story}
                 loadingStory={loadingStory}
+                deleteStory={props.deleteStory}
               />
             </div>
           </div>
@@ -76,10 +101,12 @@ const mapStateToProps = (state) => ({
   story: state.stories.story,
   loading: state.stories.loading,
   storyExists: state.stories.storyExists,
+  deleted: state.stories.deleted,
 });
 
 export default connect(mapStateToProps, {
   getUserCharacters,
   editStory,
   getStory,
+  deleteStory,
 })(EditStory);

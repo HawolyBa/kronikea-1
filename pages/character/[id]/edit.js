@@ -60,7 +60,8 @@ const EditCharacter = (props) => {
   };
 
   const submit = (values) => {
-    console.log(values);
+    if (typeof values.image === null) values.image = "";
+    if (!values.image) delete values.imageCopyright;
     props.editCharacter({ ...values }, router.query.id);
   };
 

@@ -1,16 +1,23 @@
 import { Row, Col, Space, Tooltip, Image } from "antd";
 import Link from "next/link";
+import { dummy } from "../../utils/dummy";
 
 import Favorites from "./Favorites";
 
 const Banner = ({
-  setModalVisible,
   openSettings,
   profile,
   favAuthors,
   followers,
   changeFavTab,
   favTab,
+  setCurrentTab,
+  context,
+  isFollowing,
+  followUser,
+  unfollowUser,
+  auth,
+  id,
 }) => {
   return (
     <div className="banner">
@@ -21,7 +28,7 @@ const Banner = ({
               <Col xs={24} sm={8} md={9} lg={7}>
                 <div data-icon="image" className="avatar">
                   <Image
-                    src={profile?.image}
+                    src={profile?.image ? profile.image : dummy.avatar}
                     alt="aishwaraya"
                     width={230}
                     height={230}
@@ -31,12 +38,30 @@ const Banner = ({
               <Col md={15} lg={17} sm={16} xs={24}>
                 <div className="profile-details">
                   <div className="inner">
-                    <div
-                      className="icon custom-icon settings-icon"
-                      onClick={openSettings}
-                    >
-                      <ion-icon name="settings"></ion-icon>
-                    </div>
+                    {context === "private" ? (
+                      <div
+                        className="icon custom-icon settings-icon"
+                        onClick={openSettings}
+                      >
+                        <ion-icon name="settings"></ion-icon>
+                      </div>
+                    ) : auth.user ? (
+                      <div
+                        onClick={() =>
+                          isFollowing
+                            ? unfollowUser(id, isFollowing)
+                            : followUser(id, isFollowing, auth.user)
+                        }
+                        className={`follow-btn add-btn-circle ${
+                          isFollowing ? "followed" : ""
+                        }`}
+                      >
+                        <ion-icon name="add-circle"></ion-icon>
+                        <span>{`${
+                          isFollowing ? "Unfollow" : "Follow"
+                        } this author`}</span>
+                      </div>
+                    ) : null}
                     <h2>{profile?.username}</h2>
                     <Space size={30}>
                       <span className="follow-count">
@@ -99,7 +124,14 @@ const Banner = ({
         </Col>
         <Col flex="auto" xl={6} lg={24}>
           <div className="bio">
-            <p className="more" onClick={() => setModalVisible(true)}>
+            <p
+              className="more"
+              onClick={() =>
+                favTab === "favauthors"
+                  ? setCurrentTab("followings")
+                  : setCurrentTab("followers")
+              }
+            >
               See all >>>
             </p>
             <div className="segmented-control">
@@ -127,8 +159,12 @@ const Banner = ({
 
               <div className="segmented-control__color"></div>
             </div>
-            {favTab === "favauthors" && <Favorites favs={favAuthors} />}
-            {favTab === "followers" && <Favorites favs={followers} />}
+            {favTab === "favauthors" && (
+              <Favorites setCurrentTab={setCurrentTab} favs={favAuthors} />
+            )}
+            {favTab === "followers" && (
+              <Favorites setCurrentTab={setCurrentTab} favs={followers} />
+            )}
           </div>
         </Col>
       </Row>

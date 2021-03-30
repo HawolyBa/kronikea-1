@@ -16,7 +16,7 @@ const Navbar = ({ toggleNotifications }) => {
 
   const toggleMenu = () => setMenuVisible(!menuVisible);
   const logout = () => {
-    auth.signout().then(() => router.push("/auth"));
+    auth.signout();
   };
 
   return (
@@ -60,14 +60,19 @@ const Navbar = ({ toggleNotifications }) => {
                       </div>
                     </Tooltip>
                     <div className="header-icon icon__account">
-                      <Link href="/profile">
-                        <a>
-                          <img
-                            src="https://i.pinimg.com/564x/70/50/a3/7050a30cc61e8a7f3f8677ebf9505db7.jpg"
-                            alt="aishwaraya"
-                          />
-                        </a>
-                      </Link>
+                      <Tooltip
+                        title={`Profile - ${auth.user && auth.user.username}`}
+                        placement="bottom"
+                      >
+                        <Link href="/profile">
+                          <a>
+                            <img
+                              src={auth.user && auth.user.image}
+                              alt="aishwaraya"
+                            />
+                          </a>
+                        </Link>
+                      </Tooltip>
                     </div>
                     {!auth.isLoading && auth.user ? (
                       <Popconfirm

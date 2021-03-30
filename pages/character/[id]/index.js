@@ -2,62 +2,70 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { connect } from "react-redux";
-import { Row, Col, Image, Divider, Space, Empty } from "antd";
+import {
+  Image,
+  Divider,
+  Space,
+  Empty,
+  Descriptions,
+  Row,
+  Col,
+  message,
+} from "antd";
 
 import { dummy } from "../../../utils/dummy";
 import {
   getCharacter,
-  getUserCharacters,
+  submitCharaterFeedback,
+  getCharacterComments,
+  deleteCharacterComment,
+  rateComment,
 } from "../../../redux/actions/charactersActions";
 
-import Comments from "../../../components/chapter/Comments";
-import CharacterCard from "../../../components/common/CharacterCard";
+import Comments from "../../../components/character/Comments";
 import LoadingScreen from "../../../components/hoc/LoadingScreen";
 import RedirectComp from "../../../components/hoc/RedirectComp";
 import { useAuth } from "../../../hooks/userHooks";
-import WithLink from "../../../components/hoc/withLink";
 import { CharacterGrid } from "../../../components/common/Grid";
 
 const Character = (props) => {
-  const { character, loading, charaExists, userCharacters } = props;
+  const {
+    character,
+    loading,
+    charaExists,
+    comments,
+    loadingComments,
+    confirmMessage,
+    userComment,
+    rated,
+  } = props;
   const router = useRouter();
   const auth = useAuth();
+  const commentIds = comments.map((c) => c.userId);
 
-  const [relatives, setRelatives] = React.useState([]);
+  const [alreadyPosted, setAlreadyPosted] = React.useState(false);
 
   React.useEffect(() => {
-    props.getCharacter(router.query.id);
+    if (auth.user && commentIds.includes(auth.user.uid)) {
+      setAlreadyPosted(true);
+    }
+  }, [commentIds, auth, comments]);
+
+  React.useEffect(() => {
+    props.getCharacter(router.query.id, "show");
+    props.getCharacterComments(router.query.id);
   }, [router.query.id]);
 
   React.useEffect(() => {
-    if (
-      (character.authorId && character.public) ||
-      (auth.user && character.authorId === auth.user.uid)
-    ) {
-      props.getUserCharacters(character.authorId);
-    }
-  }, [character, auth]);
+    if (rated) props.getCharacterComments(router.query.id);
+  }, [rated]);
 
   React.useEffect(() => {
-    if (userCharacters.length > 0 && character.relatives.length > 0) {
-      setRelatives(
-        character.relatives
-          .map((c) => ({
-            firstname: userCharacters.find((char) => char.id === c.character_id)
-              .firstname,
-            lastname: userCharacters.find((char) => char.id === c.character_id)
-              .lastname,
-            image: userCharacters.find((char) => char.id === c.character_id)
-              .image,
-            id: userCharacters.find((char) => char.id === c.character_id).id,
-            relation: c.relation,
-            public: userCharacters.find((char) => char.id === c.character_id)
-              .public,
-          }))
-          .filter((c) => (auth.user.uid !== character.authorId ? c.public : c))
-      );
+    if (confirmMessage) {
+      message.success(confirmMessage);
+      props.getCharacterComments(router.query.id);
     }
-  }, [userCharacters]);
+  }, [confirmMessage]);
 
   return (
     <LoadingScreen loading={loading}>
@@ -88,12 +96,14 @@ const Character = (props) => {
                 </Link>
                 {auth.user && auth.user.uid === character.authorId ? (
                   <div className="edit-btn">
-                    <WithLink link={`/character/${character.id}/edit`}>
-                      <Space size={5} align="center">
-                        <ion-icon name="create"></ion-icon>
-                        <span>Edit</span>
-                      </Space>
-                    </WithLink>
+                    <Link href={`/character/${character.id}/edit`}>
+                      <a>
+                        <Space size={5} align="center">
+                          <ion-icon name="create"></ion-icon>
+                          <span>Edit</span>
+                        </Space>
+                      </a>
+                    </Link>
                   </div>
                 ) : (
                   <div className="like-btn">
@@ -110,7 +120,7 @@ const Character = (props) => {
               <div className="character-image">
                 <div className="img-container">
                   <Image
-                    src={character.image ? character.image : dummy.avatar}
+                    src={character.image ? character.image : dummy.noImage}
                     width={"100%"}
                     height={600}
                     alt="character"
@@ -119,12 +129,45 @@ const Character = (props) => {
               </div>
               <div className="character-description">
                 <h3 className="desc-title">Biography</h3>
-                <p>{character.description}</p>
+                <p>
+                  {character.description ? (
+                    character.description
+                  ) : (
+                    <span className="na">No description yet</span>
+                  )}
+                </p>
               </div>
+              <Divider />
+              <Descriptions
+                title="Character Info"
+                layout="vertical"
+                labelStyle={{ fontWeight: "bolder" }}
+                contentStyle={{ paddingBottom: 0 }}
+                colon={false}
+              >
+                <Descriptions.Item label="Age">
+                  {character.age ? character.age : "N/A"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Gender">
+                  {character.gender ? character.gender : "N/A"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Ethnicity">
+                  {character.ethnicity ? character.ethnicity : "N/A"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Occupation">
+                  {character.occupation ? character.occupation : "N/A"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Group">
+                  {character.group ? character.group : "N/A"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Residence">
+                  {character.residence ? character.residence : "N/A"}
+                </Descriptions.Item>
+              </Descriptions>
               <Divider />
               <div className="character-relationships">
                 <h3 className="desc-title">Relationships</h3>
-                {relatives.length > 0 ? (
+                {character.relatives ? (
                   <CharacterGrid
                     gutter={[16, 16]}
                     type="show"
@@ -134,17 +177,51 @@ const Character = (props) => {
                     xl={6}
                     sm={12}
                     xs={24}
-                    characters={relatives}
+                    characters={character.relatives}
                   />
                 ) : (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 )}
               </div>
+              <Divider />
+              <div className="character-stories">
+                <h3 className="desc-title">Stories</h3>
+                <Row gutter={[16, 16]}>
+                  {character.stories ? (
+                    character.stories.map((story) => (
+                      <Col lg={8} md={12} xs={24} sm={24} key={story.id}>
+                        <Link href={`/story/${story.id}`}>
+                          <a>
+                            <figure className="card story-card story-card-mini">
+                              <div className="img-container">
+                                <img src={story.banner} alt="image" />
+                              </div>
+                              <figcaption>
+                                <h3>{story?.title}</h3>
+                              </figcaption>
+                            </figure>
+                          </a>
+                        </Link>
+                      </Col>
+                    ))
+                  ) : (
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                  )}
+                </Row>
+              </div>
             </section>
-            <section className="character-feedback">
-              <h3 className="side-heading">Feedback</h3>
-              {/* <Comments /> */}
-            </section>
+            <Comments
+              userComment={userComment}
+              comments={comments}
+              character={character}
+              auth={auth}
+              submit={props.submitCharaterFeedback}
+              loadingComments={loadingComments}
+              deleteComment={props.deleteCharacterComment}
+              commentIds={commentIds}
+              alreadyPosted={alreadyPosted}
+              rateComment={props.rateComment}
+            />
           </div>
         </RedirectComp>
       </RedirectComp>
@@ -156,10 +233,17 @@ const mapStateToProps = (state) => ({
   character: state.characters.character,
   loading: state.characters.loading,
   charaExists: state.characters.charaExists,
-  userCharacters: state.characters.userCharacters,
+  comments: state.stories.comments,
+  loadingComments: state.stories.loadingComments,
+  confirmMessage: state.stories.message,
+  userComment: state.stories.userComment,
+  rated: state.stories.rated,
 });
 
 export default connect(mapStateToProps, {
   getCharacter,
-  getUserCharacters,
+  submitCharaterFeedback,
+  getCharacterComments,
+  deleteCharacterComment,
+  rateComment,
 })(Character);

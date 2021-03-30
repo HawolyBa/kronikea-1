@@ -1,3 +1,12 @@
+.center {
+  margin-top: 15px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 // CARDS
 
 .card {
@@ -12,6 +21,7 @@
   .img-container {
     overflow: hidden;
     width: 100%;
+    border-radius: 5px;
     img {
       width: 100%;
       object-fit: cover;
@@ -24,30 +34,42 @@
 
   h3 {
     font-family: "Fraunces", serif;
-    font-size: 22px;
+    font-size: 1.2rem;
     font-weight: 400;
-    margin: 0;
+    margin: 10px 0 0 0;
   }
 }
 
 .card.story-card {
+  &.story-card-mini {
+    figcaption {
+      min-height: auto;
+      h3 {
+        text-align: center;
+        font-size: 1.1rem;
+      }
+    }
+
+    img {
+      height: 200px;
+    }
+  }
   img {
     height: 230px;
   }
 
   p.description {
-    font-size: 0.8rem;
-    margin-bottom: 12px;
+    font-size: 0.75rem;
+    margin-bottom: 20px;
   }
 
   figcaption {
     position: relative;
-    min-height: 172px;
     padding: 15px 20px;
 
     span.tag {
       position: absolute;
-      right: 0;
+      right: 5px;
       top: 0;
       color: $white;
       background-color: $primary;
@@ -97,8 +119,7 @@
     }
 
     h3 {
-      text-decoration: underline;
-      text-decoration-color: $primary;
+      font-style: italic;
     }
 
     time {
@@ -180,6 +201,7 @@ figure.character-card {
     }
     h3 {
       font-size: 16px;
+      text-align: center;
     }
     img {
       height: 160px;
@@ -188,6 +210,12 @@ figure.character-card {
 
   figcaption {
     padding: 15px;
+    text-align: center;
+
+    h3 {
+      margin: 0;
+      text-align: center;
+    }
 
     span.author {
       font-size: 0.7rem;
@@ -404,5 +432,32 @@ figure.character-card {
   a {
     text-decoration: underline;
     color: $greyDark;
+  }
+}
+
+.na {
+  font-weight: 300;
+  font-size: 0.8rem;
+}
+
+.ctrl-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  input {
+    // max-width: 300px;
+  }
+}
+
+.add-btn-circle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  ion-icon {
+    color: $primary;
+    font-size: 30px;
+    margin-right: 8px;
   }
 }

@@ -3,20 +3,84 @@ import { message } from "antd";
 import { db, auth, storage } from "../fbConfig";
 import firebase from "firebase/app";
 
-export const getCharacter = (id) => (dispatch) => {
+export const getCharacter = (id, type) => (dispatch) => {
+  let relArr = [];
+  let storyArr = [];
   db.collection("characters")
     .doc(id)
     .get()
     .then((doc) => {
       if (doc.exists) {
-        dispatch({
-          type: types.GET_CHARACTER,
-          payload: {
-            character: { ...doc.data(), id: doc.id },
-            charaExists: true,
-            loading: false,
-          },
-        });
+        if (type === "show") {
+          const relatives = doc.data().relativesArr;
+          let relQueries = [];
+          relatives.forEach((rel) => {
+            relQueries.push(db.collection("characters").doc(rel).get());
+          });
+          Promise.all(relQueries).then((res) => {
+            res.forEach((char) =>
+              relArr.push({
+                ...char.data(),
+                id: char.id,
+                relation: doc
+                  .data()
+                  .relatives.find((c) => c.character_id === char.id).relation,
+              })
+            );
+
+            const mainQuery = db
+              .collection("stories")
+              .where("mainCharacters", "array-contains", id)
+              .get();
+
+            const secondaryQuery = db
+              .collection("stories")
+              .where("secondaryArr", "array-contains", id)
+              .get();
+
+            Promise.all([mainQuery, secondaryQuery]).then((result) => {
+              const allStory = result[0].docs.concat(result[1].docs);
+              allStory.forEach((story) => {
+                storyArr.push({
+                  id: story.id,
+                  title: story.data().title,
+                  authorId: story.data().authorId,
+                  banner: story.data().banner,
+                });
+              });
+              dispatch({
+                type: types.GET_CHARACTER,
+                payload: {
+                  character: {
+                    ...doc.data(),
+                    id: doc.id,
+                    relatives: relArr.filter(
+                      (r) =>
+                        (auth.currentUser && auth.currentUser.uid) ===
+                          r.authorId || r.public
+                    ),
+                    stories: storyArr.filter(
+                      (r) =>
+                        (auth.currentUser && auth.currentUser.uid) ===
+                          r.authorId || r.public
+                    ),
+                  },
+                  charaExists: true,
+                  loading: false,
+                },
+              });
+            });
+          });
+        } else {
+          dispatch({
+            type: types.GET_CHARACTER,
+            payload: {
+              character: { ...doc.data(), id: doc.id },
+              charaExists: true,
+              loading: false,
+            },
+          });
+        }
       } else {
         dispatch({
           type: types.GET_CHARACTER,
@@ -241,14 +305,17 @@ export const deleteCharacter = (id, firstname, lastname) => (dispatch) => {
     });
 };
 
-export const getUserCharacters = (userId) => (dispatch) => {
+export const getUserCharacters = (id) => (dispatch) => {
+  const userId = id ? id : auth.currentUser.uid;
   db.collection("characters")
     .where("authorId", "==", userId)
     .get()
     .then((docs) => {
       let items = [];
       docs.forEach((doc) => {
-        items = [...items, { id: doc.id, ...doc.data() }];
+        items = [...items, { id: doc.id, ...doc.data() }].filter((c) =>
+          id ? c.public : c
+        );
       });
       return items;
     })
@@ -257,9 +324,10 @@ export const getUserCharacters = (userId) => (dispatch) => {
     });
 };
 
-export const getFavoriteCharacters = () => (dispatch) => {
+export const getFavoriteCharacters = (id) => (dispatch) => {
+  const userId = id ? id : auth.currentUser.uid;
   db.collection("charactersLikes")
-    .where("senderId", "==", auth.currentUser.uid)
+    .where("senderId", "==", userId)
     .get()
     .then((docs) => {
       let favArr = [];
@@ -296,5 +364,112 @@ export const getCharactersInStory = (id) => (dispatch) => {
           mainArr: doc.data().mainCharacters,
         },
       });
+    });
+};
+
+export const submitCharaterFeedback = (info, alreadyPosted) => (dispatch) => {
+  if (!auth.currentUser.emailVerified)
+    return message.error("You need to verify your email first");
+  if (!info.content) return message.error("Content must not be empty");
+  if (alreadyPosted) return message.error("You have already sent feedback");
+
+  db.collection("comments")
+    .add({
+      ...info,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then(() => {
+      dispatch({
+        type: types.SUBMIT_COMMENT,
+        message: "Comment posted successfully",
+      });
+    })
+    .catch((err) => message.error(err.message));
+};
+
+export const getCharacterComments = (id) => (dispatch) => {
+  let comments = [];
+  db.collection("comments")
+    .where("characterId", "==", id)
+    .orderBy("createdAt", "asc")
+    .get()
+    .then((comm) => {
+      let userQueries = [];
+      comm.forEach((c) => comments.push({ ...c.data(), id: c.id }));
+      comments.forEach((comment) => {
+        userQueries.push(db.collection("users").doc(comment.userId).get());
+      });
+
+      Promise.all(userQueries).then((res) => {
+        comments = comments.map((c) => ({
+          ...c,
+          userImage: res.find((d) => d.id === c.userId).data().image,
+        }));
+        const userComment = auth.currentUser
+          ? comments.find((c) => c.userId === auth.currentUser.uid)
+          : null;
+        comments = auth.currentUser
+          ? comments.filter((c) => c.userId !== auth.currentUser.uid)
+          : comments;
+        dispatch({
+          type: types.GET_COMMENTS,
+          payload: {
+            comments,
+            userComment,
+            loadingComments: false,
+          },
+        });
+      });
+    });
+};
+
+export const deleteCharacterComment = (id) => (dispatch) => {
+  db.collection("comments")
+    .doc(id)
+    .delete()
+    .then(() => {
+      dispatch({
+        type: types.SUBMIT_COMMENT,
+        message: "Comment deleted successfully",
+      });
+    });
+};
+
+export const rateComment = (commentId, type) => (dispatch) => {
+  dispatch({ type: types.RATE_COMMENT, rated: true });
+  db.collection("comments")
+    .doc(commentId)
+    .get()
+    .then((doc) => {
+      const isLiked = doc.data().likedBy.includes(auth.currentUser.uid);
+      const isDisliked = doc.data().dislikedBy.includes(auth.currentUser.uid);
+      if ((type === "like" && isLiked) || (type === "dislike" && isDisliked)) {
+        return;
+      }
+      if (type === "like") {
+        db.collection("comments")
+          .doc(commentId)
+          .update({
+            dislikedBy: isDisliked
+              ? doc.data().dislikedBy.filter((d) => d !== auth.currentUser.uid)
+              : doc.data().dislikedBy,
+            likedBy: [...doc.data().likedBy, auth.currentUser.uid],
+          })
+          .then(() => {
+            dispatch({ type: types.SUBMIT_COMMENT, message: "Voilou" });
+          });
+      } else if (type === "dislike") {
+        db.collection("comments")
+          .doc(commentId)
+          .update({
+            likedBy: isLiked
+              ? doc.data().likedBy.filter((d) => d !== auth.currentUser.uid)
+              : doc.data().likedBy,
+            dislikedBy: [...doc.data().dislikedBy, auth.currentUser.uid],
+          })
+          .then(() => {
+            dispatch({ type: types.RATE_COMMENT, rated: false });
+          });
+      }
     });
 };

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { Row, Col } from "antd";
 
-import { StoryGrid } from "../../../components/common/Grid";
+import { StoriesGrid } from "../../../components/common/Grid";
 import { CATEGORIES } from "../../../utils/constants";
 
 const Category = () => {
@@ -29,7 +29,7 @@ const Category = () => {
           </div>
         </Col>
         <Col md={20}>
-          <StoryGrid />
+          <StoriesGrid />
         </Col>
       </Row>
     </div>

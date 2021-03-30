@@ -86,14 +86,7 @@
         }
       }
     }
-    h3.desc-title {
-      font-size: 1.3rem;
-      font-weight: 300;
-      margin: 0;
-      margin-bottom: 15px;
-      text-transform: uppercase;
-      color: lighten($greyDark, 5%);
-    }
+
     .character-description {
       p {
         line-height: 1rem;
@@ -111,10 +104,35 @@
     margin-left: 2%;
     box-shadow: $inset-shadow;
     padding: 30px 20px;
+    height: calc(100vh - 120px);
 
-    h3 {
+    header.feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 15px;
     }
+
+    .add-comment {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+
+      ion-icon {
+        color: $primary;
+        font-size: 30px;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  h3.desc-title {
+    font-size: 1.3rem;
+    font-weight: 300;
+    margin: 0;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    color: lighten($greyDark, 5%);
   }
 }
 

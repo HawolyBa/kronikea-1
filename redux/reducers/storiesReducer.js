@@ -55,6 +55,12 @@ const initialState = {
   loadingFav: true,
   loadingLoc: false,
   locationExists: true,
+  deleted: false,
+  userComment: {
+    id: "",
+    content: "",
+  },
+  rated: false,
 };
 
 const storiesReducer = (state = initialState, action) => {
@@ -114,6 +120,17 @@ const storiesReducer = (state = initialState, action) => {
         message: action.payload.message,
         loadingStory: action.payload.loadingStory,
       };
+    case types.DELETE_STORY:
+      return {
+        ...state,
+        message: action.payload.message
+          ? action.payload.message
+          : state.message,
+        deleted: action.payload.deleted
+          ? action.payload.deleted
+          : state.deleted,
+        loading: action.payload.loading,
+      };
     case types.ADD_LOCATION:
       return {
         ...state,
@@ -127,6 +144,17 @@ const storiesReducer = (state = initialState, action) => {
         loading: false,
         location: action.payload ? action.payload : state.location,
         locationExists: action.locationExists,
+      };
+    case types.DELETE_LOCATION:
+      return {
+        ...state,
+        loading: false,
+        deleted: action.payload.deleted
+          ? action.payload.deleted
+          : state.deleted,
+        message: action.payload.message
+          ? action.payload.message
+          : state.message,
       };
     case types.GET_USER_STORIES:
       return {
@@ -167,7 +195,18 @@ const storiesReducer = (state = initialState, action) => {
       return {
         ...state,
         comments: action.payload.comments,
+        userComment: action.payload.userComment,
         loadingComments: action.payload.loadingComments,
+      };
+    case types.SUBMIT_COMMENT:
+      return {
+        ...state,
+        message: action.message,
+      };
+    case types.RATE_COMMENT:
+      return {
+        ...state,
+        rated: action.rated,
       };
     default:
       return state;

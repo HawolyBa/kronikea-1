@@ -59,7 +59,7 @@ const newLocation = (props) => {
               loadingLoc={loadingLoc}
               submit={submit}
               locId={locId}
-              initialValues={{ name: "" }}
+              initialValues={{ name: "", description: "", image: "" }}
             />
           </div>
         </div>

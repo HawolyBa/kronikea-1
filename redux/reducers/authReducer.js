@@ -2,6 +2,7 @@ import {
   GET_PROFILE,
   GET_FAVORITE_AUTHORS,
   GET_FOLLOWERS,
+  types,
 } from "../../utils/constants";
 
 const initialState = {
@@ -14,6 +15,7 @@ const initialState = {
     isLoading: true,
     authors: [],
   },
+  isFollowing: false,
 };
 
 const reducer = (state = initialState, action) => {
@@ -38,6 +40,11 @@ const reducer = (state = initialState, action) => {
           isLoading: false,
           authors: action.payload,
         },
+      };
+    case types.IS_FOLLOWING:
+      return {
+        ...state,
+        isFollowing: action.payload,
       };
   }
   return state;

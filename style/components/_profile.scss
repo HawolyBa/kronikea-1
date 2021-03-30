@@ -26,7 +26,7 @@
 
   .favorites {
     width: 100%;
-    padding: 0 15px;
+    //padding: 0 15px;
     .img-container {
       display: flex;
       justify-content: center;
@@ -63,6 +63,7 @@
       position: relative;
       padding: 15px 25px;
 
+      .follow-btn,
       .settings-icon {
         position: absolute;
         right: 30px;
@@ -70,8 +71,24 @@
         z-index: 9;
       }
 
+      .follow-btn {
+        border-radius: 1rem;
+        box-shadow: $shadow;
+        padding: 5px 15px;
+
+        &:active,
+        &.followed {
+          box-shadow: $inner-shadow;
+
+          ion-icon {
+            color: $greyDark;
+          }
+        }
+      }
+
       h2 {
         letter-spacing: 2px;
+        max-width: 400px;
         color: $black;
         text-shadow: $shadow;
         font-size: 1.8rem;

@@ -21,10 +21,9 @@ const CharacterCard = ({ character, type, removeCharacter }) => {
       </div>
       <figcaption>
         <h3>{`${character?.firstname} ${character?.lastname}`}</h3>
-        {type === "favorites" ||
-          (type === "story" && (
-            <span className="author">Author: {character?.authorName}</span>
-          ))}
+        {(type === "favorites" || type === "story") && (
+          <span className="author">Author: {character?.authorName}</span>
+        )}
         {(type === "add" || type === "show") && (
           <span className="author">Relation: {character?.relation}</span>
         )}

@@ -1,7 +1,6 @@
 import React from "react";
+import Link from "next/link";
 import { Col, Popconfirm, Row, Space } from "antd";
-
-import WithLink from "../hoc/WithLink";
 
 const Chapters = ({ chapters, id, deleteChapter, loading }) => {
   return (
@@ -23,18 +22,12 @@ const Chapters = ({ chapters, id, deleteChapter, loading }) => {
                 <Col>
                   <div className="chapter-buttons">
                     <Space size={20} align="center">
-                      <WithLink
-                        className="btn read-btn"
-                        link={`/story/${id}/chapter/${item.id}`}
-                      >
-                        Read
-                      </WithLink>
-                      <WithLink
-                        className="btn edit-btn"
-                        link={`/story/${id}/chapter/${item.id}/edit`}
-                      >
-                        Edit
-                      </WithLink>
+                      <Link href={`/story/${id}/chapter/${item.id}`}>
+                        <a className="btn read-btn">Read</a>
+                      </Link>
+                      <Link href={`/story/${id}/chapter/${item.id}/edit`}>
+                        <a className="btn edit-btn">Edit</a>
+                      </Link>
                       <Popconfirm
                         title="Do you really want to delete this chapter ?"
                         onConfirm={() => deleteChapter(item.id)}
