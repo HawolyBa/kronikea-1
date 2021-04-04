@@ -10,7 +10,7 @@ import Followers from "../../components/profile/Followers";
 import Locations from "../../components/profile/Locations";
 import Settings from "../../components/profile/Settings";
 
-import { getProfile } from "../../redux/actions/userActions";
+import { getProfile, changeProfile } from "../../redux/actions/userActions";
 import {
   getUserStories,
   getFavoriteStories,
@@ -39,6 +39,7 @@ const Profile = ({
   getFavoriteCharacters,
   getFavoriteStories,
   getUserLocations,
+  changeProfile,
   getFollowers,
   characters,
   favAuthors,
@@ -56,7 +57,7 @@ const Profile = ({
     "followers",
     "followings",
   ]);
-  const [settings, openSettings] = useState(false);
+  const [openSettings, setOpenSettings] = useState(false);
   const [currentTab, setCurrentTab] = useState("stories");
   const [favTab, setFavTab] = useState("favauthors");
   const [favoriteStories, setFavoriteStories] = useState([]);
@@ -96,7 +97,7 @@ const Profile = ({
           <Banner
             context="private"
             profile={profile}
-            openSettings={openSettings}
+            openSettings={setOpenSettings}
             favAuthors={favAuthors}
             followers={followers}
             changeFavTab={changeFavTab}
@@ -158,23 +159,12 @@ const Profile = ({
               />
             )}
           </section>
-          <Modal
-            title="Settings"
-            visible={settings}
-            onOk={() => openSettings(false)}
-            onCancel={() => openSettings(false)}
-            footer={[
-              <Button
-                key="submit"
-                type="primary"
-                onClick={() => openSettings(false)}
-              >
-                Submit
-              </Button>,
-            ]}
-          >
-            <Settings user={auth.user} />
-          </Modal>
+          <Settings
+            changeProfile={changeProfile}
+            profile={profile}
+            openSettings={openSettings}
+            setOpenSettings={setOpenSettings}
+          />
         </RedirectComp>
       </LoadingScreen>
     </div>
@@ -202,4 +192,5 @@ export default connect(mapStateToProps, {
   getFavoriteCharacters,
   getFavoriteStories,
   getUserLocations,
+  changeProfile,
 })(Profile);

@@ -37,7 +37,7 @@ const Banner = ({
             <h2>{story.title}</h2>
             <p className="author">
               by{" "}
-              <Link href="/profile/1">
+              <Link href={`/profile/${story.authorId}`}>
                 <a>{story.authorName}</a>
               </Link>
             </p>

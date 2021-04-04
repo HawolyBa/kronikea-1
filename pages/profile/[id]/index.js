@@ -76,16 +76,22 @@ const Profile = ({
   const router = useRouter();
 
   useEffect(() => {
-    getProfile(router.query.id);
+    if (
+      (auth && auth.user.uid !== router.query.id) ||
+      (!auth.isLoading && !auth.user)
+    ) {
+      getProfile(router.query.id);
 
-    getUserStories(router.query.id, "profile");
-    getUserCharacters(router.query.id);
-    getFavoriteAuthors(router.query.id);
-    getFollowers(router.query.id);
-    getFavoriteCharacters(router.query.id);
-    getFavoriteStories(router.query.id);
-    getUserLocations(router.query.id);
-  }, [router.query.id]);
+      getUserStories(router.query.id);
+      getUserCharacters(router.query.id);
+      getFavoriteAuthors(router.query.id);
+      getFollowers(router.query.id);
+      getFavoriteCharacters(router.query.id);
+      getFavoriteStories(router.query.id);
+      getUserLocations(router.query.id);
+      setCurrentTab("stories");
+    }
+  }, [router.query.id, auth]);
 
   useEffect(() => {
     if (auth.user) {

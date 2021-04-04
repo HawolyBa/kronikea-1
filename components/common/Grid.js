@@ -65,7 +65,9 @@ const LocationGrid = ({
     <ResponsiveMasonry columnsCountBreakPoints={columnsCountBreakPoints}>
       <Masonry gutter={gutter}>
         {locations.length > 0 ? (
-          locations.map((c) => <LocationCard location={c} type={type} />)
+          locations.map((c) => (
+            <LocationCard key={c.id} location={c} type={type} />
+          ))
         ) : (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -75,13 +77,6 @@ const LocationGrid = ({
       </Masonry>
     </ResponsiveMasonry>
   ) : (
-    //   <Row gutter={gutter}>
-    //     {locations.map((loc) => (
-    //       <Col xl={xl} xxl={xxl} xs={xs} sm={sm} md={md} lg={lg} key={loc.id}>
-    //         <LocationCard type={type} location={loc} />
-    //       </Col>
-    //     ))}
-    //   </Row>
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
       description="No locations yet"
@@ -121,21 +116,6 @@ const CharacterGrid = ({
       </Masonry>
     </ResponsiveMasonry>
   ) : (
-    // <Row gutter={gutter}>
-    //   {characters?.map((c) => (
-    //     <Col key={c.id} xxl={xxl} xl={xl} lg={lg} md={md} sm={sm} xs={xs}>
-    //       {type === "show" ? (
-    //         <Link href={`/character/${c.id}`}>
-    //           <a>
-    //             <CharacterCard character={c} type={type} />
-    //           </a>
-    //         </Link>
-    //       ) : (
-    //         <CharacterCard character={c} type={type} />
-    //       )}
-    //     </Col>
-    //   ))}
-    // </Row>
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
       description="No characters yet"

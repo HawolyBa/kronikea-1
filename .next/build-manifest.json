@@ -26,11 +26,6 @@
       "static/chunks/webpack.js",
       "static/chunks/pages/_error.js"
     ],
-    "/auth": [
-      "static/chunks/main.js",
-      "static/chunks/webpack.js",
-      "static/chunks/pages/auth.js"
-    ],
     "/profile": [
       "static/chunks/main.js",
       "static/chunks/webpack.js",
@@ -40,6 +35,11 @@
       "static/chunks/main.js",
       "static/chunks/webpack.js",
       "static/chunks/pages/profile/[id].js"
+    ],
+    "/story/[id]": [
+      "static/chunks/main.js",
+      "static/chunks/webpack.js",
+      "static/chunks/pages/story/[id].js"
     ]
   },
   "ampFirstPages": []

@@ -1,4 +1,4 @@
-import { db, auth } from "../fbConfig";
+import { db, auth, storage } from "../fbConfig";
 import { types } from "../../utils/constants";
 import firebase from "firebase/app";
 import { message } from "antd";
@@ -126,4 +126,190 @@ export const unfollowUser = (id, isFavorite) => (dispatch) => {
     })
     .then(() => message.success("User successfully unfollowed"))
     .catch((err) => message.error("There has been a problem"));
+};
+
+export const changeProfile = (data, setOpen, username, userImage) => (
+  dispatch
+) => {
+  const { newPassword, actualPassword, ...newInfo } = data;
+  const imageName = `${auth.currentUser.uid}_${newInfo.username}`;
+
+  // STORIES, CHAPTERS, CHARACTERS & COMMENTS QUERIES
+  const userStoriesQuery = db
+    .collection("stories")
+    .where("authorId", "==", auth.currentUser.uid)
+    .get();
+  const userChaptersQuery = db
+    .collection("chapters")
+    .where("authorId", "==", auth.currentUser.uid)
+    .get();
+  const userCharactersQuery = db
+    .collection("characters")
+    .where("authorId", "==", auth.currentUser.uid)
+    .get();
+  const userCommentsQuery = db
+    .collection("comments")
+    .where("userId", "==", auth.currentUser.uid)
+    .get();
+
+  // FUNCTION TO ACTUALLY UPDATE ALL AFFECTED FILES
+  const batchUpdateAll = async (queries, url) => {
+    await Promise.all(queries).then((res) => {
+      res[0].forEach((story) => {
+        db.collection("stories")
+          .doc(story.id)
+          .update({
+            userImage: url ? url : newInfo.image,
+            authorName: data.username,
+          });
+      });
+      res[1].forEach((chap) => {
+        db.collection("chapters")
+          .doc(chap.id)
+          .update({
+            userImage: url ? url : newInfo.image,
+            authorName: data.username,
+          });
+      });
+      res[2].forEach((char) => {
+        db.collection("characters")
+          .doc(char.id)
+          .update({
+            userImage: url ? url : newInfo.image,
+            authorName: data.username,
+          });
+      });
+      res[3].forEach((comm) => {
+        db.collection("comments")
+          .doc(comm.id)
+          .update({
+            userImage: url ? url : newInfo.image,
+            authorName: data.username,
+          });
+      });
+    });
+  };
+
+  if (newPassword) {
+    auth.currentUser
+      .reauthenticateWithCredential(
+        firebase.auth.EmailAuthProvider.credential(
+          auth.currentUser.email,
+          actualPassword
+        )
+      )
+      .then(() => {
+        return auth.currentUser.updatePassword(newPassword);
+      })
+      .then(async () => {
+        if (typeof newInfo.image === "object") {
+          storage
+            .ref(`${auth.currentUser.uid}/${imageName}`)
+            .put(newInfo.image)
+            .then(() => {
+              return storage
+                .ref(`${auth.currentUser.uid}/${imageName}`)
+                .getDownloadURL();
+            })
+            .then(async (url) => {
+              return db
+                .collection("users")
+                .doc(auth.currentUser.uid)
+                .update({
+                  ...newInfo,
+                  image: url,
+                })
+                .then(() => {
+                  return batchUpdateAll(
+                    [
+                      userStoriesQuery,
+                      userChaptersQuery,
+                      userCharactersQuery,
+                      userCommentsQuery,
+                    ],
+                    url
+                  );
+                })
+                .then(() => {
+                  setOpen(false);
+                  message.success("Profile updated successfully");
+                });
+            });
+        } else {
+          return db
+            .collection("users")
+            .doc(auth.currentUser.uid)
+            .update({
+              ...newInfo,
+            })
+            .then(() => {
+              return batchUpdateAll([
+                userStoriesQuery,
+                userChaptersQuery,
+                userCharactersQuery,
+                userCommentsQuery,
+              ]);
+            })
+            .then(() => {
+              setOpen(false);
+              message.success("Profile updated successfully");
+            });
+        }
+      })
+      .catch((err) => message.error(err.message));
+  } else {
+    if (typeof newInfo.image === "object") {
+      storage
+        .ref(`${auth.currentUser.uid}/${imageName}`)
+        .put(newInfo.image)
+        .then(() => {
+          return storage
+            .ref(`${auth.currentUser.uid}/${imageName}`)
+            .getDownloadURL();
+        })
+        .then(async (url) => {
+          return db
+            .collection("users")
+            .doc(auth.currentUser.uid)
+            .update({
+              ...newInfo,
+              image: url,
+            })
+            .then(() => {
+              return batchUpdateAll(
+                [
+                  userStoriesQuery,
+                  userChaptersQuery,
+                  userCharactersQuery,
+                  userCommentsQuery,
+                ],
+                url
+              );
+            });
+        })
+        .then(() => {
+          setOpen(false);
+          message.success("Profile updated successfully");
+        });
+    } else {
+      console.log("mdp pas changé et image pas changé");
+      db.collection("users")
+        .doc(auth.currentUser.uid)
+        .update({
+          ...newInfo,
+        })
+        .then(() => {
+          return batchUpdateAll([
+            userStoriesQuery,
+            userChaptersQuery,
+            userCharactersQuery,
+            userCommentsQuery,
+          ]);
+        })
+        .then(() => {
+          setOpen(false);
+          message.success("Profile updated successfully");
+        });
+    }
+  }
 };

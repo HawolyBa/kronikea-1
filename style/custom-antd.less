@@ -30,7 +30,8 @@
 }
 
 .ant-input,
-.ant-input-number {
+.ant-input-number,
+.ant-input[type="password"] {
   width: 100%;
   border: none;
   border-radius: 1rem;
@@ -78,4 +79,38 @@
 .ant-input-affix-wrapper:focus,
 .ant-input-affix-wrapper-focused {
   box-shadow: none;
+}
+
+.ant-input-group-addon {
+  border: none;
+  border-radius: 1rem 0 0 1rem;
+}
+
+.ant-input-group > .ant-input:last-child,
+.ant-input-group-addon:last-child {
+  border-radius: 0 1rem 1rem 0;
+}
+
+.ant-input-affix-wrapper {
+  border: none;
+  padding: 0;
+
+  .ant-input-group-addon:first-child,
+  .ant-input[type="password"] {
+    padding: 8px 15px;
+  }
+}
+
+.ant-input-affix-wrapper-focused {
+  .ant-input-group-addon:first-child,
+  .ant-input[type="password"] {
+    padding: 8px 15px;
+    box-shadow: 0.3rem 0.3rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;
+  }
+}
+
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused,
+.ant-input-affix-wrapper:hover {
+  z-index: 0;
 }

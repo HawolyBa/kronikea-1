@@ -136,7 +136,7 @@ const Story = ({
 
                     <h3 className="heading">Main Characters</h3>
                     <CharacterGrid
-                      gutter={[24, 16]}
+                      gutter={"16px"}
                       xxl={4}
                       xl={4}
                       lg={4}
@@ -144,11 +144,18 @@ const Story = ({
                       sm={8}
                       xs={12}
                       type="show"
+                      columnsCountBreakPoints={{
+                        350: 1,
+                        750: 2,
+                        900: 3,
+                        1200: 4,
+                        1600: 4,
+                      }}
                       characters={mains}
                     />
                     <h3 className="heading">Secondary Characters</h3>
                     <CharacterGrid
-                      gutter={[24, 16]}
+                      gutter={"16px"}
                       xxl={4}
                       xl={4}
                       lg={4}
@@ -156,12 +163,26 @@ const Story = ({
                       sm={8}
                       xs={12}
                       type="show"
+                      columnsCountBreakPoints={{
+                        350: 1,
+                        750: 2,
+                        900: 3,
+                        1200: 4,
+                        1600: 4,
+                      }}
                       characters={secondaries}
                     />
                     <h3 className="heading">Locations</h3>
                     <LocationGrid
                       locations={storyLocations}
-                      gutter={[24, 16]}
+                      gutter={"16px"}
+                      columnsCountBreakPoints={{
+                        350: 1,
+                        750: 2,
+                        900: 3,
+                        1200: 4,
+                        1600: 4,
+                      }}
                       lg={4}
                       md={6}
                       sm={8}

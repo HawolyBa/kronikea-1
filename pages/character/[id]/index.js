@@ -77,7 +77,7 @@ const Character = (props) => {
           <div className="main-character">
             <section className="character-page">
               <div className="character-meta">
-                <Link href="/profile/1">
+                <Link href={`/profile/${character.authorId}`}>
                   <a>
                     <Space align="center">
                       <div className="avatar">
