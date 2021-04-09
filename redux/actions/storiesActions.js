@@ -214,43 +214,19 @@ export const editStory = (data, storyId) => (dispatch) => {
 
 export const deleteStory = (id) => (dispatch) => {
   dispatch({ type: types.DELETE_STORY, payload: { loading: true } });
-  const batch = db.batch();
-  batch.delete(db.collection("stories").doc(id));
-  const chaptersToDelete = db
-    .collection("chapters")
-    .where("storyId", "==", id)
-    .get();
-  const likesToDelete = db
-    .collection("storiesLikes")
-    .where("storyId", "==", id)
-    .get();
-  const locationsToDelete = db
-    .collection("locations")
-    .where("storyId", "==", id)
-    .get();
-  Promise.all([chaptersToDelete, likesToDelete, locationsToDelete]).then(
-    (res) => {
-      res[0].forEach((chap) => {
-        batch.delete(db.collection("chapters").doc(chap.id));
+  db.collection("stories")
+    .doc(id)
+    .delete()
+    .then(() => {
+      dispatch({
+        type: types.DELETE_STORY,
+        payload: {
+          message: "Story deleted successfully",
+          loading: true,
+          deleted: true,
+        },
       });
-      res[1].forEach((like) => {
-        batch.delete(db.collection("storiesLikes").doc(like.id));
-      });
-      res[2].forEach((loc) => {
-        batch.delete(db.collection("locations").doc(loc.id));
-      });
-      batch.commit().then(() => {
-        dispatch({
-          type: types.DELETE_STORY,
-          payload: {
-            message: "Story deleted successfully",
-            loading: true,
-            deleted: true,
-          },
-        });
-      });
-    }
-  );
+    });
 };
 
 export const getUserStories = (id, type) => (dispatch) => {
@@ -316,10 +292,18 @@ export const isStoryFavorite = (storyId) => (dispatch) => {
           loadingFav: false,
         });
       });
+  } else {
+    return dispatch({
+      type: types.IS_STORY_FAVORITE,
+      payload: false,
+      loadingFav: false,
+    });
   }
 };
 
-export const addStoryToFavorite = (id, username, storyTitle) => (dispatch) => {
+export const addStoryToFavorite = (id, username, storyTitle, authorId) => (
+  dispatch
+) => {
   // if (isFavorite) return message.warning("You've already liked this story");
   if (!auth.currentUser)
     return message.error("You need to be logged in to like a story");
@@ -333,8 +317,24 @@ export const addStoryToFavorite = (id, username, storyTitle) => (dispatch) => {
       storyId: id,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
+    .then(() => {
+      if (authorId !== auth.currentUser.uid) {
+        return db
+          .collection("notifications")
+          .doc(`${auth.currentUser.uid}${id}`)
+          .set({
+            type: "storyLike",
+            read: false,
+            recipient: authorId,
+            sender: auth.currentUser.uid,
+            storyId: id,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            message: `${username} liked your story ${storyTitle}`,
+          });
+      }
+    })
     .then(() => message.success(`${storyTitle} added to your favorites`))
-    .catch((err) => message.error("There has been a problem"));
+    .catch((err) => message.error(err.message));
 };
 
 export const removeStoryFromFavorite = (id, storyTitle) => (dispatch) => {
@@ -351,114 +351,86 @@ export const removeStoryFromFavorite = (id, storyTitle) => (dispatch) => {
 
 export const getStoryCharacters = () => (dispatch) => {};
 
-// CHAPTERs
-
-export const addChapter = (data, secondaryCharacters) => (dispatch) => {
-  let chapId = "";
-  dispatch({ type: types.ADD_CHAPTER, payload: { loading: true } });
-
-  return db
-    .collection("chapters")
-    .add({
-      ...data,
-      authorId: auth.currentUser.uid,
-      commentsCount: 0,
-      note: 0,
-      voters: [],
-      votesCount: 0,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    })
-    .then((res) => {
-      chapId = res.id;
-      db.collection("stories")
-        .doc(data.storyId)
-        .get()
-        .then((story) => {
-          db.collection("stories")
-            .doc(data.storyId)
-            .update({
-              chaptersCount: story.data().chaptersCount + 1,
-              secondaryCharacters: secondaryCharacters,
-              secondaryArr: secondaryCharacters.map((c) => c.id),
-            })
-            .then(() => {
-              dispatch({
-                type: types.ADD_CHAPTER,
-                payload: {
-                  message: "Chapter added successfully",
-                  chapId: chapId,
-                  loading: false,
-                },
-              });
-            });
-        });
+export const getHomeStories = () => (dispatch) => {
+  let result = [];
+  db.collection("stories")
+    .where("public", "==", true)
+    .limit(4)
+    .get()
+    .then((docs) => {
+      docs.forEach((doc) => result.push({ id: doc.id, ...doc.data() }));
+      dispatch({
+        type: types.GET_HOME_STORIES,
+        payload: result,
+        loading: false,
+      });
     });
 };
 
-export const editChapter = (data, storyId, chapid, secondaryCharacters) => (
-  dispatch
-) => {
+// CHAPTERs
+
+export const addChapter = (data) => (dispatch) => {
+  dispatch({ type: types.ADD_CHAPTER, payload: { loading: true } });
+
+  db.collection("chapters")
+    .where("storyId", "==", data.storyId)
+    .get()
+    .then((docs) => {
+      let numberUsed = [];
+      docs.forEach((chapter) => {
+        numberUsed.push(chapter.data().number);
+      });
+      if (numberUsed.includes(data.number)) {
+        dispatch({ type: types.ADD_CHAPTER, payload: { loading: false } });
+        message.error(`You already have a chapter numbered: ${data.number}`);
+      } else {
+        return db
+          .collection("chapters")
+          .add({
+            ...data,
+            authorId: auth.currentUser.uid,
+            commentsCount: 0,
+            note: 0,
+            voters: [],
+            votesCount: 0,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          })
+          .then((res) => {
+            dispatch({
+              type: types.ADD_CHAPTER,
+              payload: {
+                message: "Chapter added successfully",
+                chapId: res.id,
+                loading: false,
+              },
+            });
+          });
+      }
+    });
+};
+
+export const editChapter = (data, chapid) => (dispatch) => {
   dispatch({ type: types.EDIT_CHAPTER, payload: { loading: true } });
   db.collection("chapters")
     .doc(chapid)
     .update({ ...data })
     .then(() => {
-      db.collection("stories")
-        .doc(storyId)
-        .get()
-        .then((doc) => {
-          db.collection("stories")
-            .doc(storyId)
-            .update({
-              secondaryCharacters,
-              secondaryArr: secondaryCharacters.map((c) => c.id),
-            })
-            .then(() => {
-              dispatch({
-                type: types.EDIT_CHAPTER,
-                payload: {
-                  message: "Chapter edited successfully",
-                  loading: false,
-                },
-              });
-            });
-        });
+      dispatch({
+        type: types.EDIT_CHAPTER,
+        payload: {
+          message: "Chapter edited successfully",
+          loading: false,
+        },
+      });
     });
 };
 
 export const deleteChapter = (id, storyId) => (dispatch) => {
   dispatch({ type: types.DELETE_CHAPTER, payload: { loadingChapter: true } });
-  const batch = db.batch();
-
-  const commentsToDelete = db
-    .collection("comments")
-    .where("chapterId", "==", id)
-    .get();
-  const chapter = db.collection("chapters").doc(id).get();
-  const story = db.collection("stories").doc(storyId).get();
-
-  Promise.all([chapter, story, commentsToDelete]).then((res) => {
-    const charactersFromChapter = res[0].data().characters;
-    const charactersFromStory = res[1].data().secondaryCharacters;
-    let newArr = charactersFromStory
-      .map((c) => {
-        if (charactersFromChapter.includes(c.id)) {
-          return { ...c, times: c.times - 1 };
-        } else {
-          return c;
-        }
-      })
-      .filter((c) => c.times > 0);
-    batch.update(db.collection("stories").doc(storyId), {
-      chaptersCount: res[1].data().chaptersCount - 1,
-      secondaryCharacters: newArr,
-      secondaryArr: newArr.map((c) => c.id),
-    });
-    res[2].forEach((comm) =>
-      batch.delete(db.collection("comments").doc(comm.id))
-    );
-    batch.delete(db.collection("chapters").doc(id));
-    batch.commit().then(() => {
+  db.collection("chapters")
+    .doc(id)
+    .delete()
+    .then(() => {
       dispatch({
         type: types.DELETE_CHAPTER,
         payload: {
@@ -466,8 +438,8 @@ export const deleteChapter = (id, storyId) => (dispatch) => {
           loadingChapter: false,
         },
       });
-    });
-  });
+    })
+    .catch((err) => console.log(err));
 };
 
 export const getChapter = (storyId, id, type) => (dispatch) => {
@@ -488,6 +460,19 @@ export const getChapter = (storyId, id, type) => (dispatch) => {
                 let locQuery = [];
                 const charactersInChaper = chap.data().characters;
                 const locationsInChaper = chap.data().locations;
+                const chapNumber = chap.data().number;
+
+                const prevChap = db
+                  .collection("chapters")
+                  .where("storyId", "==", storyId)
+                  .where("number", "==", chapNumber - 1)
+                  .get();
+                const nextChap = db
+                  .collection("chapters")
+                  .where("storyId", "==", storyId)
+                  .where("number", "==", chapNumber + 1)
+                  .get();
+
                 charactersInChaper.forEach((char) => {
                   charaQuery.push(db.collection("characters").doc(char).get());
                 });
@@ -496,28 +481,34 @@ export const getChapter = (storyId, id, type) => (dispatch) => {
                 });
                 charaQuery = Promise.all(charaQuery);
                 locQuery = Promise.all(locQuery);
-                Promise.all([charaQuery, locQuery]).then((res) => {
-                  res[0].forEach((c) => {
-                    characters.push({ ...c.data(), id: c.id });
-                  });
-                  res[1].forEach((l) => {
-                    locations.push({ ...l.data(), id: l.id });
-                  });
-                  dispatch({
-                    type: types.GET_CHAPTER,
-                    payload: {
-                      chapter: {
-                        ...chap.data(),
-                        id: chap.id,
-                        locations,
-                        characters,
-                        public: doc.data().public,
-                        storyTitle: doc.data().title,
+                Promise.all([charaQuery, locQuery, prevChap, nextChap]).then(
+                  (res) => {
+                    let prev = res[2].docs[0] ? res[2].docs[0].id : null;
+                    let next = res[3].docs[0] ? res[3].docs[0].id : null;
+                    res[0].forEach((c) => {
+                      characters.push({ ...c.data(), id: c.id });
+                    });
+                    res[1].forEach((l) => {
+                      locations.push({ ...l.data(), id: l.id });
+                    });
+                    dispatch({
+                      type: types.GET_CHAPTER,
+                      payload: {
+                        chapter: {
+                          ...chap.data(),
+                          id: chap.id,
+                          prev,
+                          next,
+                          locations,
+                          characters,
+                          public: doc.data().public,
+                          storyTitle: doc.data().title,
+                        },
+                        chapterExists: true,
                       },
-                      chapterExists: true,
-                    },
-                  });
-                });
+                    });
+                  }
+                );
               } else {
                 dispatch({
                   type: types.GET_CHAPTER,
@@ -561,6 +552,7 @@ export const getChapters = (id) => (dispatch) => {
           number: doc.data().number,
           title: doc.data().title,
           commentsCount: doc.data().commentsCount,
+          status: doc.data().status,
         });
       });
       dispatch({
@@ -745,7 +737,7 @@ export const getComments = (id) => (dispatch) => {
       Promise.all(queries).then((res) => {
         comments = comments.map((comm) => ({
           ...comm,
-          userImage: res.find((d) => d.id === comm.userId).data().image,
+          //userImage: res.find((d) => d.id === comm.userId).data().image,
         }));
         dispatch({
           type: types.GET_COMMENTS,
@@ -781,6 +773,22 @@ export const submitComment = (info) => (dispatch) => {
             ...info,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           })
+          .then(() => {
+            if (auth.currentUser.uid !== info.authorId) {
+              return db.collection("notifications").add({
+                type: "comment",
+                read: false,
+                recipient: info.authorId,
+                sender: auth.currentUser.uid,
+                chapterId: info.chapterId,
+                storyId: info.storyId,
+                userDeleted: false,
+                suspended: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                message: `${info.username} posted a commented on your story ${info.title}`,
+              });
+            }
+          })
           .then(() => message.success("Comment posted successfully"));
       });
     })
@@ -803,4 +811,41 @@ export const deleteComment = (id, chapid, storyId) => (dispatch) => {
       db.collection("comments").doc(id).delete();
     });
   });
+};
+
+// ARCHIVES
+
+export const getStoriesFromSearch = (search) => (dispatch) => {
+  let result = [];
+  db.collection("stories")
+    .where("public", "==", true)
+    .get()
+    .then((data) => {
+      data.forEach((doc) => {
+        const title = doc.data().title.toLowerCase().split(" ");
+        const authorName = doc.data().authorName.toLowerCase().split(" ");
+        const searchTerm = search.split("-");
+        const isIncluded = searchTerm.every((word) => title.includes(word));
+        const orIncluded = searchTerm.some(
+          (word) => doc.data().title.toLowerCase().indexOf(word) !== -1
+        );
+        const authorIncluded = searchTerm.every((word) =>
+          authorName.includes(word)
+        );
+        const orAuthorIncluded = searchTerm.some(
+          (word) => doc.data().authorName.toLowerCase().indexOf(word) !== -1
+        );
+        if (isIncluded || orIncluded || authorIncluded || orAuthorIncluded) {
+          result.push({ ...doc.data(), id: doc.id });
+        }
+      });
+      return result;
+    })
+    .then(() => {
+      dispatch({
+        type: types.GET_STORIES_FROM_SEARCH,
+        payload: result,
+        loading: false,
+      });
+    });
 };

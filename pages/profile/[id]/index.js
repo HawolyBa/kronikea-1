@@ -77,7 +77,7 @@ const Profile = ({
 
   useEffect(() => {
     if (
-      (auth && auth.user.uid !== router.query.id) ||
+      (auth.user && auth.user.uid !== router.query.id) ||
       (!auth.isLoading && !auth.user)
     ) {
       getProfile(router.query.id);
@@ -165,7 +165,9 @@ const Profile = ({
               )}
               {currentTab === "followers" && (
                 <Followers
-                  title="Followers"
+                  title={
+                    followers.authors.length > 1 ? "Followers" : "Follower"
+                  }
                   type={"followers"}
                   lg={4}
                   md={6}
@@ -176,7 +178,9 @@ const Profile = ({
               )}
               {currentTab === "followings" && (
                 <Followers
-                  title="Followings"
+                  title={
+                    favAuthors.authors.length > 1 ? "Followings" : "Following"
+                  }
                   type={"followings"}
                   lg={4}
                   md={6}

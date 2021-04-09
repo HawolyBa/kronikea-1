@@ -1,6 +1,6 @@
 import { Result, Button } from "antd";
 
-const RedirectComp = ({ condition, type, children }) => {
+const RedirectComp = ({ condition, type, children, verifyEmail }) => {
   return condition ? (
     children
   ) : type === "404" ? (
@@ -19,6 +19,17 @@ const RedirectComp = ({ condition, type, children }) => {
     />
   ) : type === "redirect" ? (
     (window.location.href = "/auth")
+  ) : type === "verify" ? (
+    <Result
+      status="403"
+      title="403"
+      subTitle="Sorry, you cannot post until you verify your email"
+      extra={
+        <Button type="primary" onClick={() => verifyEmail()}>
+          Send a new email
+        </Button>
+      }
+    />
   ) : (
     <div></div>
   );

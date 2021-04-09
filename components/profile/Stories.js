@@ -25,7 +25,15 @@ const Stories = ({ stories, loading, type, context }) => {
         <SortInput
           type="stories"
           itemData={stories}
-          title={type !== "favorites" ? "Stories" : "Favorite Stories"}
+          title={
+            type !== "favorites"
+              ? stories.length > 1
+                ? "Stories"
+                : "Story"
+              : stories.length > 1
+              ? "Favorite Stories"
+              : "Favorite Story"
+          }
           setData={setData}
           options={options}
           context={context}

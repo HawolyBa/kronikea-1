@@ -1,0 +1,42 @@
+{
+  "charactersChapers": [
+    {
+      "storyTitle": "Une histoire de fou",
+      "storyId": "sr4gf5641f",
+      "status": "complete",
+      "chapters": [
+        {
+          "title": "Chapitre 1",
+          "id": "s52v532sv"
+        },
+        {
+          "title": "Chapitre 2",
+          "id": "sv65845sv"
+        },
+        {
+          "title": "Chapitre 3",
+          "id": "s6r85g"
+        }
+      ]
+    },
+    {
+      "storyTitle": "Une nouvelle histoire de fou",
+      "storyId": "sd8v526sv",
+      "status": "in progress",
+      "chapters": [
+        {
+          "title": "Chapitre 1",
+          "id": "sdv846sdv"
+        },
+        {
+          "title": "Chapitre 2",
+          "id": "sd6v846s5v"
+        },
+        {
+          "title": "Chapitre 3",
+          "id": "v84s652vf"
+        }
+      ]
+    }
+  ]
+}

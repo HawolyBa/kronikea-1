@@ -54,7 +54,7 @@ const Pagination = ({
         type={type}
         columnsCountBreakPoints={columnsCountBreakPoints}
       />
-    ) : itemType === "followers" ? (
+    ) : itemType === "followers" || itemType === "users" ? (
       <UserGrid
         gutter={gutter}
         type={type}

@@ -58,14 +58,28 @@ const ChapterForm = ({
               number: 0,
               title: "",
               body: "",
-              status: "true",
+              status: true,
               locations: [],
               characters: [],
             }
-          : { ...chapter }
+          : { ...chapter, status: chapter.status }
       }
     >
       <Row gutter={[24, 24]}>
+        <Col lg={4} md={4} sm={24} xs={24}>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: "A number is required",
+              },
+            ]}
+            label="Number"
+            name="number"
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+        </Col>
         <Col lg={16} md={16} sm={24} xs={24}>
           <Form.Item
             rules={[
@@ -78,20 +92,6 @@ const ChapterForm = ({
             label="Title"
           >
             <Input />
-          </Form.Item>
-        </Col>
-        <Col lg={4} md={4} sm={24} xs={24}>
-          <Form.Item
-            rules={[
-              {
-                required: true,
-                message: "A number is required",
-              },
-            ]}
-            label="Number"
-            name="number"
-          >
-            <InputNumber min={1} />
           </Form.Item>
         </Col>
         <RadioButton

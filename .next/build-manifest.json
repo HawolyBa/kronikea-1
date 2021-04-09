@@ -31,15 +31,10 @@
       "static/chunks/webpack.js",
       "static/chunks/pages/profile.js"
     ],
-    "/profile/[id]": [
+    "/story/[id]/chapter/[chapid]": [
       "static/chunks/main.js",
       "static/chunks/webpack.js",
-      "static/chunks/pages/profile/[id].js"
-    ],
-    "/story/[id]": [
-      "static/chunks/main.js",
-      "static/chunks/webpack.js",
-      "static/chunks/pages/story/[id].js"
+      "static/chunks/pages/story/[id]/chapter/[chapid].js"
     ]
   },
   "ampFirstPages": []

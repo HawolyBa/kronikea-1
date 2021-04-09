@@ -16,6 +16,7 @@ import "aos/dist/aos.css";
 import "../style/main.scss";
 
 import Layout from "../components/common/Layout";
+import { ProvideNotification } from "../hooks/notificationsHooks";
 
 const MyApp = ({ Component, pageProps }) => {
   const rrfConfig = { userProfile: "users", useFirestoreForProfile: true };
@@ -31,6 +32,7 @@ const MyApp = ({ Component, pageProps }) => {
   useEffect(() => {
     AOS.init({
       duration: 600,
+      once: true,
     });
   }, []);
 
@@ -50,9 +52,11 @@ const MyApp = ({ Component, pageProps }) => {
       <Provider store={store}>
         <ReactReduxFirebaseProvider {...rrfProps}>
           <ProvideAuth>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
+            <ProvideNotification>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </ProvideNotification>
           </ProvideAuth>
         </ReactReduxFirebaseProvider>
       </Provider>

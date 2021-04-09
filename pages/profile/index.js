@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Modal, Button } from "antd";
+import { useRouter } from "next/router";
+import { Alert, Button } from "antd";
 
 import Banner from "../../components/profile/Banner";
 import Tabs from "../../components/profile/Tabs";
@@ -67,16 +68,19 @@ const Profile = ({
   const auth = useAuth();
 
   useEffect(() => {
-    if (auth.user) {
-      getProfile();
-      getUserStories(null, "profile");
-      getUserCharacters();
-      getFavoriteAuthors();
-      getFollowers();
-      getFavoriteCharacters();
-      getFavoriteStories();
-      getUserLocations();
-    }
+    const unsubscribe = () => {
+      if (auth.user) {
+        getProfile();
+        getUserStories(null, "profile");
+        getUserCharacters();
+        getFavoriteAuthors();
+        getFollowers();
+        getFavoriteCharacters();
+        getFavoriteStories();
+        getUserLocations();
+      }
+    };
+    return unsubscribe();
   }, [auth]);
 
   useEffect(() => {
@@ -90,10 +94,33 @@ const Profile = ({
 
   const changeFavTab = (tab) => setFavTab(tab);
 
+  const deleteAccount = () => {
+    auth.deleteAccount();
+  };
+
   return (
     <div className="profile">
       <LoadingScreen loading={auth.isLoading}>
         <RedirectComp condition={auth.user} type="redirect">
+          {auth.user && !auth.user.emailVerified && (
+            <>
+              <Alert
+                closable
+                message="You need to verify your email to enjoy all benefits of Kronikea"
+                type="error"
+                action={
+                  <Button
+                    size="small"
+                    type="primary"
+                    onClick={auth.verifyEmail}
+                  >
+                    Click here to send a new email
+                  </Button>
+                }
+              />
+              <div style={{ marginBottom: "24px" }}></div>
+            </>
+          )}
           <Banner
             context="private"
             profile={profile}
@@ -138,7 +165,7 @@ const Profile = ({
             )}
             {currentTab === "followers" && (
               <Followers
-                title="Followers"
+                title={favAuthors.authors.length > 1 ? "Followers" : "Follower"}
                 type={"followers"}
                 lg={4}
                 md={6}
@@ -149,7 +176,9 @@ const Profile = ({
             )}
             {currentTab === "followings" && (
               <Followers
-                title="Followings"
+                title={
+                  favAuthors.authors.length > 1 ? "Followings" : "Following"
+                }
                 type={"followings"}
                 lg={4}
                 md={6}
@@ -160,6 +189,7 @@ const Profile = ({
             )}
           </section>
           <Settings
+            deleteAccount={deleteAccount}
             changeProfile={changeProfile}
             profile={profile}
             openSettings={openSettings}

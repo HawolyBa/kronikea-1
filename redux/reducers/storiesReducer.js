@@ -2,6 +2,7 @@ import { types } from "../../utils/constants";
 
 const initialState = {
   userStories: [],
+  homeStories: [],
   favStories: [],
   storyLocations: [],
   story: {
@@ -25,6 +26,7 @@ const initialState = {
   loadingChapter: false,
   storyExists: true,
   userLocations: [],
+  storyLocations: [],
   chapId: "",
   locId: "",
   chapter: {
@@ -61,6 +63,7 @@ const initialState = {
     content: "",
   },
   rated: false,
+  storiesFromSearch: [],
 };
 
 const storiesReducer = (state = initialState, action) => {
@@ -167,6 +170,11 @@ const storiesReducer = (state = initialState, action) => {
         ...state,
         userLocations: action.payload,
       };
+    case types.GET_STORY_LOCATIONS:
+      return {
+        ...state,
+        storyLocations: action.payload,
+      };
     case types.GET_FAVORITE_STORIES:
       return {
         ...state,
@@ -207,6 +215,20 @@ const storiesReducer = (state = initialState, action) => {
       return {
         ...state,
         rated: action.rated,
+      };
+    case types.GET_STORIES_FROM_SEARCH:
+      return {
+        ...state,
+        loading: action.loading,
+        storiesFromSearch: action.payload
+          ? action.payload
+          : state.storiesFromSearch,
+      };
+    case types.GET_HOME_STORIES:
+      return {
+        ...state,
+        loading: action.loading,
+        homeStories: action.payload,
       };
     default:
       return state;

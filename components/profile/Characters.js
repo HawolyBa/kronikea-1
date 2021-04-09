@@ -25,7 +25,15 @@ const Characters = ({ characters, type, context }) => {
       <SortInput
         type="characters"
         itemData={characters}
-        title={type !== "favorites" ? "Characters" : "Favorite Characters"}
+        title={
+          type !== "favorites"
+            ? characters.length > 1
+              ? "Characters"
+              : "Character"
+            : characters.length > 1
+            ? "Favorite Characters"
+            : "Favorite Character"
+        }
         setData={setData}
         options={options}
         context={context}

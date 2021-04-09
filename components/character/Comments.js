@@ -29,7 +29,6 @@ const Comments = ({
   character,
   loadingComments,
   deleteComment,
-  alreadyPosted,
   userComment,
   rateComment,
 }) => {
@@ -47,10 +46,14 @@ const Comments = ({
         authorId: character.authorId,
         answer: false,
         likedBy: [],
-        dislikedBy,
+        dislikedBy: [],
         voters: [],
+        userImage: auth.user.image,
+        characterName: `${character.firstname} ${
+          character.lastname ? character.lastname : ""
+        }`,
       },
-      alreadyPosted
+      userComment
     );
     setVisible(false);
     setContent("");
@@ -71,8 +74,10 @@ const Comments = ({
     <>
       <section className="character-feedback">
         <header className="feedback-header">
-          <h3 className="side-heading">{count} Feedback</h3>
-          {!alreadyPosted && (
+          <h3 className="side-heading">
+            {count} Feedback{count > 1 ? "s" : ""}
+          </h3>
+          {!userComment && auth.user.uid && (
             <div className="add-comment" onClick={() => setVisible(true)}>
               <ion-icon name="add-circle"></ion-icon>
               <span>Leave a comment</span>

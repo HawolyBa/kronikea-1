@@ -16,6 +16,9 @@ const initialState = {
     authors: [],
   },
   isFollowing: false,
+  notifications: [],
+  loading: true,
+  usersFromSearch: [],
 };
 
 const reducer = (state = initialState, action) => {
@@ -45,6 +48,20 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         isFollowing: action.payload,
+      };
+    case types.GET_NOTIFICATIONS:
+      return {
+        ...state,
+        loading: false,
+        notifications: action.payload,
+      };
+    case types.GET_USERS_FROM_SEARCH:
+      return {
+        ...state,
+        loading: action.loading,
+        usersFromSearch: action.payload
+          ? action.payload
+          : state.usersFromSearch,
       };
   }
   return state;

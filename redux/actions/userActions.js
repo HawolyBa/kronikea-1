@@ -109,6 +109,19 @@ export const followUser = (id, isFavorite, newFollower) => (dispatch) => {
       recipient: id,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
+    .then(() => {
+      return db
+        .collection("notifications")
+        .doc(`${auth.currentUser.uid}${id}`)
+        .set({
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          recipient: id,
+          sender: newFollower.uid,
+          read: false,
+          type: "follow",
+          message: `${newFollower.username} started following you`,
+        });
+    })
     .then(() => message.success("You are now following this user"))
     .catch((err) => message.error("There has been a problem"));
 };
@@ -128,67 +141,9 @@ export const unfollowUser = (id, isFavorite) => (dispatch) => {
     .catch((err) => message.error("There has been a problem"));
 };
 
-export const changeProfile = (data, setOpen, username, userImage) => (
-  dispatch
-) => {
+export const changeProfile = (data, setOpen) => (dispatch) => {
   const { newPassword, actualPassword, ...newInfo } = data;
   const imageName = `${auth.currentUser.uid}_${newInfo.username}`;
-
-  // STORIES, CHAPTERS, CHARACTERS & COMMENTS QUERIES
-  const userStoriesQuery = db
-    .collection("stories")
-    .where("authorId", "==", auth.currentUser.uid)
-    .get();
-  const userChaptersQuery = db
-    .collection("chapters")
-    .where("authorId", "==", auth.currentUser.uid)
-    .get();
-  const userCharactersQuery = db
-    .collection("characters")
-    .where("authorId", "==", auth.currentUser.uid)
-    .get();
-  const userCommentsQuery = db
-    .collection("comments")
-    .where("userId", "==", auth.currentUser.uid)
-    .get();
-
-  // FUNCTION TO ACTUALLY UPDATE ALL AFFECTED FILES
-  const batchUpdateAll = async (queries, url) => {
-    await Promise.all(queries).then((res) => {
-      res[0].forEach((story) => {
-        db.collection("stories")
-          .doc(story.id)
-          .update({
-            userImage: url ? url : newInfo.image,
-            authorName: data.username,
-          });
-      });
-      res[1].forEach((chap) => {
-        db.collection("chapters")
-          .doc(chap.id)
-          .update({
-            userImage: url ? url : newInfo.image,
-            authorName: data.username,
-          });
-      });
-      res[2].forEach((char) => {
-        db.collection("characters")
-          .doc(char.id)
-          .update({
-            userImage: url ? url : newInfo.image,
-            authorName: data.username,
-          });
-      });
-      res[3].forEach((comm) => {
-        db.collection("comments")
-          .doc(comm.id)
-          .update({
-            userImage: url ? url : newInfo.image,
-            authorName: data.username,
-          });
-      });
-    });
-  };
 
   if (newPassword) {
     auth.currentUser
@@ -220,17 +175,6 @@ export const changeProfile = (data, setOpen, username, userImage) => (
                   image: url,
                 })
                 .then(() => {
-                  return batchUpdateAll(
-                    [
-                      userStoriesQuery,
-                      userChaptersQuery,
-                      userCharactersQuery,
-                      userCommentsQuery,
-                    ],
-                    url
-                  );
-                })
-                .then(() => {
                   setOpen(false);
                   message.success("Profile updated successfully");
                 });
@@ -241,14 +185,6 @@ export const changeProfile = (data, setOpen, username, userImage) => (
             .doc(auth.currentUser.uid)
             .update({
               ...newInfo,
-            })
-            .then(() => {
-              return batchUpdateAll([
-                userStoriesQuery,
-                userChaptersQuery,
-                userCharactersQuery,
-                userCommentsQuery,
-              ]);
             })
             .then(() => {
               setOpen(false);
@@ -276,35 +212,15 @@ export const changeProfile = (data, setOpen, username, userImage) => (
               image: url,
             })
             .then(() => {
-              return batchUpdateAll(
-                [
-                  userStoriesQuery,
-                  userChaptersQuery,
-                  userCharactersQuery,
-                  userCommentsQuery,
-                ],
-                url
-              );
+              setOpen(false);
+              message.success("Profile updated successfully");
             });
-        })
-        .then(() => {
-          setOpen(false);
-          message.success("Profile updated successfully");
         });
     } else {
-      console.log("mdp pas changé et image pas changé");
       db.collection("users")
         .doc(auth.currentUser.uid)
         .update({
           ...newInfo,
-        })
-        .then(() => {
-          return batchUpdateAll([
-            userStoriesQuery,
-            userChaptersQuery,
-            userCharactersQuery,
-            userCommentsQuery,
-          ]);
         })
         .then(() => {
           setOpen(false);
@@ -312,4 +228,28 @@ export const changeProfile = (data, setOpen, username, userImage) => (
         });
     }
   }
+};
+
+export const getUsersFromSearch = (search) => (dispatch) => {
+  let result = [];
+  db.collection("users")
+    .get()
+    .then((data) => {
+      data.forEach((doc) => {
+        const username = doc.data().username.toLowerCase().split(" ");
+        const searchTerm = search.split("-");
+        const isIncluded = searchTerm.every((word) => username.includes(word));
+        const orIncluded = searchTerm.some(
+          (word) => doc.data().username.toLowerCase().indexOf(word) !== -1
+        );
+        if (isIncluded || orIncluded) {
+          result.push({ ...doc.data(), id: doc.id });
+        }
+      });
+      return dispatch({
+        type: types.GET_USERS_FROM_SEARCH,
+        payload: result,
+        loading: false,
+      });
+    });
 };

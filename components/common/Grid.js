@@ -6,46 +6,58 @@ import Card from "../common/Card";
 import UserCard from "../common/UserCard";
 import CharacterCard from "../common/CharacterCard";
 import LocationCard from "../common/LocationCard";
+import { dummy } from "../../utils/dummy";
 
 const StoriesGrid = ({ stories, type, gutter, columnsCountBreakPoints }) => {
-  return (
+  return stories.length > 0 ? (
     <ResponsiveMasonry columnsCountBreakPoints={columnsCountBreakPoints}>
       <Masonry gutter={gutter}>
-        {stories.length > 0 ? (
-          stories.map((story) => (
-            <Link key={story.id} href={`/story/${story.id}`}>
-              <a>
-                <Card story={story} type={type} />
-              </a>
-            </Link>
-          ))
-        ) : (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="No stories yet"
-          />
-        )}
+        {stories.map((story) => (
+          <Link key={story.id} href={`/story/${story.id}`}>
+            <a>
+              <Card story={story} type={type} />
+            </a>
+          </Link>
+        ))}
       </Masonry>
     </ResponsiveMasonry>
+  ) : (
+    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No stories yet" />
   );
 };
 
-const UserGrid = ({ users, lg, xs, sm, md, gutter }) => {
-  return (
+const MiniGrid = ({ stories, type, gutter, columnsCountBreakPoints }) => {
+  return stories.length > 0 ? (
+    stories.map((story) => (
+      <figure key={story.id} className="mini-card">
+        <img src={story.banner ? story.banner : dummy.cover} alt="image" />
+        <figcaption>
+          <div className="cat-block">
+            <span className="cat">Drama</span>
+          </div>
+          <h3>{story.title}</h3>
+        </figcaption>
+      </figure>
+    ))
+  ) : (
+    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No stories yet" />
+  );
+};
+
+const UserGrid = ({ users, xl, lg, xs, sm, md, gutter }) => {
+  return users.length > 0 ? (
     <Row gutter={gutter}>
-      {users.length > 0 ? (
-        users.map((u) => (
-          <Col key={u.id} lg={lg} md={md} sm={sm} xs={xs}>
-            <UserCard user={u} />
-          </Col>
-        ))
-      ) : (
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description="No followers yet"
-        />
-      )}
+      {users.map((u) => (
+        <Col key={u.id} xl={xl} lg={lg} md={md} sm={sm} xs={xs}>
+          <UserCard user={u} />
+        </Col>
+      ))}
     </Row>
+  ) : (
+    <Empty
+      image={Empty.PRESENTED_IMAGE_SIMPLE}
+      description="No followers yet"
+    />
   );
 };
 
@@ -64,16 +76,9 @@ const LocationGrid = ({
   return locations.length > 0 ? (
     <ResponsiveMasonry columnsCountBreakPoints={columnsCountBreakPoints}>
       <Masonry gutter={gutter}>
-        {locations.length > 0 ? (
-          locations.map((c) => (
-            <LocationCard key={c.id} location={c} type={type} />
-          ))
-        ) : (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="No characters yet"
-          />
-        )}
+        {locations.map((c) => (
+          <LocationCard key={c.id} location={c} type={type} />
+        ))}
       </Masonry>
     </ResponsiveMasonry>
   ) : (
@@ -99,20 +104,13 @@ const CharacterGrid = ({
   return characters.length > 0 ? (
     <ResponsiveMasonry columnsCountBreakPoints={columnsCountBreakPoints}>
       <Masonry gutter={gutter}>
-        {characters.length > 0 ? (
-          characters.map((c) => (
-            <Link key={c.id} href={`/character/${c.id}`}>
-              <a>
-                <CharacterCard character={c} type={type} />
-              </a>
-            </Link>
-          ))
-        ) : (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="No characters yet"
-          />
-        )}
+        {characters.map((c) => (
+          <Link key={c.id} href={`/character/${c.id}`}>
+            <a>
+              <CharacterCard character={c} type={type} />
+            </a>
+          </Link>
+        ))}
       </Masonry>
     </ResponsiveMasonry>
   ) : (
@@ -123,4 +121,4 @@ const CharacterGrid = ({
   );
 };
 
-export { StoriesGrid, CharacterGrid, UserGrid, LocationGrid };
+export { StoriesGrid, CharacterGrid, UserGrid, LocationGrid, MiniGrid };

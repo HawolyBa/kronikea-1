@@ -1,13 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Form } from "antd";
+import { Form, PageHeader } from "antd";
 import { useRouter } from "next/router";
 
 import { useAuth } from "../../../../hooks/userHooks";
 import {
   getStory,
   addChapter,
-  getUserLocations,
+  getStoryLocations,
 } from "../../../../redux/actions/storiesActions";
 import { getUserCharacters } from "../../../../redux/actions/charactersActions";
 
@@ -46,7 +46,7 @@ const NewChapter = (props) => {
   React.useEffect(() => {
     if (auth.user) {
       props.getUserCharacters(auth.user.uid);
-      props.getUserLocations(auth.user.uid);
+      props.getStoryLocations(router.query.id);
     }
   }, [auth]);
 
@@ -54,33 +54,14 @@ const NewChapter = (props) => {
     delete values.currentChar;
     delete values.currentLoc;
 
-    const main = story.mainArr;
-    let secondaryCharacters = [...story.secondaryArr];
-    let charInChapter = values.characters.filter((c) => !main.includes(c));
-    let newArr = [];
-
-    charInChapter.forEach((char) => {
-      const index = secondaryCharacters.findIndex((c) => c.id === char);
-      if (index !== -1) {
-        newArr.push({
-          id: secondaryCharacters[index].id,
-          times: secondaryCharacters[index].times++,
-        });
-      } else {
-        newArr.push({ id: char, times: 1 });
-      }
+    props.addChapter({
+      ...values,
+      authorName: auth.user.username,
+      userImage: auth.user.image,
+      storyId: router.query.id,
+      body,
+      status: values.status === "true",
     });
-
-    props.addChapter(
-      {
-        ...values,
-        authorName: auth.user.username,
-        storyId: router.query.id,
-        body,
-        status: values.status === "true",
-      },
-      newArr
-    );
   };
 
   return (
@@ -92,6 +73,11 @@ const NewChapter = (props) => {
         >
           <div className="custom-form">
             <div className="inner">
+              <PageHeader
+                className="site-page-header"
+                onBack={() => router.push(`/story/${router.query.id}`)}
+                title="Back to story"
+              />
               <h2 className="side-heading">Add a new chapter</h2>
               <ChapterForm
                 submit={submit}
@@ -118,7 +104,7 @@ const mapStateToProps = (state) => ({
   characters: state.characters.userCharacters,
   storyExists: state.stories.storyExists,
   loading: state.stories.loading,
-  locations: state.stories.userLocations,
+  locations: state.stories.storyLocations,
   chapId: state.stories.chapId,
   loadingChapter: state.stories.loadingChapter,
 });
@@ -126,6 +112,6 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
   getStory,
   getUserCharacters,
-  getUserLocations,
+  getStoryLocations,
   addChapter,
 })(NewChapter);

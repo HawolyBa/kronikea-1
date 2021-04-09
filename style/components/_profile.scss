@@ -6,13 +6,20 @@
     position: relative;
     transition: all 0.5s ease-in;
 
-    img {
+    img,
+    ion-icon {
       width: 100%;
+
       height: 100%;
       object-fit: cover;
       border-radius: 50%;
       border: 8px solid $greyLight-1;
       box-shadow: $shadow;
+    }
+
+    ion-icon {
+      color: $greyDark;
+      border: none;
     }
 
     .ant-image-mask {

@@ -23,7 +23,7 @@ const Locations = ({ locations, type, context }) => {
       <SortInput
         type="locations"
         itemData={locations}
-        title="Locations"
+        title={locations.length > 1 ? "Locations" : "Location"}
         setData={setData}
         options={options}
         context={context}

@@ -26,6 +26,9 @@ const initialState = {
   secondaryCharacters: [],
   mainArr: [],
   deleted: false,
+  isFavorite: false,
+  loadingFav: true,
+  charactersFromSearch: [],
 };
 
 const charactersReducer = (state = initialState, action) => {
@@ -82,6 +85,20 @@ const charactersReducer = (state = initialState, action) => {
         ...state,
         secondaryCharacters: action.payload.secondaryCharacters,
         mainArr: action.payload.mainArr,
+      };
+    case types.IS_CHARACTER_FAVORITE:
+      return {
+        ...state,
+        isFavorite: action.payload,
+        loadingFav: action.loadingFav,
+      };
+    case types.GET_CHARACTERS_FROM_SEARCH:
+      return {
+        ...state,
+        loading: action.loading,
+        charactersFromSearch: action.payload
+          ? action.payload
+          : state.charactersFromSearch,
       };
     default:
       return state;

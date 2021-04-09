@@ -222,87 +222,92 @@ export const deleteCharacter = (id, firstname, lastname) => (dispatch) => {
   const imageName = `${id}${"_"}${firstname.toLowerCase()}${lastname && "_"}${
     lastname && lastname.toLowerCase()
   }`;
-  const batch = db.batch();
+  //const batch = db.batch();
   db.collection("characters")
     .doc(id)
     .delete()
     .then(() => {
       if (storage.ref(`${auth.currentUser.uid}/${imageName}`)) {
-        return storage.ref(`${auth.currentUser.uid}/${imageName}`).delete();
-      }
-    })
-    .then(() => {
-      db.collection("chapters")
-        .where("characters", "array-contains", id)
-        .get()
-        .then((docs) => {
-          docs.forEach((doc) => {
-            batch.update(db.collection("chapters").doc(doc.id), {
-              characters: doc.data().characters.filter((c) => c !== id),
+        return storage
+          .ref(`${auth.currentUser.uid}/${imageName}`)
+          .delete()
+          .then(() => {
+            dispatch({
+              type: types.DELETE_CHARACTER,
+              payload: {
+                message: "Character deleted successfully",
+                loading: false,
+                deleted: true,
+                charaExists: false,
+              },
             });
           });
-        })
-        .then(() => {
-          db.collection("stories")
-            .where("secondaryArr", "array-contains", id)
-            .get()
-            .then((stories) => {
-              stories.forEach((story) => {
-                batch.update(db.collection("stories").doc(story.id), {
-                  mainCharacters: story
-                    .data()
-                    .mainCharacters.filter((c) => c !== id),
-                  secondaryArr: story
-                    .data()
-                    .secondaryArr.filter((c) => c !== id),
-                  secondaryCharacters: story
-                    .data()
-                    .secondaryCharacters.filter((c) => c.id !== id),
-                });
-              });
-            })
-            .then(() => {
-              db.collection("characters")
-                .where("relativesArr", "array-contains", id)
-                .get()
-                .then((characters) => {
-                  characters.forEach((char) => {
-                    batch.update(db.collection("characters").doc(char.id), {
-                      relativesArr: char
-                        .data()
-                        .relativesArr.filter((c) => c !== id),
-                      relatives: char
-                        .data()
-                        .relatives.filter((c) => c.character_id !== id),
-                    });
-                  });
-                })
-                .then(() => {
-                  db.collection("charactersLikes")
-                    .where("characterId", "==", id)
-                    .get()
-                    .then((likes) => {
-                      likes.forEach((like) => {
-                        batch.delete(
-                          db.collection("charactersLikes").doc(like.id)
-                        );
-                      });
-                      batch.commit().then(() => {
-                        dispatch({
-                          type: types.DELETE_CHARACTER,
-                          payload: {
-                            message: "Character deleted successfully",
-                            loading: false,
-                            deleted: true,
-                            charaExists: false,
-                          },
-                        });
-                      });
-                    });
-                });
-            });
-        });
+      }
     });
+  // .then(() => {
+  //   db.collection("chapters")
+  //     .where("characters", "array-contains", id)
+  //     .get()
+  //     .then((docs) => {
+  //       docs.forEach((doc) => {
+  //         batch.update(db.collection("chapters").doc(doc.id), {
+  //           characters: doc.data().characters.filter((c) => c !== id),
+  //         });
+  //       });
+  //     })
+  //     .then(() => {
+  //       db.collection("stories")
+  //         .where("secondaryArr", "array-contains", id)
+  //         .get()
+  //         .then((stories) => {
+  //           stories.forEach((story) => {
+  //             batch.update(db.collection("stories").doc(story.id), {
+  //               mainCharacters: story
+  //                 .data()
+  //                 .mainCharacters.filter((c) => c !== id),
+  //               secondaryArr: story
+  //                 .data()
+  //                 .secondaryArr.filter((c) => c !== id),
+  //               secondaryCharacters: story
+  //                 .data()
+  //                 .secondaryCharacters.filter((c) => c.id !== id),
+  //             });
+  //           });
+  //         })
+  //         .then(() => {
+  //           db.collection("characters")
+  //             .where("relativesArr", "array-contains", id)
+  //             .get()
+  //             .then((characters) => {
+  //               characters.forEach((char) => {
+  //                 batch.update(db.collection("characters").doc(char.id), {
+  //                   relativesArr: char
+  //                     .data()
+  //                     .relativesArr.filter((c) => c !== id),
+  //                   relatives: char
+  //                     .data()
+  //                     .relatives.filter((c) => c.character_id !== id),
+  //                 });
+  //               });
+  //             })
+  //             .then(() => {
+  //               db.collection("charactersLikes")
+  //                 .where("characterId", "==", id)
+  //                 .get()
+  //                 .then((likes) => {
+  //                   likes.forEach((like) => {
+  //                     batch.delete(
+  //                       db.collection("charactersLikes").doc(like.id)
+  //                     );
+  //                   });
+  //                   batch.commit().then(() => {
+
+  //                   });
+  //                 });
+  //             });
+  //         });
+  //     });
+  // });
 };
 
 export const getUserCharacters = (id) => (dispatch) => {
@@ -353,6 +358,75 @@ export const getFavoriteCharacters = (id) => (dispatch) => {
     });
 };
 
+export const isCharacterFavorite = (charId) => (dispatch) => {
+  if (auth.currentUser) {
+    db.collection("charactersLikes")
+      .where("senderId", "==", auth.currentUser.uid)
+      .where("characterId", "==", charId)
+      .onSnapshot((snapshot) => {
+        const answer = snapshot.docs[0] ? true : false;
+        return dispatch({
+          type: types.IS_CHARACTER_FAVORITE,
+          payload: answer,
+          loadingFav: false,
+        });
+      });
+  }
+};
+
+export const addCharacterToFavorite = (
+  id,
+  username,
+  characterName,
+  authorId
+) => (dispatch) => {
+  // if (isFavorite) return message.warning("You've already liked this story");
+  if (!auth.currentUser)
+    return message.error("You need to be logged in to like a character");
+  if (!auth.currentUser.emailVerified)
+    return message.error("You need to verify your email first");
+
+  db.collection("charactersLikes")
+    .add({
+      sender: username,
+      senderId: auth.currentUser.uid,
+      characterId: id,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then(() => {
+      if (authorId !== auth.currentUser.uid) {
+        return db
+          .collection("notifications")
+          .doc(`${auth.currentUser.uid}${id}`)
+          .set({
+            type: "characterLike",
+            read: false,
+            recipient: authorId,
+            sender: auth.currentUser.uid,
+            characterId: id,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            message: `${username} liked your character ${characterName}`,
+          });
+      }
+    })
+    .then(() => message.success(`${characterName} added to your favorites`))
+    .catch((err) => message.error("There has been a problem"));
+};
+
+export const removeCharacterFromFavorite = (id, characterName) => (
+  dispatch
+) => {
+  db.collection("charactersLikes")
+    .where("characterId", "==", id)
+    .where("senderId", "==", auth.currentUser.uid)
+    .get()
+    .then((data) => {
+      return db.collection("charactersLikes").doc(data.docs[0].id).delete();
+    })
+    .then(() => message.success(`${characterName} removed from your favorites`))
+    .catch((err) => message.error("There has been a problem"));
+};
+
 export const getCharactersInStory = (id) => (dispatch) => {
   db.collection("stories")
     .doc(id)
@@ -367,16 +441,33 @@ export const getCharactersInStory = (id) => (dispatch) => {
     });
 };
 
-export const submitCharaterFeedback = (info, alreadyPosted) => (dispatch) => {
+export const submitCharaterFeedback = (info, userComment) => (dispatch) => {
+  const { characterName, ...allInfo } = info;
   if (!auth.currentUser.emailVerified)
     return message.error("You need to verify your email first");
   if (!info.content) return message.error("Content must not be empty");
-  if (alreadyPosted) return message.error("You have already sent feedback");
+  if (userComment) return message.error("You have already sent feedback");
 
   db.collection("comments")
     .add({
-      ...info,
+      ...allInfo,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then(() => {
+      if (auth.currentUser.uid !== info.authorId) {
+        return db
+          .collection("notifications")
+          .doc(`${auth.currentUser.uid}${info.characterId}`)
+          .set({
+            type: "characterComment",
+            read: false,
+            recipient: info.authorId,
+            sender: auth.currentUser.uid,
+            characterId: info.characterId,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            message: `${info.username} left a feedback on your character ${characterName}`,
+          });
+      }
     })
     .then(() => {
       dispatch({
@@ -437,6 +528,8 @@ export const deleteCharacterComment = (id) => (dispatch) => {
 
 export const rateComment = (commentId, type) => (dispatch) => {
   dispatch({ type: types.RATE_COMMENT, rated: true });
+  if (!auth.currentUser)
+    return message.error("You need to be logged in to rate a comment");
   db.collection("comments")
     .doc(commentId)
     .get()
@@ -472,4 +565,50 @@ export const rateComment = (commentId, type) => (dispatch) => {
           });
       }
     });
+};
+
+export const getCharactersFromSearch = (search) => (dispatch) => {
+  let result = [];
+  dispatch({ type: types.GET_CHARACTERS_FROM_SEARCH, loading: true });
+  db.collection("characters")
+    .where("public", "==", true)
+    .get()
+    .then((docs) => {
+      docs.forEach((doc) => {
+        const firstname = doc.data().firstname.toLowerCase();
+        const lastname = doc.data().lastname.toLowerCase();
+        const authorName = doc.data().authorName.toLowerCase().split(" ");
+        const searchTerm = search.split("-");
+
+        const firstnameIncluded = searchTerm.some(
+          (word) => firstname.indexOf(word) !== -1
+        );
+        const lastnameIncluded = searchTerm.some(
+          (word) => lastname.indexOf(word) !== -1
+        );
+        const authorIncluded = searchTerm.every((word) =>
+          authorName.includes(word)
+        );
+        const orAuthorIncluded = searchTerm.some(
+          (word) => doc.data().authorName.toLowerCase().indexOf(word) !== -1
+        );
+        if (
+          firstnameIncluded ||
+          lastnameIncluded ||
+          authorIncluded ||
+          orAuthorIncluded
+        ) {
+          result.push({ ...doc.data(), id: doc.id });
+        }
+        return result;
+      });
+    })
+    .then(() => {
+      dispatch({
+        type: types.GET_CHARACTERS_FROM_SEARCH,
+        payload: result,
+        loading: false,
+      });
+    })
+    .catch((err) => message.error(err.message));
 };

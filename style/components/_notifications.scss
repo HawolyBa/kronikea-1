@@ -18,6 +18,36 @@
     }
   }
 
+  .cta-btns {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+
+    .cta-btn {
+      box-shadow: $shadow;
+      padding: 5px 15px;
+      border-radius: 1rem;
+      cursor: pointer;
+      color: white;
+
+      &:active {
+        box-shadow: none;
+      }
+
+      &.delete-all {
+        background-color: $delete;
+      }
+
+      &.read-all {
+        background: $primary;
+      }
+    }
+
+    .read-all {
+      margin-right: 15px;
+    }
+  }
+
   .notification {
     padding: 8px 15px;
     border-radius: 1.2rem;
@@ -50,6 +80,14 @@
 
     .delete-btn {
       color: red;
+    }
+
+    &.notif-read {
+      box-shadow: none;
+      background-color: lighten($greyLight-1, 5%);
+      a.notification-desc {
+        color: #bbbbbb;
+      }
     }
   }
 }

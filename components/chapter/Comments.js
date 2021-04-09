@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Comment,
   Tooltip,
@@ -11,8 +12,10 @@ import {
 } from "antd";
 import Link from "next/link";
 import moment from "moment";
+
+import { dummy } from "../../utils/dummy";
+
 import Report from "../common/Report";
-import React from "react";
 
 const Comments = ({
   comments,
@@ -59,6 +62,8 @@ const Comments = ({
     setToggleAnswerForm(!toggleAnswerForm);
   };
 
+  const count = comments.filter((c) => !c.userDeleted).length;
+
   const submit = () => {
     submitComment({
       content: commentBody,
@@ -68,6 +73,8 @@ const Comments = ({
       chapterId: chapid,
       storyId: storyId,
       title,
+      authorId,
+      userImage: auth.user.image,
     });
     setCommentBody("");
   };
@@ -86,6 +93,7 @@ const Comments = ({
       title: title,
       answeredTo: username,
       answer: true,
+      userImage: auth.user.image,
     });
 
     setCommentBody("");
@@ -123,7 +131,9 @@ const Comments = ({
           </Link>
         </p>
       )}
-      <h3>{comments.length} Comments</h3>
+      <h3 className="comments-count">
+        {comments.length} Comment{comments.length > 1 ? "s" : ""}
+      </h3>
       {allComments.map((comment) => (
         <React.Fragment key={comment.id}>
           <Comment
@@ -153,18 +163,35 @@ const Comments = ({
               ),
             ]}
             author={
-              <Link href={`/profile/${comment.userId}`}>
-                <a>{comment.username}</a>
-              </Link>
+              !comment.userDeleted ? (
+                <Link href={`/profile/${comment.userId}`}>
+                  <a>{comment.username}</a>
+                </Link>
+              ) : (
+                <span>Invite</span>
+              )
             }
             avatar={
-              <Link href={`/profile/${comment.userId}`}>
-                <a>
-                  <Avatar src={comment.userImage} alt={comment.username} />
-                </a>
-              </Link>
+              !comment.userDeleted ? (
+                <Link href={`/profile/${comment.userId}`}>
+                  <a>
+                    <Avatar
+                      src={comment.userImage ? comment.userImage : dummy.avatar}
+                      alt={comment.username}
+                    />
+                  </a>
+                </Link>
+              ) : (
+                <Avatar src={dummy.avatar} alt={"invite"} />
+              )
             }
-            content={<p>{comment.content}</p>}
+            content={
+              <p className={comment.suspended ? "comment-deleted" : ""}>
+                {comment.suspended
+                  ? "Comment deleted by a moderator"
+                  : comment.content}
+              </p>
+            }
             datetime={
               <Tooltip
                 title={
@@ -183,111 +210,112 @@ const Comments = ({
               </Tooltip>
             }
           >
-            {comment.responses
-              // .sort((a, b) => {
-              //   if (a.createdAt) {
-              //     if (typeof a.createdAt === "object") {
-              //       return (
-              //         new Date(a.createdAt.seconds * 1000) -
-              //         new Date(b.createdAt.seconds * 1000)
-              //       );
-              //     } else
-              //       return (
-              //         new Date(a.createdAt.seconds) - new Date(b.createdAt)
-              //       );
-              //   }
-              // })
-              .map((c) => (
-                <React.Fragment key={c.id}>
-                  <Comment
-                    actions={[
-                      auth && auth.user && (
-                        <span
-                          key="comment-basic-reply-to"
-                          onClick={answerToggle.bind(null, c.id)}
-                        >
-                          Reply{" "}
-                        </span>
-                      ),
-                      comment.userId === auth.user.uid && (
-                        <Popconfirm
-                          title="Do you want to delete this comment ?"
-                          okText="Yes"
-                          cancelText="No"
-                          onConfirm={() =>
-                            deleteComment(c.id, chapid, c.storyId)
-                          }
-                        >
-                          <span>Delete</span>
-                        </Popconfirm>
-                      ),
-                      auth.user && auth.user.uid !== c.userId && (
-                        <Report type="comment" data={comment} />
-                      ),
-                    ]}
-                    author={
+            {comment.responses.map((c) => (
+              <React.Fragment key={c.id}>
+                <Comment
+                  actions={[
+                    auth && auth.user && (
+                      <span
+                        key="comment-basic-reply-to"
+                        onClick={answerToggle.bind(null, c.id)}
+                      >
+                        Reply{" "}
+                      </span>
+                    ),
+                    comment.userId === auth.user.uid && (
+                      <Popconfirm
+                        title="Do you want to delete this comment ?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => deleteComment(c.id, chapid, c.storyId)}
+                      >
+                        <span>Delete</span>
+                      </Popconfirm>
+                    ),
+                    auth.user && auth.user.uid !== c.userId && (
+                      <Report type="comment" data={comment} />
+                    ),
+                  ]}
+                  author={
+                    !c.userDeleted ? (
                       <Link href={`/profile/${c.userId}`}>
                         <a>{c.username}</a>
                       </Link>
-                    }
-                    avatar={
+                    ) : (
+                      <span>Invite</span>
+                    )
+                  }
+                  avatar={
+                    !c.userDeleted ? (
                       <Link href={`/profile/${c.userId}`}>
                         <a>
-                          <Avatar src={c.userImage} alt={c.username} />
+                          <Avatar
+                            src={c.userImage ? c.userImage : dummy.avatar}
+                            alt={c.username}
+                          />
                         </a>
                       </Link>
-                    }
-                    content={<p>{c.content}</p>}
-                    datetime={
-                      <Tooltip
-                        title={
-                          c.createdAt && typeof c.createdAt === "object"
-                            ? moment
-                                .unix(c.createdAt.seconds)
-                                .format("YYYY-MM-DD HH:mm:ss")
-                            : moment(c.createdAt).format("YYYY-MM-DD HH:mm:ss")
-                        }
-                      >
-                        <span>
-                          {c.createdAt && typeof c.createdAt === "object"
-                            ? moment.unix(c.createdAt.seconds).fromNow()
-                            : moment(c.createdAt).fromNow()}
-                        </span>
-                      </Tooltip>
-                    }
-                  />
-                  {clickedForm === c.id && toggleAnswerForm && (
-                    <>
-                      <Row>
-                        <Col md={24}>
-                          <Input.TextArea
-                            value={commentBody}
-                            onChange={(e) => setCommentBody(e.target.value)}
-                            autoSize={{ minRows: 5 }}
-                            showCount={true}
-                            maxLength={800}
-                            placeholder={`@${c.username}`}
-                          ></Input.TextArea>
-                        </Col>
-                        <Col md={24}>
-                          <Button
-                            onClick={submitAnswer.bind(
-                              null,
-                              comment.id,
-                              c.username,
-                              c.userId
-                            )}
-                            type="primary"
-                          >
-                            Comment
-                          </Button>
-                        </Col>
-                      </Row>
-                      <Divider />
-                    </>
-                  )}
-                </React.Fragment>
-              ))}
+                    ) : (
+                      <Avatar src={dummy.avatar} alt={"invite"} />
+                    )
+                  }
+                  content={
+                    <p className={c.suspended ? "comment-deleted" : ""}>
+                      {c.suspended
+                        ? "Comment deleted by a moderator"
+                        : c.content}
+                    </p>
+                  }
+                  datetime={
+                    <Tooltip
+                      title={
+                        c.createdAt && typeof c.createdAt === "object"
+                          ? moment
+                              .unix(c.createdAt.seconds)
+                              .format("YYYY-MM-DD HH:mm:ss")
+                          : moment(c.createdAt).format("YYYY-MM-DD HH:mm:ss")
+                      }
+                    >
+                      <span>
+                        {c.createdAt && typeof c.createdAt === "object"
+                          ? moment.unix(c.createdAt.seconds).fromNow()
+                          : moment(c.createdAt).fromNow()}
+                      </span>
+                    </Tooltip>
+                  }
+                />
+                {clickedForm === c.id && toggleAnswerForm && (
+                  <>
+                    <Row>
+                      <Col md={24}>
+                        <Input.TextArea
+                          value={commentBody}
+                          onChange={(e) => setCommentBody(e.target.value)}
+                          autoSize={{ minRows: 5 }}
+                          showCount={true}
+                          maxLength={800}
+                          placeholder={`@${c.username}`}
+                        ></Input.TextArea>
+                      </Col>
+                      <Col md={24}>
+                        <Button
+                          onClick={submitAnswer.bind(
+                            null,
+                            comment.id,
+                            c.username,
+                            c.userId
+                          )}
+                          type="primary"
+                        >
+                          Comment
+                        </Button>
+                      </Col>
+                    </Row>
+                    <Divider />
+                  </>
+                )}
+              </React.Fragment>
+            ))}
           </Comment>
 
           {clickedForm === comment.id && toggleCommentForm ? (

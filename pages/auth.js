@@ -42,8 +42,10 @@ const auth = ({ log_in }) => {
             email={email}
             password={password}
             handleClick={handleClick}
+            auth={auth}
           />
           <Register
+            auth={auth}
             setPassword={setPassword}
             setEmail={setEmail}
             signup={signup}

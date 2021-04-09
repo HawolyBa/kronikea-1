@@ -6,17 +6,22 @@ const Card = ({ story, type }) => {
         <img src={story.banner ? story.banner : dummy.noImage} alt="image" />
       </div>
       <figcaption>
-        <span className="tag">Drama</span>
+        <div className="cat-block">
+          <span className="tag">Drama</span>
+        </div>
+
+        <h3>{story?.title}</h3>
+        {type !== "mini" && (
+          <p className="description">
+            {story?.summary?.length > 150
+              ? `${story.summary.slice(0, 150)}...`
+              : story.summary}
+            {!story.summary && "No summary yet"}
+          </p>
+        )}
         {type !== "privateProfile" && (
           <span className="author">Author: {story.authorName}</span>
         )}
-        <h3>{story?.title}</h3>
-        <p className="description">
-          {story?.summary?.length > 150
-            ? `${story.summary.slice(0, 150)}...`
-            : story.summary}
-          {!story.summary && "No summary yet"}
-        </p>
         <div className="count">
           <span>
             <p className="number">{story.chaptersCount} </p>{" "}

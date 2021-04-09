@@ -45,7 +45,7 @@ const Chapter = (props) => {
 
   return (
     <LoadingScreen loading={loading}>
-      <RedirectComp condition={chapterExists} type="404">
+      <RedirectComp condition={chapterExists && chapter.status} type="404">
         <RedirectComp
           condition={
             chapter.public || (auth.user && auth.user.uid === chapter.authorId)
@@ -54,16 +54,6 @@ const Chapter = (props) => {
         >
           <div className="main-chapter">
             <div className="chapter-page">
-              <Tooltip title="Next Chapter" placement="bottom">
-                <div className="icon custom-icon nav-btn next-btn">
-                  <ion-icon name="chevron-forward-circle"></ion-icon>
-                </div>
-              </Tooltip>
-              <Tooltip title="Previous Chapter" placement="bottom">
-                <div className="icon custom-icon nav-btn prev-btn">
-                  <ion-icon name="chevron-back-circle"></ion-icon>
-                </div>
-              </Tooltip>
               <PageHeader
                 className="site-page-header"
                 onBack={() => router.push(`/story/${router.query.id}`)}
@@ -90,6 +80,36 @@ const Chapter = (props) => {
                 className="chapter-content"
                 dangerouslySetInnerHTML={{ __html: chapter.body }}
               ></section>
+              <div className="nav-btns">
+                {chapter.prev ? (
+                  <Link
+                    href={`/story/${router.query.id}/chapter/${chapter.prev}`}
+                  >
+                    <a>
+                      <Tooltip title="Previous Chapter" placement="bottom">
+                        <div className="icon custom-icon nav-btn prev-btn">
+                          <ion-icon name="chevron-back-circle"></ion-icon>
+                        </div>
+                      </Tooltip>
+                    </a>
+                  </Link>
+                ) : (
+                  <div></div>
+                )}
+                {chapter.next && (
+                  <Link
+                    href={`/story/${router.query.id}/chapter/${chapter.next}`}
+                  >
+                    <a>
+                      <Tooltip title="Next Chapter" placement="bottom">
+                        <div className="icon custom-icon nav-btn next-btn">
+                          <ion-icon name="chevron-forward-circle"></ion-icon>
+                        </div>
+                      </Tooltip>
+                    </a>
+                  </Link>
+                )}
+              </div>
               <Divider />
               {loadingComments ? (
                 <Spin />
@@ -109,18 +129,28 @@ const Chapter = (props) => {
             <div className="main-chapter-details">
               <h3>Characters in this chapter</h3>
               <CharacterGrid
-                gutter={[12, 12]}
+                gutter={"12px"}
                 characters={characters}
                 type="show"
-                lg={12}
-                md={12}
-                sm={12}
-                xs={12}
+                columnsCountBreakPoints={{
+                  350: 1,
+                  750: 2,
+                  900: 2,
+                  1200: 2,
+                  1600: 2,
+                }}
               />
               <Divider />
               <h3>Locations in this chapter</h3>
               <LocationGrid
-                gutter={[12, 12]}
+                columnsCountBreakPoints={{
+                  350: 1,
+                  750: 2,
+                  900: 2,
+                  1200: 2,
+                  1600: 2,
+                }}
+                gutter={"12px"}
                 lg={12}
                 md={12}
                 sm={12}

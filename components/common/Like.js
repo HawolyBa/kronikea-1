@@ -8,16 +8,22 @@ const Like = ({
   likeFunc,
   username,
   removeFunc,
+  authorId,
 }) => {
   const likeItem = () => {
     if (type === "story" && !isFavorite) {
-      likeFunc(id, username, title);
+      likeFunc(id, username, title, authorId);
     }
     if (type === "story" && isFavorite) {
       removeFunc(id, title);
     }
+    if (type === "character" && !isFavorite) {
+      likeFunc(id, username, title, authorId);
+    }
+    if (type === "character" && isFavorite) {
+      removeFunc(id, title);
+    }
   };
-
   return (
     <div
       className={`btn-follow ${isFavorite ? "liked" : ""} icon custom-icon`}

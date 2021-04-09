@@ -57,6 +57,18 @@
     }
   }
 
+  .ant-input-search
+    > .ant-input-group
+    > .ant-input-group-addon:last-child
+    .ant-input-search-button {
+    border-radius: 0 1rem 1rem 0;
+  }
+
+  .ant-btn-primary {
+    background-color: $greyLight-3;
+    height: 2.5rem;
+  }
+
   &__icon {
     height: 1.4rem;
     position: absolute;
@@ -66,19 +78,26 @@
     color: $greyDark;
     transition: 0.3s ease;
   }
-
+  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    height: 2.5rem;
+  }
   select {
     position: absolute;
     top: 0;
-    right: 0;
+    right: 45px;
     height: 2.5rem;
     background: none;
-    box-shadow: $shadow;
-    border: none;
+    //box-shadow: $shadow;
+    border: 1px solid $greyLight-1;
     padding-left: 10px;
+    padding-right: 5px;
     color: $greyDark;
-    border-radius: 0 1rem 1rem 0;
     z-index: 2;
+    font-size: 0.8rem;
+    outline: none;
   }
 }
 

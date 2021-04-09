@@ -49,20 +49,26 @@ const newLocation = (props) => {
   return (
     <LoadingScreen loading={auth.isLoading}>
       <RedirectComp type="redirect" condition={auth.user}>
-        <div className="new-location custom-form">
-          <div className="inner">
-            <h2 className="side-heading">Add a new location</h2>
-            <LocationForm
-              form={form}
-              stories={stories}
-              type="add"
-              loadingLoc={loadingLoc}
-              submit={submit}
-              locId={locId}
-              initialValues={{ name: "", description: "", image: "" }}
-            />
+        <RedirectComp
+          type="verify"
+          verifyEmail={auth.verifyEmail}
+          condition={auth.user && auth.user.emailVerified}
+        >
+          <div className="new-location custom-form">
+            <div className="inner">
+              <h2 className="side-heading">Add a new location</h2>
+              <LocationForm
+                form={form}
+                stories={stories}
+                type="add"
+                loadingLoc={loadingLoc}
+                submit={submit}
+                locId={locId}
+                initialValues={{ name: "", description: "", image: "" }}
+              />
+            </div>
           </div>
-        </div>
+        </RedirectComp>
       </RedirectComp>
     </LoadingScreen>
   );

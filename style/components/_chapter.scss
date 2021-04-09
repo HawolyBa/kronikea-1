@@ -38,6 +38,10 @@
     }
   }
 
+  h3.comments-count {
+    margin: 15px 0 25px 0;
+  }
+
   .chapter-page {
     box-shadow: $shadow;
     min-height: 400px;
@@ -83,21 +87,28 @@
       }
     }
 
-    .nav-btn {
-      width: 40px;
-      height: 40px;
-      position: fixed;
-      top: 50%;
-      font-size: 1.6rem;
-      transform: translateY(-50%);
+    .nav-btns {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .next-btn {
-      right: 20px;
-    }
-    .prev-btn {
-      left: 20px;
-    }
+    // .nav-btn {
+    //   width: 40px;
+    //   height: 40px;
+    //   position: fixed;
+    //   top: 50%;
+    //   font-size: 1.6rem;
+    //   transform: translateY(-50%);
+    // }
+
+    // .next-btn {
+    //   right: 20px;
+    // }
+    // .prev-btn {
+    //   left: 20px;
+    // }
 
     .ant-comment-content {
       font-size: 13px;

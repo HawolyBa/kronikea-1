@@ -27,12 +27,16 @@ const Banner = ({
             <Row gutter={32} align="middle">
               <Col xs={24} sm={8} md={9} lg={7}>
                 <div data-icon="image" className="avatar">
-                  <Image
-                    src={profile?.image ? profile.image : dummy.avatar}
-                    alt="aishwaraya"
-                    width={230}
-                    height={230}
-                  />
+                  {profile.image ? (
+                    <Image
+                      src={profile?.image}
+                      alt={profile.username}
+                      width={230}
+                      height={230}
+                    />
+                  ) : (
+                    <ion-icon name="person"></ion-icon>
+                  )}
                 </div>
               </Col>
               <Col md={15} lg={17} sm={16} xs={24}>
@@ -72,9 +76,7 @@ const Banner = ({
                       </span>
                     </Space>
                     <p className="bio">
-                      {profile.biography && profile?.biography.length > 140
-                        ? `${profile?.biography.slice(0, 140)}...`
-                        : profile?.biography}
+                      {profile.biography && profile?.biography}
                     </p>
                     <div className="social">
                       <Space size={30}>
@@ -132,7 +134,7 @@ const Banner = ({
                   : setCurrentTab("followers")
               }
             >
-              See all >>>
+              <span>See all &gt;&gt;&gt;</span>
             </p>
             <div className="segmented-control">
               <input

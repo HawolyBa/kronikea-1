@@ -3,11 +3,13 @@ import StickyMenu from "./StickyMenu";
 import Navbar from "./Navbar";
 
 import { Drawer } from "antd";
-import Notifications from "../Notifications";
+import Notifications from "../notifications/Notifications";
+import { useNotifcations } from "../../hooks/notificationsHooks";
 
 const Layout = ({ children }) => {
   // Reference to side menu
   const menuRef = React.useRef();
+  const notifications = useNotifcations();
 
   const [isOpen, setOpen] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
@@ -37,7 +39,10 @@ const Layout = ({ children }) => {
 
   return (
     <React.Fragment>
-      <Navbar toggleNotifications={toggleNotifications} />
+      <Navbar
+        toggleNotifications={toggleNotifications}
+        notificationsCount={notifications.count && notifications.count}
+      />
       <main className={`main-content ${isOpen ? "content-menu-open" : ""}`}>
         {/* <Header menuRef={menuRef} isOpen={isOpen} openMenu={openMenu} /> */}
         <div className="content">{children}</div>
@@ -47,7 +52,7 @@ const Layout = ({ children }) => {
         title="Notifications"
         placement="right"
         closable={false}
-        onClose={onClose}
+        onClose={() => setVisible(false)}
         visible={visible}
         width={800}
         headerStyle={{
@@ -56,7 +61,7 @@ const Layout = ({ children }) => {
           color: "#acb9d7",
         }}
       >
-        <Notifications />
+        <Notifications setVisible={setVisible} notif={notifications} />
       </Drawer>
     </React.Fragment>
   );

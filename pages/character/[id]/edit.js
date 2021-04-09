@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Form, message } from "antd";
+import { Form, message, PageHeader } from "antd";
 import { connect } from "react-redux";
 
 import { useAuth } from "../../../hooks/userHooks";
@@ -74,6 +74,11 @@ const EditCharacter = (props) => {
         >
           <div className="custom-form new-character">
             <div className="inner">
+              <PageHeader
+                className="site-page-header"
+                onBack={() => router.push(`/character/${router.query.id}`)}
+                title="Back to character"
+              />
               <h2 className="side-heading">
                 Edit character:
                 {` ${character.firstname} ${

@@ -1,5 +1,14 @@
 import React from "react";
-import { Tabs, Form, Input, Modal, Upload, message } from "antd";
+import {
+  Tabs,
+  Form,
+  Input,
+  Modal,
+  Upload,
+  message,
+  Button,
+  Popconfirm,
+} from "antd";
 import {
   LockOutlined,
   UserOutlined,
@@ -8,9 +17,12 @@ import {
   LoadingOutlined,
   PlusOutlined,
   StarOutlined,
+  EditOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 
 import LinkComp from "./LinkComp";
+import { auth } from "../../redux/fbConfig";
 
 const { TabPane } = Tabs;
 
@@ -33,6 +45,7 @@ function beforeUpload(file) {
 }
 
 const Settings = ({
+  deleteAccount,
   profile,
   openSettings,
   setOpenSettings,
@@ -45,6 +58,7 @@ const Settings = ({
     facebook: "",
     instagram: "",
     twitter: "",
+    biography: "",
     errors: {
       instagram: "",
       deviantart: "",
@@ -83,6 +97,7 @@ const Settings = ({
       setImageUrl(profile.image);
       setInfo({
         ...info,
+        biography: profile.biography,
         username: profile.username,
         instagram: profile.instagram,
         facebook: profile.facebook,
@@ -94,7 +109,11 @@ const Settings = ({
   }, [profile]);
 
   React.useEffect(() => {
-    if (info.username.length >= 0 && info.username.length < 4) {
+    if (
+      info.username &&
+      info.username.length >= 0 &&
+      info.username.length < 4
+    ) {
       setInfo({
         ...info,
         errors: {
@@ -145,10 +164,9 @@ const Settings = ({
           newPassword: form.getFieldValue("newPassword"),
           actualPassword: form.getFieldValue("actualPassword"),
           image: info.image,
+          biography: info.biography,
         },
-        setOpenSettings,
-        profile.username,
-        profile.image
+        setOpenSettings
       );
     } else {
       message.error("There are some errors in the settings");
@@ -167,6 +185,7 @@ const Settings = ({
         username: "",
       },
       username: profile.username,
+      biography: profile.biography,
       instagram: profile.instagram,
       facebook: profile.facebook,
       twitter: profile.twitter,
@@ -178,6 +197,7 @@ const Settings = ({
   return (
     <>
       <Modal
+        width="50%"
         title="Settings"
         visible={openSettings}
         onOk={submit}
@@ -185,7 +205,7 @@ const Settings = ({
         onCancel={closeModal}
       >
         <div className="settings">
-          <Tabs defaultActiveKey="1">
+          <Tabs tabPosition="left" defaultActiveKey="1">
             <TabPane
               tab={
                 <span>
@@ -290,11 +310,30 @@ const Settings = ({
             <TabPane
               tab={
                 <span>
+                  <EditOutlined />
+                  Bio
+                </span>
+              }
+              key="3"
+            >
+              <Input.TextArea
+                maxLength={140}
+                autoSize
+                showCount
+                value={info.biography}
+                onChange={(e) =>
+                  setInfo({ ...info, biography: e.target.value })
+                }
+              ></Input.TextArea>
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
                   <LinkOutlined />
                   Links
                 </span>
               }
-              key="3"
+              key="4"
             >
               <LinkComp
                 setInfo={setInfo}
@@ -332,7 +371,7 @@ const Settings = ({
                   Avatar
                 </span>
               }
-              key="4"
+              key="5"
             >
               <Upload
                 showUploadList={{
@@ -360,6 +399,22 @@ const Settings = ({
                   uploadButton
                 )}
               </Upload>
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <DeleteOutlined />
+                  Delete my account
+                </span>
+              }
+              key="6"
+            >
+              <Popconfirm
+                title="Be careful ! This action is not reversible !"
+                onConfirm={deleteAccount}
+              >
+                <Button danger>Click here to delete your account</Button>
+              </Popconfirm>
             </TabPane>
           </Tabs>
         </div>

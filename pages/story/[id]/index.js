@@ -1,7 +1,8 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Row, Col, message, Empty } from "antd";
+import { Row, Col, message, Empty, Space } from "antd";
 import { connect } from "react-redux";
+import Link from "next/link";
 
 import {
   getStory,
@@ -90,12 +91,12 @@ const Story = ({
   React.useEffect(() => {
     if (!chapters.loading) {
       setChaptersArr(
-        chapters.items.filter((c) => c.status || c.authorId === auth.user.uid)
+        chapters.items
+          .filter((c) => c.status || c.authorId === auth.user.uid)
+          .filter((chap) => chap.status || chap.authorId === auth.user.uid)
       );
     }
   }, [chapters]);
-
-  console.log(chapters);
 
   return (
     <LoadingScreen loading={loading}>
@@ -120,8 +121,20 @@ const Story = ({
                 />
                 <Col sm={24} md={16} lg={18}>
                   <div className="story-chapters">
+                    <div className="justify-between chapter-cta">
+                      <h3 className="chap-title">Chapters</h3>
+                      {auth.user && auth.user.uid === story.authorId && (
+                        <Link href={`/story/${story.id}/chapter/new`}>
+                          <a className="add-btn-text add-chapter-btn">
+                            <ion-icon name="add-circle"></ion-icon>
+                            <span>Add a new chapter</span>
+                          </a>
+                        </Link>
+                      )}
+                    </div>
                     {chaptersArr.length > 0 ? (
                       <Chapters
+                        auth={auth}
                         loading={chapters.loading}
                         chapters={chaptersArr}
                         id={router.query.id}

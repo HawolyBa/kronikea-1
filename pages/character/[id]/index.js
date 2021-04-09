@@ -12,6 +12,7 @@ import {
   Col,
   message,
 } from "antd";
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 import { dummy } from "../../../utils/dummy";
 import {
@@ -20,6 +21,9 @@ import {
   getCharacterComments,
   deleteCharacterComment,
   rateComment,
+  addCharacterToFavorite,
+  removeCharacterFromFavorite,
+  isCharacterFavorite,
 } from "../../../redux/actions/charactersActions";
 
 import Comments from "../../../components/character/Comments";
@@ -27,6 +31,7 @@ import LoadingScreen from "../../../components/hoc/LoadingScreen";
 import RedirectComp from "../../../components/hoc/RedirectComp";
 import { useAuth } from "../../../hooks/userHooks";
 import { CharacterGrid } from "../../../components/common/Grid";
+import Like from "../../../components/common/Like";
 
 const Character = (props) => {
   const {
@@ -38,23 +43,19 @@ const Character = (props) => {
     confirmMessage,
     userComment,
     rated,
+    isFavorite,
+    loadingFav,
   } = props;
   const router = useRouter();
   const auth = useAuth();
-  const commentIds = comments.map((c) => c.userId);
-
-  const [alreadyPosted, setAlreadyPosted] = React.useState(false);
-
-  React.useEffect(() => {
-    if (auth.user && commentIds.includes(auth.user.uid)) {
-      setAlreadyPosted(true);
-    }
-  }, [commentIds, auth, comments]);
 
   React.useEffect(() => {
     props.getCharacter(router.query.id, "show");
     props.getCharacterComments(router.query.id);
-  }, [router.query.id]);
+    if (!auth.isLoading) {
+      props.isCharacterFavorite(router.query.id);
+    }
+  }, [router.query.id, auth]);
 
   React.useEffect(() => {
     if (rated) props.getCharacterComments(router.query.id);
@@ -83,8 +84,8 @@ const Character = (props) => {
                       <div className="avatar">
                         <img
                           src={
-                            character.authorImage
-                              ? character.authorImage
+                            character.userImage
+                              ? character.userImage
                               : dummy.avatar
                           }
                           alt={character.authorName}
@@ -106,12 +107,18 @@ const Character = (props) => {
                     </Link>
                   </div>
                 ) : (
-                  <div className="like-btn">
-                    <Space size={5} align="center">
-                      <ion-icon name="heart"></ion-icon>
-                      <span>Like</span>
-                    </Space>
-                  </div>
+                  <Like
+                    id={router.query.id}
+                    authorId={character.authorId}
+                    title={`${character.firstname} ${
+                      character.lastname ? character.lastname : ""
+                    }`}
+                    type="character"
+                    isFavorite={isFavorite}
+                    likeFunc={props.addCharacterToFavorite}
+                    username={auth.user && auth.user.username}
+                    removeFunc={props.removeCharacterFromFavorite}
+                  />
                 )}
               </div>
               <h2>{`${character.firstname} ${
@@ -169,14 +176,15 @@ const Character = (props) => {
                 <h3 className="desc-title">Relationships</h3>
                 {character.relatives ? (
                   <CharacterGrid
-                    gutter={[16, 16]}
+                    gutter={"16px"}
                     type="show"
-                    md={8}
-                    lg={6}
-                    xxl={6}
-                    xl={6}
-                    sm={12}
-                    xs={24}
+                    columnsCountBreakPoints={{
+                      350: 1,
+                      750: 2,
+                      900: 3,
+                      1200: 4,
+                      1600: 4,
+                    }}
                     characters={character.relatives}
                   />
                 ) : (
@@ -186,11 +194,19 @@ const Character = (props) => {
               <Divider />
               <div className="character-stories">
                 <h3 className="desc-title">Stories</h3>
-                <Row gutter={[16, 16]}>
-                  {character.stories ? (
-                    character.stories.map((story) => (
-                      <Col lg={8} md={12} xs={24} sm={24} key={story.id}>
-                        <Link href={`/story/${story.id}`}>
+                <ResponsiveMasonry
+                  columnsCountBreakPoints={{
+                    350: 1,
+                    750: 2,
+                    900: 2,
+                    1200: 3,
+                    1600: 3,
+                  }}
+                >
+                  <Masonry gutter={"16px"}>
+                    {character.stories ? (
+                      character.stories.map((story) => (
+                        <Link key={story.id} href={`/story/${story.id}`}>
                           <a>
                             <figure className="card story-card story-card-mini">
                               <div className="img-container">
@@ -202,12 +218,12 @@ const Character = (props) => {
                             </figure>
                           </a>
                         </Link>
-                      </Col>
-                    ))
-                  ) : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                  )}
-                </Row>
+                      ))
+                    ) : (
+                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                    )}
+                  </Masonry>
+                </ResponsiveMasonry>
               </div>
             </section>
             <Comments
@@ -218,8 +234,6 @@ const Character = (props) => {
               submit={props.submitCharaterFeedback}
               loadingComments={loadingComments}
               deleteComment={props.deleteCharacterComment}
-              commentIds={commentIds}
-              alreadyPosted={alreadyPosted}
               rateComment={props.rateComment}
             />
           </div>
@@ -238,6 +252,8 @@ const mapStateToProps = (state) => ({
   confirmMessage: state.stories.message,
   userComment: state.stories.userComment,
   rated: state.stories.rated,
+  isFavorite: state.characters.isFavorite,
+  loadingFav: state.characters.loadingFav,
 });
 
 export default connect(mapStateToProps, {
@@ -246,4 +262,7 @@ export default connect(mapStateToProps, {
   getCharacterComments,
   deleteCharacterComment,
   rateComment,
+  addCharacterToFavorite,
+  removeCharacterFromFavorite,
+  isCharacterFavorite,
 })(Character);

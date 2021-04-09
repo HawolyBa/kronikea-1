@@ -50,42 +50,48 @@ const newCharacter = (props) => {
       relativesArr: values.relatives.map((c) => c.character_id),
       authorId: auth.user.uid,
       authorName: auth.user.username,
-      authorImage: auth.user.image ? auth.user.image : "",
+      userImage: auth.user.image ? auth.user.image : "",
     });
   };
 
   return (
     <LoadingScreen loading={auth.isLoading}>
       <RedirectComp condition={auth.user} type="redirect">
-        <div className="new-character custom-form">
-          <div className="inner">
-            <h2 className="side-heading">Add a new character</h2>
-            <CharacterForm
-              submit={submit}
-              onFailed={onFailed}
-              form={form}
-              characters={characters}
-              visibility={visibility}
-              setVisibility={setVisibility}
-              loadingCharacter={loadingCharacter}
-              type="add"
-              initialValues={{
-                firstname: "",
-                lastname: "",
-                age: 0,
-                gender: "",
-                public: true,
-                ethnicity: "",
-                group: "",
-                residence: "",
-                description: "",
-                nickname: "",
-                occupation: "",
-                relatives: [],
-              }}
-            />
+        <RedirectComp
+          verifyEmail={auth.verifyEmail}
+          condition={auth.user && auth.user.emailVerified}
+          type="verify"
+        >
+          <div className="new-character custom-form">
+            <div className="inner">
+              <h2 className="side-heading">Add a new character</h2>
+              <CharacterForm
+                submit={submit}
+                onFailed={onFailed}
+                form={form}
+                characters={characters}
+                visibility={visibility}
+                setVisibility={setVisibility}
+                loadingCharacter={loadingCharacter}
+                type="add"
+                initialValues={{
+                  firstname: "",
+                  lastname: "",
+                  age: 0,
+                  gender: "",
+                  public: true,
+                  ethnicity: "",
+                  group: "",
+                  residence: "",
+                  description: "",
+                  nickname: "",
+                  occupation: "",
+                  relatives: [],
+                }}
+              />
+            </div>
           </div>
-        </div>
+        </RedirectComp>
       </RedirectComp>
     </LoadingScreen>
   );

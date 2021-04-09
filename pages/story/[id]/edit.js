@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, message } from "antd";
+import { Form, message, PageHeader } from "antd";
 import { connect } from "react-redux";
 import { useRouter } from "next/router";
 
@@ -70,6 +70,11 @@ const EditStory = (props) => {
         >
           <div className="new-story custom-form">
             <div className="inner">
+              <PageHeader
+                className="site-page-header"
+                onBack={() => router.push(`/story/${router.query.id}`)}
+                title="Back to story"
+              />
               <h2 className="side-heading">Edit story: {story.title}</h2>
               <StoryForm
                 type="edit"

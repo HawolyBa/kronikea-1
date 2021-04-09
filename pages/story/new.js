@@ -53,6 +53,7 @@ const NewStory = (props) => {
     props.addStory({
       ...values,
       authorName: auth.user.username,
+      userImage: auth.user.image,
       banner: form.getFieldValue("banner") ? form.getFieldValue("banner") : "",
     });
   };
@@ -60,23 +61,29 @@ const NewStory = (props) => {
   return (
     <LoadingScreen loading={auth.isLoading}>
       <RedirectComp condition={auth.user} type="redirect">
-        <div className="new-story custom-form">
-          <div className="inner">
-            <h2 className="side-heading">Add a new story</h2>
-            <StoryForm
-              type="add"
-              submit={submit}
-              characters={props.characters}
-              loading={props.loading}
-              storyId={props.storyId}
-              form={form}
-              mature={mature}
-              setMature={setMature}
-              visibility={visibility}
-              setVisibility={setVisibility}
-            />
+        <RedirectComp
+          condition={auth.user && auth.user.emailVerified}
+          type="verify"
+          verifyEmail={auth.verifyEmail}
+        >
+          <div className="new-story custom-form">
+            <div className="inner">
+              <h2 className="side-heading">Add a new story</h2>
+              <StoryForm
+                type="add"
+                submit={submit}
+                characters={props.characters}
+                loading={props.loading}
+                storyId={props.storyId}
+                form={form}
+                mature={mature}
+                setMature={setMature}
+                visibility={visibility}
+                setVisibility={setVisibility}
+              />
+            </div>
           </div>
-        </div>
+        </RedirectComp>
       </RedirectComp>
     </LoadingScreen>
   );
