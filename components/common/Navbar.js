@@ -48,23 +48,6 @@ const Navbar = ({ toggleNotifications, notificationsCount }) => {
                       </Tooltip>
                     </div>
                     {!auth.isLoading && auth.user && (
-                      <Tooltip title="Notifications" placement="bottom">
-                        <Badge size="default" count={notificationsCount}>
-                          <div
-                            className="header-icon icon__settings"
-                            onClick={toggleNotifications}
-                          >
-                            <ion-icon name="notifications"></ion-icon>
-                          </div>
-                        </Badge>
-                      </Tooltip>
-                    )}
-                    <Tooltip title="Night mode" placement="bottom">
-                      <div className="header-icon icon__settings">
-                        <ion-icon name="contrast"></ion-icon>
-                      </div>
-                    </Tooltip>
-                    {!auth.isLoading && auth.user && (
                       <div className="header-icon icon__account">
                         <Tooltip
                           title={`Profile - ${auth.user && auth.user.username}`}
@@ -84,6 +67,23 @@ const Navbar = ({ toggleNotifications, notificationsCount }) => {
                         </Tooltip>
                       </div>
                     )}
+                    {!auth.isLoading && auth.user && (
+                      <Tooltip title="Notifications" placement="bottom">
+                        <Badge size="default" count={notificationsCount}>
+                          <div
+                            className="header-icon icon__settings"
+                            onClick={toggleNotifications}
+                          >
+                            <ion-icon name="notifications"></ion-icon>
+                          </div>
+                        </Badge>
+                      </Tooltip>
+                    )}
+                    <Tooltip title="Night mode" placement="bottom">
+                      <div className="header-icon icon__settings">
+                        <ion-icon name="contrast"></ion-icon>
+                      </div>
+                    </Tooltip>
                     {!auth.isLoading && auth.user ? (
                       <Popconfirm
                         title="Do you really want to log out ?"

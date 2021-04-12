@@ -244,70 +244,6 @@ export const deleteCharacter = (id, firstname, lastname) => (dispatch) => {
           });
       }
     });
-  // .then(() => {
-  //   db.collection("chapters")
-  //     .where("characters", "array-contains", id)
-  //     .get()
-  //     .then((docs) => {
-  //       docs.forEach((doc) => {
-  //         batch.update(db.collection("chapters").doc(doc.id), {
-  //           characters: doc.data().characters.filter((c) => c !== id),
-  //         });
-  //       });
-  //     })
-  //     .then(() => {
-  //       db.collection("stories")
-  //         .where("secondaryArr", "array-contains", id)
-  //         .get()
-  //         .then((stories) => {
-  //           stories.forEach((story) => {
-  //             batch.update(db.collection("stories").doc(story.id), {
-  //               mainCharacters: story
-  //                 .data()
-  //                 .mainCharacters.filter((c) => c !== id),
-  //               secondaryArr: story
-  //                 .data()
-  //                 .secondaryArr.filter((c) => c !== id),
-  //               secondaryCharacters: story
-  //                 .data()
-  //                 .secondaryCharacters.filter((c) => c.id !== id),
-  //             });
-  //           });
-  //         })
-  //         .then(() => {
-  //           db.collection("characters")
-  //             .where("relativesArr", "array-contains", id)
-  //             .get()
-  //             .then((characters) => {
-  //               characters.forEach((char) => {
-  //                 batch.update(db.collection("characters").doc(char.id), {
-  //                   relativesArr: char
-  //                     .data()
-  //                     .relativesArr.filter((c) => c !== id),
-  //                   relatives: char
-  //                     .data()
-  //                     .relatives.filter((c) => c.character_id !== id),
-  //                 });
-  //               });
-  //             })
-  //             .then(() => {
-  //               db.collection("charactersLikes")
-  //                 .where("characterId", "==", id)
-  //                 .get()
-  //                 .then((likes) => {
-  //                   likes.forEach((like) => {
-  //                     batch.delete(
-  //                       db.collection("charactersLikes").doc(like.id)
-  //                     );
-  //                   });
-  //                   batch.commit().then(() => {
-
-  //                   });
-  //                 });
-  //             });
-  //         });
-  //     });
-  // });
 };
 
 export const getUserCharacters = (id) => (dispatch) => {
@@ -393,22 +329,6 @@ export const addCharacterToFavorite = (
       characterId: id,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
-    .then(() => {
-      if (authorId !== auth.currentUser.uid) {
-        return db
-          .collection("notifications")
-          .doc(`${auth.currentUser.uid}${id}`)
-          .set({
-            type: "characterLike",
-            read: false,
-            recipient: authorId,
-            sender: auth.currentUser.uid,
-            characterId: id,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            message: `${username} liked your character ${characterName}`,
-          });
-      }
-    })
     .then(() => message.success(`${characterName} added to your favorites`))
     .catch((err) => message.error("There has been a problem"));
 };
@@ -450,24 +370,8 @@ export const submitCharaterFeedback = (info, userComment) => (dispatch) => {
 
   db.collection("comments")
     .add({
-      ...allInfo,
+      ...info,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    })
-    .then(() => {
-      if (auth.currentUser.uid !== info.authorId) {
-        return db
-          .collection("notifications")
-          .doc(`${auth.currentUser.uid}${info.characterId}`)
-          .set({
-            type: "characterComment",
-            read: false,
-            recipient: info.authorId,
-            sender: auth.currentUser.uid,
-            characterId: info.characterId,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            message: `${info.username} left a feedback on your character ${characterName}`,
-          });
-      }
     })
     .then(() => {
       dispatch({
@@ -611,4 +515,22 @@ export const getCharactersFromSearch = (search) => (dispatch) => {
       });
     })
     .catch((err) => message.error(err.message));
+};
+
+export const getPopularCharacters = () => (dispatch) => {
+  db.collection("characters")
+    .where("public", "==", true)
+    .orderBy("likesCount", "desc")
+    .limit(12)
+    .get()
+    .then((docs) => {
+      let res = [];
+      docs.forEach((doc) => {
+        res = [...res, { ...doc.data(), id: doc.id }];
+      });
+      dispatch({
+        type: types.GET_POPULAR_CHARACTERS,
+        payload: res,
+      });
+    });
 };

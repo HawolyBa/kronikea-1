@@ -64,6 +64,7 @@ function useProvideAuth() {
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           image: "",
           suspended: false,
+          likesCount: 0,
         });
       })
       .then(() => {

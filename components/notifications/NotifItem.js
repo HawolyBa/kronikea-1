@@ -7,7 +7,7 @@ const NotifItem = ({ n, notif, router, setVisible }) => {
       ? `/story/${n.storyId}`
       : n.type === "characterLike" || n.type === "characterComment"
       ? `/character/${n.characterId}`
-      : n.type === "comment"
+      : n.type === "comment" || n.type === "newChapter"
       ? `/story/${n.storyId}/chapter/${n.chapterId}`
       : n.type === "follow"
       ? `/profile/${n.sender}`
@@ -15,6 +15,7 @@ const NotifItem = ({ n, notif, router, setVisible }) => {
 
   const openLink = () => {
     setVisible(false);
+    notif.markAsRead(n.id);
     router.push(link);
   };
   return (
@@ -24,9 +25,11 @@ const NotifItem = ({ n, notif, router, setVisible }) => {
           <div onClick={openLink}>
             <a className="notification-desc">
               <Space size={16}>
-                <div className="notification-avatar">
-                  <img src={n.user.image} alt={n.user.username} />
-                </div>
+                {n.user.image && (
+                  <div className="notification-avatar">
+                    <img src={n.user.image} alt={n.user.username} />
+                  </div>
+                )}
                 <p>{n.message}</p>
               </Space>
             </a>

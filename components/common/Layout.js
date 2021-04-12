@@ -1,6 +1,7 @@
 import Header from "./Header";
 import StickyMenu from "./StickyMenu";
 import Navbar from "./Navbar";
+import { useRouter } from "next/router";
 
 import { Drawer } from "antd";
 import Notifications from "../notifications/Notifications";
@@ -37,13 +38,19 @@ const Layout = ({ children }) => {
     }
   };
 
+  const router = useRouter();
+
   return (
     <React.Fragment>
       <Navbar
         toggleNotifications={toggleNotifications}
         notificationsCount={notifications.count && notifications.count}
       />
-      <main className={`main-content ${isOpen ? "content-menu-open" : ""}`}>
+      <main
+        className={`main-content ${isOpen ? "content-menu-open" : ""} ${
+          router.pathname === "/" ? "home-content" : ""
+        }`}
+      >
         {/* <Header menuRef={menuRef} isOpen={isOpen} openMenu={openMenu} /> */}
         <div className="content">{children}</div>
       </main>

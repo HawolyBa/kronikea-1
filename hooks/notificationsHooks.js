@@ -85,10 +85,14 @@ function useProvideNotification() {
               ...u.data(),
               id: u.id,
             }));
-            items = items.map((notif) => ({
-              ...notif,
-              user: users.find((u) => u.id === notif.sender),
-            }));
+
+            items = items.map((notif) => {
+              const user = users.find((u) => u.id === notif.sender);
+              return {
+                ...notif,
+                user: user ? user : {},
+              };
+            });
             setNotifications(items);
           });
         setIsLoading(false);

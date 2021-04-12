@@ -1,4 +1,4 @@
-const { db } = require("../utils/admin");
+const { db, admin } = require("../utils/admin");
 const { arr_diff } = require("../utils/validators");
 
 exports.storyDeleted = (snapshot) => {
@@ -43,46 +43,73 @@ exports.storyUpdated = (change) => {
       .get()
       .then((docs) => {
         docs.forEach((doc) => {
-          db.collection("locations")
-            .doc(doc.id)
-            .update({ storyTitle: change.after.data().title });
+          db.collection("locations").doc(doc.id).update({
+            storyTitle: change.after.data().title,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+          });
         });
       });
   }
 };
 
 exports.chapterCreated = (snapshot) => {
-  return db
-    .doc(`/stories/${snapshot.data().storyId}`)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        const main = doc.data().mainCharacters;
-        let secondaryCharacters = [...doc.data().secondaryArr];
-        let charInChapter = snapshot
-          .data()
-          .characters.filter((c) => !main.includes(c));
-        let newArr = [];
-        charInChapter.forEach((char) => {
-          const index = secondaryCharacters.findIndex((c) => c.id === char);
-          if (index !== -1) {
-            newArr.push({
-              id: secondaryCharacters[index].id,
-              times: secondaryCharacters[index].times++,
+  let storyTitle = "";
+  let visibility;
+  if (snapshot.data().status) {
+    return db
+      .doc(`/stories/${snapshot.data().storyId}`)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          storyTitle = doc.data().title;
+          visibility = doc.data().public;
+          const main = doc.data().mainCharacters;
+          let secondaryCharacters = [...doc.data().secondaryArr];
+          let charInChapter = snapshot
+            .data()
+            .characters.filter((c) => !main.includes(c));
+          let newArr = [];
+          charInChapter.forEach((char) => {
+            const index = secondaryCharacters.findIndex((c) => c.id === char);
+            if (index !== -1) {
+              newArr.push({
+                id: secondaryCharacters[index].id,
+                times: secondaryCharacters[index].times++,
+              });
+            } else {
+              newArr.push({ id: char, times: 1 });
+            }
+          });
+          newArr = snapshot.data().status === true ? newArr : [];
+          db.doc(`/stories/${snapshot.data().storyId}`).update({
+            chaptersCount: doc.data().chaptersCount + 1,
+            secondaryCharacters: newArr,
+            secondaryArr: newArr.map((c) => c.id),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          return db
+            .collection("storiesLikes")
+            .where("storyId", "==", doc.id)
+            .get();
+        }
+      })
+      .then((storyLikes) => {
+        if (visibility) {
+          storyLikes.forEach((like) => {
+            db.collection("notifications").add({
+              read: false,
+              type: "newChapter",
+              recipient: like.data().senderId,
+              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              message: `A new chapter has been posted for story ${storyTitle}`,
+              storyId: snapshot.data().storyId,
+              chapterId: snapshot.id,
             });
-          } else {
-            newArr.push({ id: char, times: 1 });
-          }
-        });
-        newArr = snapshot.data().status === true ? newArr : [];
-        return db.doc(`/stories/${snapshot.data().storyId}`).update({
-          chaptersCount: doc.data().chaptersCount + 1,
-          secondaryCharacters: newArr,
-          secondaryArr: newArr.map((c) => c.id),
-        });
-      }
-    })
-    .catch((err) => console.log(err));
+          });
+        }
+      })
+      .catch((err) => console.log(err));
+  }
 };
 
 exports.chapterUpdated = (change) => {
@@ -131,6 +158,7 @@ exports.chapterUpdated = (change) => {
 
           return db.doc(`/stories/${change.after.data().storyId}`).update({
             secondaryCharacters: secondaryCharactersArr,
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
             secondaryArr: secondaryCharactersArr.map((c) => c.id),
           });
         }

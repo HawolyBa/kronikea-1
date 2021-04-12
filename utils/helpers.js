@@ -23,3 +23,7 @@ export const arr_diff = (a1, a2) => {
 
   return diff;
 };
+
+export const onlyUnique = (value, index, self) => {
+  return self.indexOf(value) === index;
+};

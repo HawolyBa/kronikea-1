@@ -29,6 +29,7 @@ const initialState = {
   isFavorite: false,
   loadingFav: true,
   charactersFromSearch: [],
+  popularCharacters: [],
 };
 
 const charactersReducer = (state = initialState, action) => {
@@ -99,6 +100,11 @@ const charactersReducer = (state = initialState, action) => {
         charactersFromSearch: action.payload
           ? action.payload
           : state.charactersFromSearch,
+      };
+    case types.GET_POPULAR_CHARACTERS:
+      return {
+        ...state,
+        popularCharacters: action.payload,
       };
     default:
       return state;

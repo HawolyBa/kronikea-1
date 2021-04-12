@@ -54,6 +54,14 @@ main.main-content {
   &.content-menu-open {
     left: 60%;
   }
+
+  &.home-content {
+    .content {
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  }
 }
 
 .content {

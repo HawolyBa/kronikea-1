@@ -26,15 +26,10 @@
       "static/chunks/webpack.js",
       "static/chunks/pages/_error.js"
     ],
-    "/profile": [
+    "/explore": [
       "static/chunks/main.js",
       "static/chunks/webpack.js",
-      "static/chunks/pages/profile.js"
-    ],
-    "/story/[id]/chapter/[chapid]": [
-      "static/chunks/main.js",
-      "static/chunks/webpack.js",
-      "static/chunks/pages/story/[id]/chapter/[chapid].js"
+      "static/chunks/pages/explore.js"
     ]
   },
   "ampFirstPages": []

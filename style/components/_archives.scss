@@ -12,6 +12,43 @@
   }
 }
 
+.explore-page {
+  .alphabetic-search {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    background-color: $primary;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 15px 25px;
+
+    span {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      transition: all 0.3s ease;
+      border-radius: 50%;
+
+      &:hover,
+      &.current {
+        background-color: white;
+        color: $primary;
+      }
+    }
+  }
+
+  aside.filter {
+    padding: 30px 15px;
+    background: chartreuse;
+  }
+}
+
 @media (max-width: 791px) {
   .category {
     .categories-col {

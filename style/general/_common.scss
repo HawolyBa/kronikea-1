@@ -164,6 +164,19 @@ a {
     justify-content: center;
     cursor: pointer;
 
+    figcaption {
+      text-align: center;
+    }
+
+    &.home-user-card {
+      .social {
+        margin-top: 15px;
+        ion-icon {
+          font-size: 1.2rem;
+        }
+      }
+    }
+
     .img-container {
       overflow: hidden;
       width: 150px;
@@ -246,6 +259,8 @@ figure.character-card {
 
     h3 {
       margin: 0;
+      color: $greyDark-2;
+      font-size: 0.9rem;
       text-align: center;
     }
 

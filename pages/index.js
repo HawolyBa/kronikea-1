@@ -1,36 +1,54 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import { getHomeStories } from "../redux/actions/storiesActions";
+import {
+  getHomeStories,
+  getFeaturedStories,
+} from "../redux/actions/storiesActions";
+import { getPopularCharacters } from "../redux/actions/charactersActions";
+import { getPopularUsers } from "../redux/actions/userActions";
 
-import { MiniGrid } from "../components/common/Grid";
+import LoadingScreen from "../components/hoc/LoadingScreen";
+import PopularUsers from "../components/home/PopularUsers";
+import PopularCharacters from "../components/home/PopularCharacters";
+import PopularStories from "../components/home/PopularStories";
+import PopularCategories from "../components/home/PopularCategories";
+import Slider from "../components/home/Slider";
 
 const Home = (props) => {
-  const { loading, stories } = props;
+  const { loading, stories, characters, users, featuredStories } = props;
 
   React.useEffect(() => {
+    props.getFeaturedStories();
     props.getHomeStories();
+    props.getPopularCharacters();
+    props.getPopularUsers();
   }, []);
-
-  console.log(stories);
+  console.log(featuredStories);
   return (
-    <div className="home-page">
-      <h2>Featured Stories</h2>
-      <div className="grid-wrapper">
-        <MiniGrid
-          stories={stories}
-          gutter={"20px"}
-          type="mini"
-          columnsCountBreakPoints={{ 1600: 4, 1200: 4, 900: 2, 350: 1 }}
-        />
+    <LoadingScreen loading={loading}>
+      <div className="home-page">
+        <Slider heading="Example Sliders" slides={featuredStories} />
+        <PopularCategories />
+        <PopularStories stories={stories} />
+        <PopularCharacters characters={characters} />
+        <PopularUsers users={users} />
       </div>
-    </div>
+    </LoadingScreen>
   );
 };
 
 const mapStateToProps = (state) => ({
   stories: state.stories.homeStories,
+  characters: state.characters.popularCharacters,
+  users: state.auth.popularUsers,
   loading: state.stories.loading,
+  featuredStories: state.stories.featuredStories,
 });
 
-export default connect(mapStateToProps, { getHomeStories })(Home);
+export default connect(mapStateToProps, {
+  getFeaturedStories,
+  getHomeStories,
+  getPopularCharacters,
+  getPopularUsers,
+})(Home);

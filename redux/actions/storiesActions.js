@@ -310,28 +310,13 @@ export const addStoryToFavorite = (id, username, storyTitle, authorId) => (
   if (!auth.currentUser.emailVerified)
     return message.error("You need to verify your email first");
 
-  db.collection("storiesLikes")
+  return db
+    .collection("storiesLikes")
     .add({
       sender: username,
       senderId: auth.currentUser.uid,
       storyId: id,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    })
-    .then(() => {
-      if (authorId !== auth.currentUser.uid) {
-        return db
-          .collection("notifications")
-          .doc(`${auth.currentUser.uid}${id}`)
-          .set({
-            type: "storyLike",
-            read: false,
-            recipient: authorId,
-            sender: auth.currentUser.uid,
-            storyId: id,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            message: `${username} liked your story ${storyTitle}`,
-          });
-      }
     })
     .then(() => message.success(`${storyTitle} added to your favorites`))
     .catch((err) => message.error(err.message));
@@ -355,6 +340,7 @@ export const getHomeStories = () => (dispatch) => {
   let result = [];
   db.collection("stories")
     .where("public", "==", true)
+    .orderBy("likesCount", "desc")
     .limit(4)
     .get()
     .then((docs) => {
@@ -362,11 +348,47 @@ export const getHomeStories = () => (dispatch) => {
       dispatch({
         type: types.GET_HOME_STORIES,
         payload: result,
+      });
+    });
+};
+
+export const getFeaturedStories = () => (dispatch) => {
+  db.collection("stories")
+    .where("public", "==", true)
+    .where("featured", "==", true)
+    .limit(10)
+    .get()
+    .then((docs) => {
+      let result = [];
+      docs.forEach((doc) => result.push({ id: doc.id, ...doc.data() }));
+      dispatch({
+        type: types.GET_FEATURED_STORIES,
+        payload: result,
         loading: false,
       });
     });
 };
 
+export const getStoriesByLetter = (letter, alphabet) => (dispatch) => {
+  dispatch({ type: types.GET_STORIES_FROM_SEARCH, loading: true });
+
+  const end = alphabet.findIndex((a) => a === letter);
+  db.collection("stories")
+    .where("public", "==", true)
+    .orderBy("title", "asc")
+    .startAt(letter.toUpperCase())
+    .endAt(letter === "z" ? "Z" : alphabet[end + 1].toUpperCase())
+    .get()
+    .then((docs) => {
+      let result = [];
+      docs.forEach((doc) => result.push({ ...doc.data(), id: doc.id }));
+      dispatch({
+        type: types.GET_STORIES_FROM_SEARCH,
+        loading: false,
+        payload: result,
+      });
+    });
+};
 // CHAPTERs
 
 export const addChapter = (data) => (dispatch) => {
@@ -755,62 +777,19 @@ export const submitComment = (info) => (dispatch) => {
     return message.error("You need to verify your email first");
   if (!info.content) return message.error("Content must not be empty");
 
-  const batch = db.batch();
-  const story = db.collection("stories").doc(info.storyId).get();
-  const chapter = db.collection("chapters").doc(info.chapterId).get();
-
-  Promise.all([story, chapter])
-    .then((res) => {
-      batch.update(db.collection("stories").doc(info.storyId), {
-        commentsCount: res[0].data().commentsCount + 1,
-      });
-      batch.update(db.collection("chapters").doc(info.chapterId), {
-        commentsCount: res[1].data().commentsCount + 1,
-      });
-      batch.commit().then(() => {
-        db.collection("comments")
-          .add({
-            ...info,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          })
-          .then(() => {
-            if (auth.currentUser.uid !== info.authorId) {
-              return db.collection("notifications").add({
-                type: "comment",
-                read: false,
-                recipient: info.authorId,
-                sender: auth.currentUser.uid,
-                chapterId: info.chapterId,
-                storyId: info.storyId,
-                userDeleted: false,
-                suspended: false,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                message: `${info.username} posted a commented on your story ${info.title}`,
-              });
-            }
-          })
-          .then(() => message.success("Comment posted successfully"));
-      });
+  db.collection("comments")
+    .add({
+      ...info,
+      userDeleted: false,
+      suspended: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
+    .then(() => message.success("Comment posted successfully"))
     .catch((err) => message.error(err.message));
 };
 
-export const deleteComment = (id, chapid, storyId) => (dispatch) => {
-  const batch = db.batch();
-  const story = db.collection("stories").doc(storyId).get();
-  const chapter = db.collection("chapters").doc(chapid).get();
-
-  Promise.all([story, chapter]).then((res) => {
-    batch.update(db.collection("stories").doc(storyId), {
-      commentsCount: res[0].data().commentsCount - 1,
-    });
-    batch.update(db.collection("chapters").doc(chapid), {
-      commentsCount: res[1].data().commentsCount - 1,
-    });
-    batch.commit().then(() => {
-      db.collection("comments").doc(id).delete();
-    });
-  });
+export const deleteComment = (id) => (dispatch) => {
+  db.collection("comments").doc(id).delete();
 };
 
 // ARCHIVES

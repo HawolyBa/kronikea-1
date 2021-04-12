@@ -35,10 +35,16 @@ const NewChapter = (props) => {
   }, []);
 
   React.useEffect(() => {
-    if (chapId && form.getFieldValue("status") === "true") {
+    if (
+      (chapId && form.getFieldValue("status") === "true") ||
+      form.getFieldValue("status") === true
+    ) {
       router.push(`/story/${story.id}/chapter/${chapId}`);
     }
-    if (chapId && form.getFieldValue("status") === "false") {
+    if (
+      (chapId && form.getFieldValue("status") === "false") ||
+      form.getFieldValue("status") === false
+    ) {
       router.push(`/story/${story.id}/chapter/${chapId}/edit`);
     }
   }, [chapId]);
@@ -53,6 +59,14 @@ const NewChapter = (props) => {
   const submit = (values) => {
     delete values.currentChar;
     delete values.currentLoc;
+    let status;
+
+    if (typeof values.status === "string") {
+      if (values.status === "true") status = true;
+      else if (values.status === "false") status = false;
+    } else {
+      status = values.status;
+    }
 
     props.addChapter({
       ...values,
@@ -60,7 +74,7 @@ const NewChapter = (props) => {
       userImage: auth.user.image,
       storyId: router.query.id,
       body,
-      status: values.status === "true",
+      status: status,
     });
   };
 

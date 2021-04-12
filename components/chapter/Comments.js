@@ -28,6 +28,7 @@ const Comments = ({
   title,
 }) => {
   const [commentBody, setCommentBody] = React.useState("");
+  const [answerBody, setAnswerBody] = React.useState("");
   const [toggleCommentForm, setToggleCommentForm] = React.useState(false);
   const [toggleAnswerForm, setToggleAnswerForm] = React.useState(false);
   const [clickedForm, setClickedForm] = React.useState("");
@@ -222,7 +223,7 @@ const Comments = ({
                         Reply{" "}
                       </span>
                     ),
-                    comment.userId === auth.user.uid && (
+                    c.userId === auth.user.uid && (
                       <Popconfirm
                         title="Do you want to delete this comment ?"
                         okText="Yes"

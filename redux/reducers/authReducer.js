@@ -19,6 +19,7 @@ const initialState = {
   notifications: [],
   loading: true,
   usersFromSearch: [],
+  popularUsers: [],
 };
 
 const reducer = (state = initialState, action) => {
@@ -62,6 +63,11 @@ const reducer = (state = initialState, action) => {
         usersFromSearch: action.payload
           ? action.payload
           : state.usersFromSearch,
+      };
+    case types.GET_POPULAR_USERS:
+      return {
+        ...state,
+        popularUsers: action.payload,
       };
   }
   return state;

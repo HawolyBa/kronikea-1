@@ -28,10 +28,8 @@ const Card = ({ story, type }) => {
             <ion-icon name="book"></ion-icon>
           </span>
           <span>
-            <p className="number">
-              {story.secondaryArr.length + story.mainCharacters.length}{" "}
-            </p>{" "}
-            <ion-icon name="people"></ion-icon>
+            <p className="number">{story.likesCount} </p>{" "}
+            <ion-icon name="heart"></ion-icon>
           </span>
           <span>
             <p className="number">{story.commentsCount} </p>{" "}

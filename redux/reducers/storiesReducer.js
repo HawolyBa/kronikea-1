@@ -64,6 +64,7 @@ const initialState = {
   },
   rated: false,
   storiesFromSearch: [],
+  featuredStories: [],
 };
 
 const storiesReducer = (state = initialState, action) => {
@@ -227,8 +228,14 @@ const storiesReducer = (state = initialState, action) => {
     case types.GET_HOME_STORIES:
       return {
         ...state,
-        loading: action.loading,
+
         homeStories: action.payload,
+      };
+    case types.GET_FEATURED_STORIES:
+      return {
+        ...state,
+        loading: action.loading,
+        featuredStories: action.payload,
       };
     default:
       return state;

@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import moment from "moment";
-import { Image, Col, Tag, Skeleton, Space } from "antd";
+import { Image, Col, Tag, Skeleton, Space, Statistic } from "antd";
 
 import { LANGUAGES } from "../../utils/constants";
 import { dummy } from "../../utils/dummy";
@@ -71,6 +71,11 @@ const Banner = ({
                   removeFunc={removeStoryFromFavorite}
                 />
               )}
+              <Statistic
+                suffix="Likes"
+                value={story.likesCount}
+                valueStyle={{ fontSize: "14px" }}
+              />
             </div>
             <h3>Summary</h3>
             <p className="summary">

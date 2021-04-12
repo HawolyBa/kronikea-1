@@ -9,7 +9,7 @@ const Notifications = ({ notif, setVisible }) => {
     <div className="notifications">
       <div className="cta-btns">
         <div className="cta-btn read-all" onClick={notif.markAllAsRead}>
-          Mark all as seen
+          Mark all as read
         </div>
         <div className="cta-btn delete-all" onClick={notif.deleteAll}>
           Delete all

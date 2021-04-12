@@ -3,6 +3,7 @@ const functions = require("firebase-functions");
 const authTriggers = require("./triggers/auth");
 const storiesTriggers = require("./triggers/stories");
 const charactersTriggers = require("./triggers/characters");
+const interactionsTriggers = require("./triggers/interactions");
 
 // USER
 exports.onUserDeleted = functions
@@ -43,3 +44,37 @@ exports.onDeleteCharacter = functions
   .region("europe-west1")
   .firestore.document("characters/{id}")
   .onDelete(charactersTriggers.deleteCharacter);
+
+// INTERACTIONS
+exports.onStoryLiked = functions
+  .region("europe-west1")
+  .firestore.document("storiesLikes/{id}")
+  .onCreate(interactionsTriggers.storyLiked);
+exports.onStoryUnliked = functions
+  .region("europe-west1")
+  .firestore.document("storiesLikes/{id}")
+  .onDelete(interactionsTriggers.storyUnliked);
+exports.onCharacterLiked = functions
+  .region("europe-west1")
+  .firestore.document("charactersLikes/{id}")
+  .onCreate(interactionsTriggers.characterLiked);
+exports.onCharactersUnliked = functions
+  .region("europe-west1")
+  .firestore.document("charactersLikes/{id}")
+  .onDelete(interactionsTriggers.characterUnliked);
+exports.onUserFollowed = functions
+  .region("europe-west1")
+  .firestore.document("usersLikes/{id}")
+  .onCreate(interactionsTriggers.userFollowed);
+exports.onUserUnfollowed = functions
+  .region("europe-west1")
+  .firestore.document("usersLikes/{id}")
+  .onDelete(interactionsTriggers.userUnfollowed);
+exports.onCommentPosted = functions
+  .region("europe-west1")
+  .firestore.document("comments/{id}")
+  .onCreate(interactionsTriggers.commentPosted);
+exports.onCommentDeleted = functions
+  .region("europe-west1")
+  .firestore.document("comments/{id}")
+  .onDelete(interactionsTriggers.commentDeleted);

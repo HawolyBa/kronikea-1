@@ -109,19 +109,6 @@ export const followUser = (id, isFavorite, newFollower) => (dispatch) => {
       recipient: id,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
-    .then(() => {
-      return db
-        .collection("notifications")
-        .doc(`${auth.currentUser.uid}${id}`)
-        .set({
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          recipient: id,
-          sender: newFollower.uid,
-          read: false,
-          type: "follow",
-          message: `${newFollower.username} started following you`,
-        });
-    })
     .then(() => message.success("You are now following this user"))
     .catch((err) => message.error("There has been a problem"));
 };
@@ -250,6 +237,23 @@ export const getUsersFromSearch = (search) => (dispatch) => {
         type: types.GET_USERS_FROM_SEARCH,
         payload: result,
         loading: false,
+      });
+    });
+};
+
+export const getPopularUsers = () => (dispatch) => {
+  db.collection("users")
+    .orderBy("likesCount", "desc")
+    .limit(4)
+    .get()
+    .then((docs) => {
+      let result = [];
+      docs.forEach((doc) => {
+        result = [...result, { ...doc.data(), id: doc.id }];
+      });
+      dispatch({
+        type: types.GET_POPULAR_USERS,
+        payload: result,
       });
     });
 };
