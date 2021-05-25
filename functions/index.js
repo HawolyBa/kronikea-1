@@ -6,6 +6,10 @@ const charactersTriggers = require("./triggers/characters");
 const interactionsTriggers = require("./triggers/interactions");
 
 // USER
+exports.onUserCreated = functions
+  .region("europe-west1")
+  .auth.user()
+  .onCreate(authTriggers.onCreateUser);
 exports.onUserDeleted = functions
   .region("europe-west1")
   .firestore.document("users/{id}")
@@ -16,6 +20,10 @@ exports.onUserEdited = functions
   .onUpdate(authTriggers.userUpdated);
 
 // STORIES
+exports.onStoryCreated = functions
+  .region("europe-west1")
+  .firestore.document("stories/{id}")
+  .onCreate(storiesTriggers.storyCreated);
 exports.onStoryDeleted = functions
   .region("europe-west1")
   .firestore.document("stories/{id}")
@@ -78,3 +86,11 @@ exports.onCommentDeleted = functions
   .region("europe-west1")
   .firestore.document("comments/{id}")
   .onDelete(interactionsTriggers.commentDeleted);
+exports.onStoryRated = functions
+  .region("europe-west1")
+  .firestore.document("stars/{id}")
+  .onCreate(interactionsTriggers.storyRated);
+exports.onStoryRateUpdated = functions
+  .region("europe-west1")
+  .firestore.document("stars/{id}")
+  .onUpdate(interactionsTriggers.rateUpdate);

@@ -1,19 +1,24 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Row, Col } from "antd";
+import { Row, Col, PageHeader, Button, Switch, Divider, Drawer } from "antd";
+import { SlidersOutlined } from "@ant-design/icons";
+
+import { getStoriesByLetter } from "../redux/actions/storiesActions";
 
 import { StoriesGrid } from "../components/common/Grid";
 import LoadingScreen from "../components/hoc/LoadingScreen";
-import { onlyUnique } from "../utils/helpers";
-
-import { getStoriesByLetter } from "../redux/actions/storiesActions";
+import Filter from "../components/explore/Filter";
+import AlphabetRow from "../components/explore/AlphabetRow";
 
 const Explore = (props) => {
   const { stories, loading } = props;
   const [currentStories, setCurrentStories] = React.useState([]);
   const [currentLetter, setCurrentLetter] = React.useState("a");
-  const [categories, setCategories] = React.useState([]);
   const [currentCategory, setCurrentCategory] = React.useState("");
+  const [currentStatus, setCurrentStatus] = React.useState("");
+  const [currentLanguage, setCurrentLanguage] = React.useState("");
+  const [mature, setMature] = React.useState(true);
+  const [openFilter, setOpenFilter] = React.useState(false);
   const alphabet = [
     "a",
     "b",
@@ -48,64 +53,123 @@ const Explore = (props) => {
   }, [currentLetter]);
 
   React.useEffect(() => {
-    setCurrentStories(stories);
-    setCategories(
-      stories
-        .map((story) =>
-          story.categories ? [...story.categories] : story.category
-        )
-        .filter(onlyUnique)
+    setCurrentStories(
+      stories.filter((story) => (!mature ? !story.mature : story))
     );
+    setCurrentCategory("");
+    setCurrentStatus("");
+    setCurrentLanguage("");
   }, [stories]);
 
-  React.useState(() => {
-    console.log("chane");
+  React.useEffect(() => {
     setCurrentStories(
-      currentStories.filter((s) => s.category === currentCategory)
+      stories.filter((story) => (!mature ? !story.mature : story))
     );
-  }, [currentCategory]);
+  }, [mature]);
+
+  const setFilters = () => {
+    setCurrentStories(
+      stories
+        .filter((story) =>
+          currentCategory
+            ? story.category
+              ? story.category.includes(currentCategory)
+              : story.categories.includes(currentCategory)
+            : story
+        )
+        .filter((story) =>
+          currentLanguage ? story.language === currentLanguage : story
+        )
+        .filter((story) =>
+          currentStatus ? story.status === currentStatus : story
+        )
+        .filter((story) => (!mature ? !story.mature : story))
+    );
+    setOpenFilter(false);
+  };
 
   return (
-    <div className="explore-page">
-      <h2>Explore</h2>
-      <Row gutter={[32, 24]}>
-        <Col span={6}>
-          <aside className="filter">
-            <h4>Filter</h4>
-            <div>
-              <h5>by categories</h5>
-              <select onChange={(e) => setCurrentCategory(e.target.value)}>
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </aside>
-        </Col>
-        <Col span={18}>
-          <div className="alphabetic-search">
-            {alphabet.map((a) => (
-              <span
-                className={currentLetter === a ? "current" : ""}
-                key={a}
-                onClick={() => setCurrentLetter(a)}
-              >
-                {a}
-              </span>
-            ))}
-          </div>
-          <LoadingScreen loading={loading}>
-            <StoriesGrid
-              stories={currentStories}
-              gutter="16px"
-              columnsCountBreakPoints={{ 1600: 3, 1200: 3, 900: 3, 750: 2 }}
+    <>
+      <div className="explore-page">
+        <PageHeader
+          title={`Explore`}
+          extra={
+            <Button onClick={setOpenFilter} icon={<SlidersOutlined />}>
+              Filter
+            </Button>
+          }
+        />
+        <Row gutter={[32, 24]}>
+          <Col span={24}>
+            <AlphabetRow
+              alphabet={alphabet}
+              currentLetter={currentLetter}
+              setCurrentLetter={setCurrentLetter}
             />
-          </LoadingScreen>
-        </Col>
-      </Row>
-    </div>
+            <div>
+              <span>Mature content ? </span>
+              <Switch
+                checkedChildren="On"
+                unCheckedChildren="Off"
+                defaultChecked={mature}
+                onChange={setMature}
+              />
+            </div>
+            <Divider />
+            <LoadingScreen loading={loading}>
+              <StoriesGrid
+                stories={currentStories}
+                gutter="16px"
+                columnsCountBreakPoints={{
+                  1600: 4,
+                  1200: 4,
+                  900: 3,
+                  750: 2,
+                  600: 2,
+                  350: 1,
+                }}
+              />
+            </LoadingScreen>
+          </Col>
+        </Row>
+      </div>
+      <Drawer
+        title="Filter Stories"
+        placement="right"
+        closable={true}
+        onClose={() => setOpenFilter(false)}
+        visible={openFilter}
+        width={"30%"}
+        footer={
+          <div
+            style={{
+              textAlign: "right",
+            }}
+          >
+            <Button
+              onClick={() => setOpenFilter(false)}
+              style={{ marginRight: 8 }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={setFilters} type="primary">
+              Set filters
+            </Button>
+          </div>
+        }
+      >
+        <Filter
+          currentCategory={currentCategory}
+          setCurrentCategory={setCurrentCategory}
+          currentStatus={currentStatus}
+          setCurrentStatus={setCurrentStatus}
+          currentLanguage={currentLanguage}
+          setCurrentLanguage={setCurrentLanguage}
+          mature={mature}
+          setMature={setMature}
+        />
+      </Drawer>
+    </>
   );
 };
 

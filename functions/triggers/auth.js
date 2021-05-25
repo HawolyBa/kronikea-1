@@ -1,5 +1,28 @@
 const { db, admin } = require("../utils/admin");
 
+exports.onCreateUser = (user) => {
+  return db
+    .collection("users")
+    .doc(user.uid)
+    .set({
+      username: ``,
+      likesCount: 0,
+      twitter: "",
+      facebook: "",
+      instagram: "",
+      deviantart: "",
+      biography: "",
+      badges: [],
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      image: "",
+      suspended: false,
+    })
+    .then(() => {
+      return user.sendEmailVerification();
+    })
+    .catch((err) => console.log(err.message));
+};
+
 exports.onDeleteUser = (snapshot) => {
   const batch = db.batch();
 

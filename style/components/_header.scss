@@ -108,6 +108,10 @@ header#main-navbar {
     }
   }
 
+  .header-icon {
+    margin-left: 15px;
+  }
+
   .header-icons {
     .icons {
       margin-left: 10px;
@@ -115,13 +119,14 @@ header#main-navbar {
   }
 
   .menu-btn {
+    display: none;
+    cursor: pointer;
     .bar {
       height: 5px;
       background-color: $greyDark;
       width: 40px;
       margin-bottom: 8px;
       box-shadow: $shadow;
-      cursor: pointer;
 
       &:last-child {
         margin-bottom: 0;
@@ -136,12 +141,12 @@ header#main-navbar {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   z-index: 99999999;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.8);
   transition: 0.5s ease;
   opacity: 0;
-  display: none;
+  overflow-y: scroll;
 
   &.visible {
     opacity: 1;
@@ -150,6 +155,10 @@ header#main-navbar {
     .menu-side {
       margin-left: 0;
     }
+  }
+
+  .menu-inner {
+    display: flex;
   }
 
   .close-btn {
@@ -164,27 +173,27 @@ header#main-navbar {
   }
 
   h2 {
-    font-size: 1.7rem;
+    font-size: 1.3rem;
     text-transform: uppercase;
   }
 
   .menu-side {
-    width: 100%;
+    width: 60%;
     background-color: $black;
-    height: 100%;
+    height: 100vh;
     margin-left: -100%;
     transition: all 0.5s ease;
   }
 
   nav.menu-nav {
-    padding: 100px 0 100px 100px;
+    padding: 100px 30px 100px 50px;
     display: flex;
     flex-direction: column;
 
     //align-items: center;
 
     a.menu-bloc {
-      font-size: 2.8rem;
+      font-size: 1.3rem;
 
       // box-shadow: $inset-shadow2;
       //display: none;
@@ -208,15 +217,15 @@ header#main-navbar {
   .cat-bloc {
     background-color: rgba($greyLight-1, 0.9);
     padding: 100px 100px 100px 40px;
-    width: 100%;
-    height: 100%;
+    width: 40%;
+    height: 100vh;
     transition: all 0.5s ease;
     margin-left: 100%;
   }
 
   nav.cat-nav {
     a {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       color: #272727;
       font-weight: 300;
       transition: all 0.5s ease;
@@ -309,57 +318,84 @@ header.side-navbar {
   }
 }
 
-@media (max-width: 600px) {
+@media (min-width: 900px) and (max-width: 1280px) {
+  .icon__home,
+  .icon__settings,
+  .icon__account {
+    width: 1.7rem;
+    height: 1.7rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 900px) {
   header#main-navbar {
+    .inner-header {
+      padding: 15px;
+    }
+
     .header-icon {
       display: none;
+
+      &.icon__account,
+      &.icon__notif {
+        display: flex;
+      }
     }
     .search {
       display: none;
     }
+    .menu-btn {
+      display: block;
+      margin-top: 3px;
+    }
   }
-}
 
-@media (min-width: 997px) {
   .mobile-icon {
-    display: none;
+    margin: 0 15px;
   }
 }
 
 @media (max-width: 768px) {
-  .fullscreen-menu {
-    height: auto;
-    position: absolute;
+  // .fullscreen-menu {
+  //   height: auto;
+  //   position: absolute;
 
-    h2 {
-      font-size: 1.2rem;
-    }
+  //   h2 {
+  //     font-size: 1.2rem;
+  //   }
 
-    nav.menu-nav {
-      padding: 0;
-      justify-content: center;
-      align-items: center;
-      height: 40vh;
-      width: 100vw;
+  //   nav.menu-nav {
+  //     padding: 0;
+  //     justify-content: center;
+  //     align-items: center;
+  //     height: 40vh;
+  //     width: 100vw;
 
-      a.menu-bloc {
-        font-size: 1.2rem;
-      }
-    }
-    .cat-bloc {
-      justify-content: center;
-      align-items: center;
-      flex-flow: column;
-      display: flex;
-      padding: 30px 0;
-      text-align: center;
-      width: 100vw;
-    }
+  //     a.menu-bloc {
+  //       font-size: 1.2rem;
+  //     }
+  //   }
+  //   .cat-bloc {
+  //     justify-content: center;
+  //     align-items: center;
+  //     flex-flow: column;
+  //     display: flex;
+  //     padding: 30px 0;
+  //     text-align: center;
+  //     width: 100vw;
+  //   }
 
-    nav.cat-nav {
-      a {
-        font-size: 1.1rem;
-      }
-    }
+  //   nav.cat-nav {
+  //     a {
+  //       font-size: 1.1rem;
+  //     }
+  //   }
+  // }
+}
+
+@media (min-width: 900px) {
+  .mobile-icon {
+    display: none;
   }
 }

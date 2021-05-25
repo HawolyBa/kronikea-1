@@ -324,6 +324,16 @@
   }
 }
 
+.floating-rate {
+  position: fixed;
+  left: 0;
+  top: 30%;
+  background-color: white;
+  padding: 10px;
+  box-shadow: $shadow;
+  border-radius: 0 10px 10px 0;
+}
+
 .new-story {
   ion-icon {
     margin-left: 5px;

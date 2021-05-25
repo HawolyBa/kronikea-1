@@ -1,17 +1,35 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Modal, Space, Tooltip, Button, Popconfirm, Badge } from "antd";
+import {
+  Modal,
+  Space,
+  Tooltip,
+  Button,
+  Popconfirm,
+  Badge,
+  Row,
+  Col,
+} from "antd";
+import {
+  UserOutlined,
+  EnvironmentOutlined,
+  BookOutlined,
+} from "@ant-design/icons";
 
 import Search from "../forms/Search";
-import FullMenu from "./FullMenu";
 import { useAuth } from "../../hooks/userHooks";
 import { dummy } from "../../utils/dummy";
 
-const Navbar = ({ toggleNotifications, notificationsCount }) => {
-  const onSearch = () => {};
+const Navbar = ({
+  toggleNotifications,
+  notificationsCount,
+  setOpenLanguage,
+  openMenu,
+}) => {
   const [searchVisible, setSearchVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(false);
   const auth = useAuth();
   const router = useRouter();
 
@@ -37,88 +55,111 @@ const Navbar = ({ toggleNotifications, notificationsCount }) => {
                 <p>Login / Sign Up</p>
               </div> */}
                 <div className="icon">
-                  <Space align="center" size={16}>
+                  <Tooltip title="Home" placement="bottom">
                     <div className="header-icon icon__home">
-                      <Tooltip title="Home" placement="bottom">
-                        <Link href="/">
+                      <Link href="/">
+                        <a>
+                          <ion-icon name="home"></ion-icon>
+                        </a>
+                      </Link>
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Explore" placement="bottom">
+                    <div className="header-icon icon__home">
+                      <Link href="/explore">
+                        <a>
+                          <ion-icon name="eye"></ion-icon>
+                        </a>
+                      </Link>
+                    </div>
+                  </Tooltip>
+                  {!auth.isLoading && auth.user && (
+                    <Tooltip
+                      title={`Profile - ${auth.user && auth.user.username}`}
+                      placement="bottom"
+                    >
+                      <div className="header-icon icon__account">
+                        <Link href="/profile">
                           <a>
-                            <ion-icon name="home"></ion-icon>
+                            <img
+                              src={
+                                auth.user.image ? auth.user.image : dummy.avatar
+                              }
+                            />
                           </a>
                         </Link>
-                      </Tooltip>
-                    </div>
-                    {!auth.isLoading && auth.user && (
-                      <div className="header-icon icon__account">
-                        <Tooltip
-                          title={`Profile - ${auth.user && auth.user.username}`}
-                          placement="bottom"
-                        >
-                          <Link href="/profile">
-                            <a>
-                              <img
-                                src={
-                                  auth.user.image
-                                    ? auth.user.image
-                                    : dummy.avatar
-                                }
-                              />
-                            </a>
-                          </Link>
-                        </Tooltip>
                       </div>
-                    )}
-                    {!auth.isLoading && auth.user && (
+                    </Tooltip>
+                  )}
+                  {!auth.isLoading && auth.user && (
+                    <>
+                      <Tooltip title="Add a new item" placement="bottom">
+                        <div
+                          onClick={() => setCtaVisible(true)}
+                          className="header-icon icon__settings"
+                        >
+                          <ion-icon name="add"></ion-icon>
+                        </div>
+                      </Tooltip>
                       <Tooltip title="Notifications" placement="bottom">
                         <Badge size="default" count={notificationsCount}>
                           <div
-                            className="header-icon icon__settings"
+                            className="header-icon icon__notif icon__settings"
                             onClick={toggleNotifications}
                           >
                             <ion-icon name="notifications"></ion-icon>
                           </div>
                         </Badge>
                       </Tooltip>
-                    )}
-                    <Tooltip title="Night mode" placement="bottom">
-                      <div className="header-icon icon__settings">
-                        <ion-icon name="contrast"></ion-icon>
-                      </div>
-                    </Tooltip>
-                    {!auth.isLoading && auth.user ? (
-                      <Popconfirm
-                        title="Do you really want to log out ?"
-                        onConfirm={logout}
-                      >
-                        <Tooltip title="Log out" placement="bottom">
-                          <div className="header-icon icon__settings">
-                            <ion-icon name="log-out"></ion-icon>
-                          </div>
-                        </Tooltip>
-                      </Popconfirm>
-                    ) : (
-                      <Tooltip title="Log out" placement="bottom">
-                        <Link href="/auth">
-                          <a>
-                            <div className="header-icon icon__settings">
-                              <ion-icon name="log-in"></ion-icon>
-                            </div>
-                          </a>
-                        </Link>
-                      </Tooltip>
-                    )}
+                    </>
+                  )}
+                  <Tooltip title="Change Language" placement="bottom">
                     <div
-                      className="mobile-icon icon__home"
-                      onClick={() => setSearchVisible(true)}
+                      onClick={() => setOpenLanguage(true)}
+                      className="header-icon icon__settings"
                     >
-                      <ion-icon name="search"></ion-icon>
+                      <ion-icon name="globe-outline"></ion-icon>
                     </div>
+                  </Tooltip>
+                  <Tooltip title="Night/Day mode" placement="bottom">
+                    <div className="header-icon icon__settings">
+                      <ion-icon name="contrast"></ion-icon>
+                    </div>
+                  </Tooltip>
+                  {!auth.isLoading && auth.user ? (
+                    <Popconfirm
+                      title="Do you really want to log out ?"
+                      onConfirm={logout}
+                    >
+                      <Tooltip title="Log out" placement="bottom">
+                        <div className="header-icon icon__settings">
+                          <ion-icon name="log-out"></ion-icon>
+                        </div>
+                      </Tooltip>
+                    </Popconfirm>
+                  ) : (
+                    <Tooltip title="Log out" placement="bottom">
+                      <Link href="/auth">
+                        <a>
+                          <div className="header-icon icon__settings">
+                            <ion-icon name="log-in"></ion-icon>
+                          </div>
+                        </a>
+                      </Link>
+                    </Tooltip>
+                  )}
+                  <div
+                    className="mobile-icon icon__home"
+                    onClick={() => setSearchVisible(true)}
+                  >
+                    <ion-icon name="search"></ion-icon>
+                  </div>
 
-                    <div className="menu-btn" onClick={toggleMenu}>
-                      <div className="bar"></div>
-                      <div className="bar"></div>
-                      <div className="bar"></div>
-                    </div>
-                  </Space>
+                  <div className="menu-btn" onClick={openMenu}>
+                    <div className="bar"></div>
+                    <div className="bar"></div>
+                    <div className="bar"></div>
+                  </div>
                 </div>
               </Space>
             </div>
@@ -161,6 +202,57 @@ const Navbar = ({ toggleNotifications, notificationsCount }) => {
           ]}
         >
           <input />
+        </Modal>
+        <Modal
+          closable={false}
+          visible={ctaVisible}
+          onOk={() => setCtaVisible(false)}
+          onCancel={() => setCtaVisible(false)}
+          footer={null}
+          width={700}
+          centered
+        >
+          <Row gutter={16} justify="center">
+            <Col span={8}>
+              <Button
+                block
+                htmlType="button"
+                icon={<UserOutlined />}
+                onClick={() => {
+                  router.push("/character/new");
+                  setCtaVisible(false);
+                }}
+              >
+                Add a new character
+              </Button>
+            </Col>
+            <Col span={8}>
+              <Button
+                block
+                htmlType="button"
+                icon={<BookOutlined />}
+                onClick={() => {
+                  router.push("/story/new");
+                  setCtaVisible(false);
+                }}
+              >
+                Add a new story
+              </Button>
+            </Col>
+            <Col span={8}>
+              <Button
+                block
+                htmlType="button"
+                icon={<EnvironmentOutlined />}
+                onClick={() => {
+                  router.push("/location/new");
+                  setCtaVisible(false);
+                }}
+              >
+                Add a new location
+              </Button>
+            </Col>
+          </Row>
         </Modal>
       </section>
       {/* <FullMenu toggleMenu={toggleMenu} menuVisible={menuVisible} /> */}

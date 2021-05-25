@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
 import firebase from "firebase/app";
-import { auth, db, storage } from "../redux/fbConfig";
+import { auth, db, provider } from "../redux/fbConfig";
 import { message } from "antd";
 
 const authContext = createContext();
@@ -42,6 +42,15 @@ function useProvideAuth() {
       });
   };
 
+  const signInWithGoogle = () => {
+    return auth
+      .signInWithPopup(provider)
+      .then(async (response) => {
+        setUser(response.user);
+      })
+      .catch((err) => console.log(err.message));
+  };
+
   const signup = (email, password, username) => {
     auth
       .createUserWithEmailAndPassword(email, password)
@@ -64,7 +73,6 @@ function useProvideAuth() {
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           image: "",
           suspended: false,
-          likesCount: 0,
         });
       })
       .then(() => {
@@ -100,6 +108,13 @@ function useProvideAuth() {
     });
   };
 
+  const changeUsername = (username) => {
+    return db
+      .collection("users")
+      .doc(auth.currentUser.uid)
+      .update({ username });
+  };
+
   const verifyEmail = () => {
     auth.currentUser
       .sendEmailVerification()
@@ -113,120 +128,6 @@ function useProvideAuth() {
 
   const deleteAccount = () => {
     auth.currentUser.delete();
-
-    // const batch = db.batch();
-    // const userId = auth.currentUser.uid;
-    // const allStories = db
-    //   .collection("stories")
-    //   .where("authorId", "==", userId)
-    //   .get();
-    // const allCharacters = db
-    //   .collection("characters")
-    //   .where("authorId", "==", userId)
-    //   .get();
-    // const allChapters = db
-    //   .collection("chapters")
-    //   .where("authorId", "==", userId)
-    //   .get();
-    // const allLocations = db
-    //   .collection("locations")
-    //   .where("authorId", "==", userId)
-    //   .get();
-    // const allNotifications = db
-    //   .collection("characters")
-    //   .where("recipient", "==", userId)
-    //   .get();
-    // const allUserLikes = db
-    //   .collection("usersLikes")
-    //   .where("sender", "==", userId)
-    //   .get();
-    // const allStoryLikes = db
-    //   .collection("storiesLikes")
-    //   .where("sender", "==", userId)
-    //   .get();
-    // const allCharactersLikes = db
-    //   .collection("charactersLikes")
-    //   .where("sender", "==", userId)
-    //   .get();
-    // const allComments = db
-    //   .collection("comments")
-    //   .where("userId", "==", userId)
-    //   .get();
-    // const allFollowers = db
-    //   .collection("usersLikes")
-    //   .where("recipient", "==", userId)
-    //   .get();
-    // const allStoryLiked = db
-    //   .collection("storiesLikes")
-    //   .where("recipient", "==", userId)
-    //   .get();
-    // const allCharactersLiked = db
-    //   .collection("charactersLikes")
-    //   .where("recipient", "==", userId)
-    //   .get();
-
-    // Promise.all([
-    //   allStories,
-    //   allCharacters,
-    //   allNotifications,
-    //   allUserLikes,
-    //   allStoryLikes,
-    //   allCharactersLikes,
-    //   allComments,
-    //   allChapters,
-    //   allLocations,
-    //   allFollowers,
-    //   allStoryLiked,
-    //   allCharactersLiked,
-    // ])
-    //   .then((res) => {
-    //     res[0].forEach((story) =>
-    //       batch.delete(db.collection("stories").doc(story.id))
-    //     );
-    //     res[1].forEach((chara) =>
-    //       batch.delete(db.collection("characters").doc(chara.id))
-    //     );
-    //     res[2].forEach((notif) =>
-    //       batch.delete(db.collection("notifications").doc(notif.id))
-    //     );
-    //     res[3].forEach((like) =>
-    //       batch.delete(db.collection("usersLikes").doc(like.id))
-    //     );
-    //     res[4].forEach((like) =>
-    //       batch.delete(db.collection("storiesLikes").doc(like.id))
-    //     );
-    //     res[5].forEach((like) =>
-    //       batch.delete(db.collection("charactersLikes").doc(like.id))
-    //     );
-    //     res[6].forEach((comment) =>
-    //       batch.update(db.collection("comments").doc(comment.id), {
-    //         userDeleted: true,
-    //       })
-    //     );
-    //     res[7].forEach((chap) =>
-    //       batch.delete(db.collection("chapters").doc(chap.id))
-    //     );
-    //     res[7].forEach((loc) =>
-    //       batch.delete(db.collection("locations").doc(loc.id))
-    //     );
-    //     res[7].forEach((like) =>
-    //       batch.delete(db.collection("usersLikes").doc(like.id))
-    //     );
-    //     res[8].forEach((like) =>
-    //       batch.delete(db.collection("storiesLikes").doc(like.id))
-    //     );
-    //     res[9].forEach((like) =>
-    //       batch.delete(db.collection("charactersLikes").doc(like.id))
-    //     );
-    //     batch.delete(db.collection("users").doc(userId));
-    //     auth.currentUser
-    //       .delete()
-    //       .then(() => {
-    //         batch.commit();
-    //       })
-    //       .catch((err) => console.log(err));
-    //   })
-    //   .catch((err) => console.log(err));
   };
 
   useEffect(() => {
@@ -267,5 +168,7 @@ function useProvideAuth() {
     sendPasswordResetEmail,
     confirmPasswordReset,
     verifyEmail,
+    signInWithGoogle,
+    changeUsername,
   };
 }

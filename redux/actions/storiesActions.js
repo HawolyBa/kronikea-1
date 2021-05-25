@@ -340,7 +340,7 @@ export const getHomeStories = () => (dispatch) => {
   let result = [];
   db.collection("stories")
     .where("public", "==", true)
-    .orderBy("likesCount", "desc")
+    .orderBy("note", "desc")
     .limit(4)
     .get()
     .then((docs) => {
@@ -389,6 +389,23 @@ export const getStoriesByLetter = (letter, alphabet) => (dispatch) => {
       });
     });
 };
+
+export const getStoriesByCategory = (cat) => (dispatch) => {
+  db.collection("stories")
+    .where("public", "==", true)
+    .where("categories", "array-contains", cat)
+    .get()
+    .then((docs) => {
+      let result = [];
+      docs.forEach((doc) => result.push({ ...doc.data(), id: doc.id }));
+      dispatch({
+        type: types.GET_STORIES_FROM_SEARCH,
+        loading: false,
+        payload: result,
+      });
+    });
+};
+
 // CHAPTERs
 
 export const addChapter = (data) => (dispatch) => {
@@ -525,6 +542,7 @@ export const getChapter = (storyId, id, type) => (dispatch) => {
                           characters,
                           public: doc.data().public,
                           storyTitle: doc.data().title,
+                          note: doc.data().note,
                         },
                         chapterExists: true,
                       },
@@ -790,6 +808,31 @@ export const submitComment = (info) => (dispatch) => {
 
 export const deleteComment = (id) => (dispatch) => {
   db.collection("comments").doc(id).delete();
+};
+
+// RATE
+
+export const rateStory = (data) => (dispatch) => {
+  db.collection("stars")
+    .doc(`${auth.currentUser.uid}${data.storyId}`)
+    .set({
+      value: data.value,
+      userId: auth.currentUser.uid,
+      storyId: data.storyId,
+    })
+    .then(() => message.success("Story rated successfully"))
+    .catch((err) => console.log(err));
+};
+
+export const getUserNote = (storyId) => (dispatch) => {
+  db.collection("stars")
+    .doc(`${auth.currentUser.uid}${storyId}`)
+    .onSnapshot((doc) =>
+      dispatch({
+        type: types.GET_USER_RATE,
+        payload: doc.exists ? doc.data().value : 0,
+      })
+    );
 };
 
 // ARCHIVES

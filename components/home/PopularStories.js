@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { Row, Col, Divider } from "antd";
+import { Row, Col, Divider, Rate } from "antd";
+import { dummy } from "../../utils/dummy";
 
 const PopularStories = ({ stories }) => {
   return (
@@ -26,7 +27,7 @@ const PopularStories = ({ stories }) => {
                         sm={{ order: 1 }}
                       >
                         <img
-                          src={story.banner}
+                          src={story.banner ? story.banner : dummy.noImage}
                           alt={story.title}
                           data-aos={i % 2 === 0 ? "fade-up" : "fade-down"}
                         />
@@ -41,17 +42,23 @@ const PopularStories = ({ stories }) => {
                           className="story-details"
                           data-aos={i % 2 === 0 ? "fade-down" : "fade-up"}
                         >
-                          <div className="cat-block">
+                          {/* <div className="cat-block">
                             <span className="tag">{story.category}</span>
+                          </div> */}
+                          <div>
+                            <h2>{story.title}</h2>
+                            <span className="author">
+                              Author: {story.authorName}
+                            </span>
                           </div>
-                          <h2>{story.title}</h2>
                           <p className="summary">
                             {story?.summary?.length > 150
                               ? `${story.summary.slice(0, 150)}...`
                               : story.summary}
                             {!story.summary && "No summary yet"}
                           </p>
-                          <div className="count">
+                          <Rate allowHalf disabled defaultValue={story.note} />
+                          {/* <div className="count">
                             <span>
                               <p className="number">{story.chaptersCount} </p>{" "}
                               <ion-icon name="book"></ion-icon>
@@ -64,7 +71,7 @@ const PopularStories = ({ stories }) => {
                               <p className="number">{story.commentsCount} </p>{" "}
                               <ion-icon name="chatbubble"></ion-icon>
                             </span>
-                          </div>
+                          </div> */}
                         </div>
                       </Col>
                     </Row>

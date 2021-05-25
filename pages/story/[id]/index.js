@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Row, Col, message, Empty, Space } from "antd";
+import { Row, Col, message, Empty } from "antd";
 import { connect } from "react-redux";
 import Link from "next/link";
 
@@ -13,6 +13,8 @@ import {
   addStoryToFavorite,
   removeStoryFromFavorite,
   getStoryLocations,
+  rateStory,
+  getUserNote,
 } from "../../../redux/actions/storiesActions";
 import { useAuth } from "../../../hooks/userHooks";
 
@@ -21,6 +23,7 @@ import LoadingScreen from "../../../components/hoc/LoadingScreen";
 import Chapters from "../../../components/story/Chapters";
 import Banner from "../../../components/story/Banner";
 import { CharacterGrid, LocationGrid } from "../../../components/common/Grid";
+import RateStory from "../../../components/common/RateStory";
 
 const Story = ({
   getStory,
@@ -39,6 +42,9 @@ const Story = ({
   storyExists,
   loadingFav,
   removeStoryFromFavorite,
+  rateStory,
+  getUserNote,
+  userNote,
 }) => {
   const router = useRouter();
   const auth = useAuth();
@@ -52,8 +58,10 @@ const Story = ({
     getChapters(router.query.id);
     getStoryCharacters(router.query.id);
     getStoryLocations(router.query.id);
+
     if (!auth.isLoading) {
       isStoryFavorite(router.query.id);
+      getUserNote(router.query.id);
     }
   }, [router.query.id, auth]);
 
@@ -205,6 +213,14 @@ const Story = ({
                   </div>
                 </Col>
               </Row>
+              {auth.user && auth.user.uid && (
+                <RateStory
+                  userNote={userNote}
+                  note={story.note}
+                  storyId={router.query.id}
+                  rateFunc={rateStory}
+                />
+              )}
             </div>
           </RedirectComp>
         </RedirectComp>
@@ -223,6 +239,7 @@ const mapStateToProps = (state) => ({
   storyExists: state.stories.storyExists,
   loadingFav: state.stories.loadingFav,
   storyLocations: state.stories.storyLocations,
+  userNote: state.stories.userNote,
 });
 
 export default connect(mapStateToProps, {
@@ -234,4 +251,6 @@ export default connect(mapStateToProps, {
   addStoryToFavorite,
   removeStoryFromFavorite,
   getStoryLocations,
+  rateStory,
+  getUserNote,
 })(Story);

@@ -65,6 +65,7 @@ const initialState = {
   rated: false,
   storiesFromSearch: [],
   featuredStories: [],
+  userNote: 0,
 };
 
 const storiesReducer = (state = initialState, action) => {
@@ -236,6 +237,11 @@ const storiesReducer = (state = initialState, action) => {
         ...state,
         loading: action.loading,
         featuredStories: action.payload,
+      };
+    case types.GET_USER_RATE:
+      return {
+        ...state,
+        userNote: action.payload,
       };
     default:
       return state;

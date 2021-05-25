@@ -7,6 +7,7 @@ import Login from "../components/auth/Login";
 import Register from "../components/auth/Register";
 import { log_in } from "../redux/actions/userActions";
 import { useAuth } from "../hooks/userHooks";
+import Username from "../components/auth/Username";
 
 const auth = ({ log_in }) => {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -23,7 +24,7 @@ const auth = ({ log_in }) => {
   };
 
   useEffect(() => {
-    if (auth.user) {
+    if (auth.user && auth.user.username) {
       Router.back();
     }
   }, [auth.user]);
@@ -59,6 +60,9 @@ const auth = ({ log_in }) => {
           />
         </ReactCardFlip>
       ) : (
+        // ) : !auth.isLoading && auth.user && !auth.user.username ? (
+        //   <Username auth={auth} />
+        // ) : (
         <div className="loader-container">
           <div className="loader">
             <div></div>

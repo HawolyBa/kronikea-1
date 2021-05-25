@@ -1,8 +1,36 @@
 const { db, admin } = require("../utils/admin");
 const { arr_diff } = require("../utils/validators");
+const { CATEGORIES } = require("../utils/helpers");
+
+exports.storyCreated = (snapshot) => {
+  const batch = db.batch();
+  const categories = snapshot.data().categories;
+  const catQueries = [];
+  categories.forEach((cat) => {
+    const catId = CATEGORIES.find((c) => c.value === cat).id;
+    catQueries.push(db.collection("categories").doc(catId).get());
+  });
+
+  return Promise.all(catQueries)
+    .then((res) => {
+      res.forEach((cat) => {
+        batch.update(db.collection("categories").doc(cat.id), {
+          storiesCount: cat.data().storiesCount + 1,
+        });
+      });
+      return batch.commit();
+    })
+    .catch((err) => console.log(err));
+};
 
 exports.storyDeleted = (snapshot) => {
   const batch = db.batch();
+  const categories = snapshot.data().categories;
+  const catQueries = [];
+  categories.forEach((cat) => {
+    const catId = CATEGORIES.find((c) => c.value === cat).id;
+    catQueries.push(db.collection("categories").doc(catId).get());
+  });
 
   return db
     .collection("storiesLikes")
@@ -30,24 +58,70 @@ exports.storyDeleted = (snapshot) => {
       data.forEach((doc) => {
         batch.delete(db.doc(`locations/${doc.id}`));
       });
+      return Promise.all(catQueries);
+    })
+    .then((res) => {
+      res.forEach((cat) => {
+        batch.update(db.collection("categories").doc(cat.id), {
+          storiesCount: cat.data().storiesCount - 1,
+        });
+      });
       return batch.commit();
     })
     .catch((err) => console.log(err));
 };
 
 exports.storyUpdated = (change) => {
-  if (change.before.data().title !== change.after.data().title) {
+  const batch = db.batch();
+  let oldCats = change.before.data().categories;
+  let newCats = change.after.data().categories;
+  if (
+    change.before.data().title !== change.after.data().title ||
+    oldCats !== newCats
+  ) {
+    oldCats = oldCats.filter(
+      (cat) => !change.after.data().categories.includes(cat)
+    );
+    newCats = newCats.filter(
+      (cat) => !change.before.data().categories.includes(cat)
+    );
+    const oldCatQueries = oldCats.map((cat) => {
+      const catId = CATEGORIES.find((c) => c.value === cat).id;
+      return db.collection("categories").doc(catId).get();
+    });
+    const newCatQueries = newCats.map((cat) => {
+      const catId = CATEGORIES.find((c) => c.value === cat).id;
+      return db.collection("categories").doc(catId).get();
+    });
+
     return db
       .collection("locations")
       .where("storyId", "==", change.after.id)
       .get()
       .then((docs) => {
         docs.forEach((doc) => {
-          db.collection("locations").doc(doc.id).update({
+          batch.update(db.collection("locations").doc(doc.id), {
             storyTitle: change.after.data().title,
             lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
           });
         });
+        return Promise.all(oldCatQueries);
+      })
+      .then((res) => {
+        res.forEach((cat) => {
+          batch.update(db.collection("categories").doc(cat.id), {
+            storiesCount: cat.data().storiesCount - 1,
+          });
+        });
+        return Promise.all(newCatQueries);
+      })
+      .then((res) => {
+        res.forEach((cat) => {
+          batch.update(db.collection("categories").doc(cat.id), {
+            storiesCount: cat.data().storiesCount + 1,
+          });
+        });
+        return batch.commit();
       });
   }
 };

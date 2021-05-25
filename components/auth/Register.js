@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col, Form, Input } from "antd";
+import { Row, Col, Form, Input, Button } from "antd";
 
 const Register = ({ handleClick, auth }) => {
   const [form] = Form.useForm();
@@ -122,6 +122,7 @@ const Register = ({ handleClick, auth }) => {
           <span>Register</span>
         </button>
       </Form>
+      <Button onClick={auth.signInWithGoogle}>Or login with google</Button>
       <p onClick={handleClick}>Already have an account ? Login here</p>
     </div>
   );

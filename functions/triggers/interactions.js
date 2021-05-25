@@ -270,3 +270,46 @@ exports.commentDeleted = (snapshot) => {
       });
   }
 };
+
+exports.storyRated = (snapshot) => {
+  return db
+    .collection("stars")
+    .where("storyId", "==", snapshot.data().storyId)
+    .get()
+    .then((docs) => {
+      const allNotes = docs.docs.map((doc) => doc.data().value);
+      const note = allNotes.reduce(function (avg, value, _, { length }) {
+        return avg + value / length;
+      }, 0);
+
+      return db
+        .collection("stories")
+        .doc(snapshot.data().storyId)
+        .update({ note, votersCount: allNotes.length });
+    })
+    .catch((err) => console.log(err));
+};
+
+exports.rateUpdate = (change) => {
+  return db
+    .collection("stars")
+    .where("storyId", "==", change.after.data().storyId)
+    .get()
+    .then((docs) => {
+      let allNotes = [];
+      docs.forEach((doc) => {
+        if (doc.id !== change.before.data().storyId)
+          allNotes.push(doc.data().value);
+      });
+      allNotes = [...allNotes, change.after.data().value];
+      const note = allNotes.reduce(function (avg, value, _, { length }) {
+        return avg + value / length;
+      }, 0);
+
+      return db
+        .collection("stories")
+        .doc(change.after.data().storyId)
+        .update({ note, votersCount: allNotes.length });
+    })
+    .catch((err) => console.log(err));
+};

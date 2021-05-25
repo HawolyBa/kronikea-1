@@ -1,4 +1,6 @@
+import { Tooltip, Space } from "antd";
 import { dummy } from "../../utils/dummy";
+
 const Card = ({ story, type }) => {
   return (
     <figure className="card story-card">
@@ -7,7 +9,25 @@ const Card = ({ story, type }) => {
       </div>
       <figcaption>
         <div className="cat-block">
-          <span className="tag">Drama</span>
+          <div>
+            {story.category ? (
+              <span className="tag">{story.category}</span>
+            ) : (
+              story.categories.map((cat) => <span className="tag">{cat}</span>)
+            )}
+          </div>
+          <Space align="center" size={8}>
+            {story.mature && (
+              <Tooltip title="Mature content">
+                <span className="mature">M</span>
+              </Tooltip>
+            )}
+            {!story.public && (
+              <Tooltip title="Private Story">
+                <span className="mature">P</span>
+              </Tooltip>
+            )}
+          </Space>
         </div>
 
         <h3>{story?.title}</h3>
@@ -22,6 +42,7 @@ const Card = ({ story, type }) => {
         {type !== "privateProfile" && (
           <span className="author">Author: {story.authorName}</span>
         )}
+
         <div className="count">
           <span>
             <p className="number">{story.chaptersCount} </p>{" "}

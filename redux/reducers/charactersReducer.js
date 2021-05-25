@@ -106,6 +106,7 @@ const charactersReducer = (state = initialState, action) => {
         ...state,
         popularCharacters: action.payload,
       };
+
     default:
       return state;
   }

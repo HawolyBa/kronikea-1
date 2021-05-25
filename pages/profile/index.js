@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { useRouter } from "next/router";
 import { Alert, Button } from "antd";
 
 import Banner from "../../components/profile/Banner";

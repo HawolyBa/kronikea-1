@@ -32,6 +32,10 @@ html {
   scroll-behavior: smooth;
 }
 
+body {
+  overflow-x: hidden;
+}
+
 figure {
   margin: 0;
 }
@@ -52,7 +56,7 @@ main.main-content {
   left: 0;
 
   &.content-menu-open {
-    left: 60%;
+    left: 100%;
   }
 
   &.home-content {
@@ -68,6 +72,7 @@ main.main-content {
   max-width: 1280px;
   margin: 30px auto;
   padding-bottom: 30px;
+  min-height: calc(100vh - 70px);
 }
 
 @media (max-width: 600px) {

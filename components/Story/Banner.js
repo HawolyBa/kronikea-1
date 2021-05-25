@@ -92,9 +92,17 @@ const Banner = ({
               <br />
               <span>
                 Category:{" "}
-                <Link href="/category/1">
-                  <a>Drama</a>
-                </Link>
+                {story.category ? (
+                  <Link href={`/category/${story.category}`}>
+                    <a>{story.category}</a>
+                  </Link>
+                ) : (
+                  story.categories.map((cat) => (
+                    <Link href={`/category/${cat}`}>
+                      <a>{cat}</a>
+                    </Link>
+                  ))
+                )}
               </span>
               <br />
               <span>Language: {lang}</span>

@@ -11,6 +11,8 @@ import {
   getComments,
   submitComment,
   deleteComment,
+  rateStory,
+  getUserNote,
 } from "../../../../../redux/actions/storiesActions";
 
 import Comments from "../../../../../components/chapter/Comments";
@@ -20,18 +22,29 @@ import {
   CharacterGrid,
   LocationGrid,
 } from "../../../../../components/common/Grid";
+import RateStory from "../../../../../components/common/RateStory";
 
 const Chapter = (props) => {
   const router = useRouter();
   const auth = useAuth();
-  const { loading, chapter, loadingComments, comments, chapterExists } = props;
+  const {
+    loading,
+    chapter,
+    loadingComments,
+    comments,
+    chapterExists,
+    userNote,
+  } = props;
 
   const [characters, setCharacters] = React.useState([]);
 
   React.useEffect(() => {
     props.getChapter(router.query.id, router.query.chapid, "show");
     props.getComments(router.query.chapid);
-  }, [router.query.id, router.query.chapid]);
+    if (!auth.isLoading) {
+      props.getUserNote(router.query.id);
+    }
+  }, [router.query.id, router.query.chapid, auth]);
 
   React.useEffect(() => {
     if (chapter.characters) {
@@ -159,6 +172,14 @@ const Chapter = (props) => {
                 locations={chapter.locations}
               />
             </div>
+            {auth.user && auth.user.uid && (
+              <RateStory
+                userNote={userNote}
+                note={chapter.note}
+                storyId={router.query.id}
+                rateFunc={props.rateStory}
+              />
+            )}
           </div>
         </RedirectComp>
       </RedirectComp>
@@ -173,6 +194,7 @@ const mapStateToProps = (state) => ({
   loadingComments: state.stories.loadingComments,
   chapterExists: state.stories.chapterExists,
   message: state.stories.message,
+  userNote: state.stories.userNote,
 });
 
 export default connect(mapStateToProps, {
@@ -180,4 +202,6 @@ export default connect(mapStateToProps, {
   getComments,
   submitComment,
   deleteComment,
+  getUserNote,
+  rateStory,
 })(Chapter);
