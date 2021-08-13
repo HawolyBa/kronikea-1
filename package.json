@@ -22,7 +22,7 @@
     "isurl": "^4.0.2",
     "less": "^4.1.0",
     "moment": "^2.29.1",
-    "next": "^9.5.5",
+    "next": "^11.1.0",
     "next-redux-wrapper": "^6.0.2",
     "node-sass": "^4.14.1",
     "react": "^16.14.0",
